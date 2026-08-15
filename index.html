@@ -9,14 +9,18 @@
   <link rel="icon" type="image/jpeg" href="/logo-128.jpg">
   <script>
     try {
-      const savedTheme = localStorage.getItem('geomelody-theme');
-      const theme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : 'dark';
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.style.colorScheme = theme;
-    } catch {
-      document.documentElement.dataset.theme = 'dark';
-      document.documentElement.style.colorScheme = 'dark';
-    }
+      localStorage.setItem('geomelody-theme', 'dark');
+      const rawSettings = localStorage.getItem('geomelody_settings');
+      if (rawSettings) {
+        const parsed = JSON.parse(rawSettings);
+        if (parsed.mapSkin === 'dataviz-light') {
+          parsed.mapSkin = 'streets-dark';
+          localStorage.setItem('geomelody_settings', JSON.stringify(parsed));
+        }
+      }
+    } catch {}
+    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.style.colorScheme = 'dark';
   </script>
   <link rel="stylesheet" href="./src/styles/main.css">
   <link rel="stylesheet" href="./src/styles/map.css">
@@ -70,15 +74,6 @@
             <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
           </svg>
           <span class="nav-btn-label" data-i18n="settings">设置</span>
-        </button>
-
-        <button class="nav-btn theme-toggle" id="btn-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
-          <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-          </svg>
-          <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-          </svg>
         </button>
 
         <button class="nav-btn language-toggle" id="btn-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="中文 / English">
@@ -211,15 +206,6 @@
             <button class="player-action-btn" id="player-fullscreen-btn" title="全屏沉浸 (F)" data-i18n-title="fullscreen" aria-pressed="false">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/>
-              </svg>
-            </button>
-
-            <button class="player-action-btn player-theme-btn" id="player-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
-              <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-              </svg>
-              <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
               </svg>
             </button>
 
@@ -582,7 +568,6 @@
               <option value="streets-dark" selected data-i18n="skinStreetsDark">经典深色街道 (Streets Dark · 默认推荐)</option>
               <option value="dataviz-dark" data-i18n="skinDatavizDark">极简暗黑灰 (Dataviz Dark)</option>
               <option value="backdrop-dark" data-i18n="skinBackdropDark">深邃纯黑底图 (Backdrop Dark)</option>
-              <option value="dataviz-light" data-i18n="skinDatavizLight">极简明亮浅色 (Dataviz Light)</option>
               <option value="satellite" data-i18n="skinSatellite">真实遥感卫星 (Satellite)</option>
             </select>
           </div>

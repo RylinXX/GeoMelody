@@ -46,18 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeRegion = 'asia';
   let currentLanguage = getInitialLanguage();
   let currentTheme = 'dark';
-  let currentSettings = storage.getSettings();
-
   try {
-    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (storedTheme === 'dark' || storedTheme === 'light') {
-      currentTheme = storedTheme;
-    } else {
-      currentTheme = 'dark';
-      localStorage.setItem(THEME_STORAGE_KEY, 'dark');
-    }
-  } catch {
-    currentTheme = 'dark';
+    localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+  } catch {}
+  let currentSettings = storage.getSettings();
+  if (currentSettings.mapSkin === 'dataviz-light') {
+    currentSettings.mapSkin = 'streets-dark';
+    storage.saveSettings({ mapSkin: 'streets-dark' });
   }
 
   storage.getCommunityPosts().forEach(post => {
@@ -526,15 +521,8 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLanguage(currentLanguage === LANGUAGES.ZH ? LANGUAGES.EN : LANGUAGES.ZH);
   }
 
-  function toggleTheme() {
-    applyTheme('dark');
-    showToast(currentLanguage === LANGUAGES.EN ? 'Classic Dark Theme active' : '已保持经典暗夜主题');
-  }
-
   languageBtn?.addEventListener('click', toggleLanguage);
   playerLanguageBtn?.addEventListener('click', toggleLanguage);
-  themeBtn?.addEventListener('click', toggleTheme);
-  playerThemeBtn?.addEventListener('click', toggleTheme);
 
   toggleViewModeBtn?.addEventListener('click', () => {
     viewMode = viewMode === '3d' ? '2d' : '3d';
