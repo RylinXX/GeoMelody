@@ -53,14 +53,6 @@
           <span class="nav-btn-label" data-i18n="publish">投稿</span>
         </button>
 
-        <!-- Ambient Mixer Drawer Toggle -->
-        <button class="nav-btn" id="btn-toggle-mixer" title="自然音效混音台" data-i18n-title="mixerTitleAttr" aria-expanded="false">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/>
-          </svg>
-          <span class="nav-btn-label" data-i18n="mixer">自然混音</span>
-        </button>
-
         <!-- Favorites Drawer Toggle -->
         <button class="nav-btn" id="btn-toggle-favorites" title="我的收藏" data-i18n-title="favoritesTitleAttr" aria-expanded="false">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -243,8 +235,9 @@
           </div>
         </div>
 
-        <!-- Bottom Story & AI Formula Card -->
-        <div class="player-bottom-content">
+        <!-- Bottom Row: Left Story Card + Right Floating Comments Modal Card -->
+        <div class="player-bottom-layout">
+          <!-- Bottom Left: Poetic Story & AI Audio Info Card -->
           <div class="player-story-card">
             <p class="story-quote" id="player-story-quote">“青石板巷，摇橹船桨划破一池春水。白墙黛瓦掩映在江南烟雨之中，廊棚之下，听雨落乌篷，时光在此慢了下来。”</p>
             <div class="audio-recipe-box">
@@ -252,18 +245,50 @@
                 <span data-i18n="audioRecipe">🎵 地域专属 AI 音景配方</span>
                 <div class="live-audio-visualizer" id="player-visualizer"></div>
               </div>
-              <div class="audio-recipe-formula" id="player-audio-formula">五声羽调 · 古筝 · 竹笛 · 细雨滴檐 · 68 BPM</div>
+              <div class="audio-recipe-formula" id="player-audio-formula">五声羽调 · 古筝 · 竹笛 · 68 BPM</div>
               <div class="demo-track-credit" id="player-track-credit"></div>
             </div>
-            <div class="player-community-actions">
-              <button class="player-community-btn" id="player-like-btn" type="button" aria-pressed="false">
-                <span aria-hidden="true">♡</span><span data-i18n="like">点赞</span><strong data-spot-like-count>0</strong>
-              </button>
-              <button class="player-community-btn" id="player-comments-btn" type="button">
-                <span aria-hidden="true">💬</span><span data-i18n="comments">评论</span><strong data-spot-comment-count>0</strong>
+          </div>
+
+          <!-- Bottom Right: Floating Live Comments & Likes Modal Card -->
+          <aside class="player-floating-comments" id="player-floating-comments" aria-label="胜景评论与互动">
+            <div class="player-comments-header">
+              <div class="player-comments-title">
+                <span class="player-comments-icon">💬</span>
+                <span data-i18n="commentsInteraction">胜景寄语与互动</span>
+                <span class="player-comments-badge" id="player-comments-count-badge">0</span>
+              </div>
+              <button class="player-floating-like-btn" id="player-like-btn" type="button" aria-pressed="false" title="为胜景视听点赞">
+                <span class="like-heart-icon">♡</span>
+                <span data-i18n="like">点赞</span>
+                <strong data-spot-like-count id="player-like-count">0</strong>
               </button>
             </div>
-          </div>
+
+            <!-- Quick Interactive Comment Form -->
+            <form class="player-comment-quick-form" id="player-comment-form">
+              <div class="comment-author-row">
+                <span class="comment-avatar-preview" id="player-user-avatar">🏮</span>
+                <input type="text" id="player-comment-author-input" class="comment-author-input" maxlength="16" placeholder="你的昵称" data-i18n-placeholder="creatorPlaceholder">
+              </div>
+              <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下你的聆听感受、旅行记忆与寄语…" data-i18n-placeholder="commentPlaceholder"></textarea>
+              <div class="comment-quick-tags" id="player-quick-tags">
+                <button type="button" class="quick-tag-chip" data-tag="极度舒适">✨ 极度舒适</button>
+                <button type="button" class="quick-tag-chip" data-tag="治愈身心">🌿 治愈身心</button>
+                <button type="button" class="quick-tag-chip" data-tag="循环播放">🎧 循环播放</button>
+                <button type="button" class="quick-tag-chip" data-tag="想去打卡">📸 想去打卡</button>
+              </div>
+              <div class="comment-form-actions">
+                <button type="submit" class="comment-submit-btn">
+                  <span data-i18n="sendComment">发表寄语</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </form>
+
+            <!-- Comments Stream List -->
+            <div class="player-comments-stream" id="player-comments-list"></div>
+          </aside>
         </div>
 
         <!-- Bottom Center Audiovisual Control Dock -->
@@ -295,12 +320,6 @@
             </button>
             <input type="range" min="0" max="1" step="0.02" value="0.8" class="dock-volume-slider" id="player-volume-slider" title="调节音量" data-i18n-title="volume">
           </div>
-
-          <button class="player-secondary-btn" id="player-btn-open-mixer" title="调节自然背景音" data-i18n-title="openMixer">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/>
-            </svg>
-          </button>
         </div>
       </div>
     </section>
@@ -320,125 +339,13 @@
       <div class="drawer-body" id="fav-list-container"></div>
     </aside>
 
-    <!-- ==================== Natural Ambient Soundboard Mixer Drawer ==================== -->
-    <div class="drawer-backdrop" id="mixer-drawer-backdrop"></div>
-    <aside class="drawer-panel" id="mixer-drawer" aria-label="自然音效混音面板" aria-hidden="true">
-      <div class="drawer-header">
-        <div class="drawer-title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/></svg>
-          <span data-i18n="mixerTitle">自然音效混音台</span>
-        </div>
-        <button class="drawer-close-btn" id="btn-close-mixer-drawer" title="关闭" data-i18n-title="close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-      <div class="drawer-body">
-        <div class="mixer-channel-list">
-          <!-- 1. 雨落屋檐 Rain -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🌧️</span>
-                <span class="channel-name" data-i18n="channelRain">雨落屋檐</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-rain">40%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.4" class="channel-slider" id="slider-rain" data-channel="rain">
-            </div>
-          </div>
-
-          <!-- 2. 潮汐海浪 Ocean Waves -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🌊</span>
-                <span class="channel-name" data-i18n="channelOcean">潮汐海浪</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-ocean">50%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.5" class="channel-slider" id="slider-ocean" data-channel="ocean">
-            </div>
-          </div>
-
-          <!-- 3. 荒野清风 Wind -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🍃</span>
-                <span class="channel-name" data-i18n="channelWind">高山清风</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-wind">30%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-wind" data-channel="wind">
-            </div>
-          </div>
-
-          <!-- 4. 灵鸟啼鸣 Birdsong -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🐦</span>
-                <span class="channel-name" data-i18n="channelBirds">林间鸟鸣</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-birds">30%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-birds" data-channel="birds">
-            </div>
-          </div>
-
-          <!-- 5. 温暖篝火 Campfire -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🔥</span>
-                <span class="channel-name" data-i18n="channelCampfire">温暖篝火</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-campfire">30%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-campfire" data-channel="campfire">
-            </div>
-          </div>
-
-          <!-- 6. 禅音古钟 Zen Bells -->
-          <div class="mixer-channel-card">
-            <div class="channel-card-header">
-              <div class="channel-card-identity">
-                <span class="channel-icon-avatar">🔔</span>
-                <span class="channel-name" data-i18n="channelBell">禅音钟磬</span>
-              </div>
-              <span class="channel-vol-display" id="vol-text-bell">30%</span>
-            </div>
-            <div class="channel-slider-row">
-              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-bell" data-channel="bell">
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Scene Presets -->
-        <div class="mixer-presets-section">
-          <span class="presets-title" data-i18n="presetsTitle">⚡ 快速氛围预设</span>
-          <div class="presets-grid">
-            <button class="preset-chip" id="preset-rainy-town" data-i18n="presetRainyTown">🌧️ 烟雨江南</button>
-            <button class="preset-chip" id="preset-island-ocean" data-i18n="presetIslandOcean">🏝️ 暖阳海岛</button>
-            <button class="preset-chip" id="preset-snow-zen" data-i18n="presetSnowZen">🏔️ 雪山禅思</button>
-            <button class="preset-chip" id="preset-forest-camp" data-i18n="presetForestCamp">🌲 林间露营</button>
-          </div>
-        </div>
-      </div>
-    </aside>
-
     <!-- ==================== Community Upload & Comments Drawer ==================== -->
     <div class="drawer-backdrop" id="community-drawer-backdrop"></div>
     <aside class="drawer-panel community-drawer" id="community-drawer" aria-label="社区共创" aria-hidden="true">
       <div class="drawer-header">
-        <div class="drawer-title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-          <span data-i18n="communityTitle">社区共创</span>
+        <div class="drawer-title-group">
+          <h2 class="drawer-title" data-i18n="communityTitle">社区共创与投稿</h2>
+          <span class="drawer-subtitle">GeoMelody Community & Soundscapes</span>
         </div>
         <button class="drawer-close-btn" id="btn-close-community-drawer" title="关闭" data-i18n-title="close">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -447,68 +354,141 @@
 
       <div class="community-tabs" role="tablist">
         <button class="community-tab active" type="button" data-community-tab="publish" role="tab" aria-selected="true" data-i18n="publishSoundscape">发布音景</button>
-        <button class="community-tab" type="button" data-community-tab="comments" role="tab" aria-selected="false" data-i18n="commentsInteraction">评论互动</button>
+        <button class="community-tab" type="button" data-community-tab="comments" role="tab" aria-selected="false" data-i18n="commentsInteraction">胜景寄语</button>
       </div>
 
       <div class="drawer-body community-drawer-body">
+        <!-- ==================== 1. Publish Soundscape Panel ==================== -->
         <section class="community-panel active" data-community-panel="publish">
-          <div class="community-intro">
-            <span class="community-intro-icon">✦</span>
-            <div><strong data-i18n="publishIntroTitle">把一段声音放到世界上</strong><p data-i18n="publishIntroText">选择城市，上传音乐和背景图，发布后会立刻出现在地图对应位置。</p></div>
+          <div class="community-intro-card">
+            <div class="intro-badge">✨ 音景共创</div>
+            <h3 class="intro-headline" data-i18n="publishIntroTitle">把一段声音与故事留在世界地图上</h3>
+            <p class="intro-desc" data-i18n="publishIntroText">上传专属音乐与胜景壁纸，发布后会实时生成专属光标并加入全球视听流。</p>
           </div>
 
-          <form class="community-form" id="community-publish-form">
-            <label class="community-field">
-              <span data-i18n="chooseLocation">选择发布位置</span>
-              <select id="community-location-select" name="location" required></select>
-            </label>
-            <label class="community-field">
-              <span data-i18n="workTitle">音景标题</span>
-              <input name="title" type="text" maxlength="42" required data-i18n-placeholder="workTitlePlaceholder" placeholder="例如：北京胡同的清晨">
-            </label>
-            <label class="community-field">
-              <span data-i18n="creatorName">创作者昵称</span>
-              <input name="author" type="text" maxlength="24" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
-            </label>
-            <label class="community-field">
-              <span data-i18n="soundscapeDescription">声音与场景介绍</span>
-              <textarea name="description" rows="4" maxlength="280" required data-i18n-placeholder="descriptionPlaceholder" placeholder="说说这里的声音、时间和故事…"></textarea>
-            </label>
+          <form class="community-publish-stepped-form" id="community-publish-form">
+            <!-- Step 1: Location Info -->
+            <div class="form-step-section">
+              <div class="step-label-row">
+                <span class="step-num">01</span>
+                <span class="step-name">胜景名称与地理位置</span>
+              </div>
+              <div class="form-fields-grid">
+                <label class="step-input-group">
+                  <span class="input-label">音景标题 <strong class="req">*</strong></span>
+                  <input name="title" type="text" maxlength="42" required class="modern-input" data-i18n-placeholder="workTitlePlaceholder" placeholder="例如：西湖断桥初雪">
+                </label>
+                <label class="step-input-group">
+                  <span class="input-label" data-i18n="chooseLocation">所在城市 / 地点 <strong class="req">*</strong></span>
+                  <select id="community-location-select" name="location" class="modern-select" required></select>
+                </label>
+              </div>
+            </div>
 
-            <div class="community-upload-grid">
-              <label class="community-upload-card">
-                <input id="community-cover-input" name="cover" type="file" accept="image/*">
-                <span class="upload-card-icon">▧</span>
-                <strong data-i18n="backgroundImage">背景图片</strong>
-                <small id="community-cover-file-name" data-i18n="noFileSelected">未选择文件</small>
-              </label>
-              <label class="community-upload-card">
-                <input id="community-audio-input" name="audio" type="file" accept="audio/*">
-                <span class="upload-card-icon">♫</span>
-                <strong data-i18n="musicFile">音乐文件</strong>
-                <small id="community-audio-file-name" data-i18n="noFileSelected">未选择文件</small>
+            <!-- Step 2: Story & Quote -->
+            <div class="form-step-section">
+              <div class="step-label-row">
+                <span class="step-num">02</span>
+                <span class="step-name">一句话意境与胜景故事</span>
+              </div>
+              <label class="step-input-group">
+                <textarea name="description" rows="3" maxlength="280" required class="modern-textarea" data-i18n-placeholder="descriptionPlaceholder" placeholder="写下一句话诗意寄语或场景故事（如：断桥残雪，一叶扁舟荡在烟波深处，听雨落乌篷，时光在此慢了下来…）"></textarea>
               </label>
             </div>
-            <p class="community-prototype-note" data-i18n="prototypeUploadNote">当前为本地演示：发布流程、地图落点和互动数据可体验；正式版本接入对象存储后即可持久保存原始文件。</p>
-            <button class="community-submit-btn" type="submit"><span>＋</span><span data-i18n="publishNow">发布到地图</span></button>
+
+            <!-- Step 3: Media Upload -->
+            <div class="form-step-section">
+              <div class="step-label-row">
+                <span class="step-num">03</span>
+                <span class="step-name">胜景壁纸与音频资源</span>
+              </div>
+              <div class="media-upload-cards-grid">
+                <!-- Cover Image Card -->
+                <label class="media-drop-card" id="cover-drop-card">
+                  <input id="community-cover-input" name="cover" type="file" accept="image/*" class="hidden-file-input">
+                  <div class="drop-icon-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  </div>
+                  <div class="drop-text-content">
+                    <strong class="drop-title" data-i18n="backgroundImage">高清背景壁纸</strong>
+                    <span class="drop-hint" id="community-cover-file-name" data-i18n="noFileSelected">点击或拖拽图片到此 (JPG/PNG)</span>
+                  </div>
+                </label>
+
+                <!-- Audio File Card -->
+                <label class="media-drop-card" id="audio-drop-card">
+                  <input id="community-audio-input" name="audio" type="file" accept="audio/*" class="hidden-file-input">
+                  <div class="drop-icon-box audio">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  </div>
+                  <div class="drop-text-content">
+                    <strong class="drop-title" data-i18n="musicFile">专属音频 / 音乐</strong>
+                    <span class="drop-hint" id="community-audio-file-name" data-i18n="noFileSelected">点击或拖拽音频文件 (MP3/OGG)</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Step 4: Metadata & Author -->
+            <div class="form-step-section">
+              <div class="step-label-row">
+                <span class="step-num">04</span>
+                <span class="step-name">分类标签与作者</span>
+              </div>
+              <div class="form-fields-grid">
+                <label class="step-input-group">
+                  <span class="input-label">胜景分类</span>
+                  <select name="category" class="modern-select" id="community-category-select">
+                    <option value="waterTown">🏮 江南水乡 / 古镇</option>
+                    <option value="mountains">🏔️ 雪山高山 / 峡谷</option>
+                    <option value="islands">🏝️ 暖阳海岛 / 沿海</option>
+                    <option value="forests">🌲 森林旷野 / 露营</option>
+                    <option value="cities">🌃 城市夜景 / 都市</option>
+                    <option value="deserts">🏜️ 西北大漠 / 丝路</option>
+                  </select>
+                </label>
+                <label class="step-input-group">
+                  <span class="input-label" data-i18n="creatorName">创作者昵称</span>
+                  <input name="author" type="text" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的署名昵称">
+                </label>
+              </div>
+            </div>
+
+            <button class="community-publish-btn" type="submit">
+              <span class="btn-glow-icon">✦</span>
+              <span data-i18n="publishNow">立即发布到世界地图</span>
+            </button>
           </form>
         </section>
 
+        <!-- ==================== 2. Standalone Spot Comments Panel ==================== -->
         <section class="community-panel" data-community-panel="comments">
           <article class="community-active-spot">
             <img id="community-active-spot-image" src="" alt="" loading="lazy" decoding="async" fetchpriority="low">
-            <div><strong id="community-active-spot-name">当前地点</strong><span id="community-active-spot-location"></span></div>
-            <button id="community-spot-like-btn" class="community-spot-like" type="button" aria-pressed="false"><span>♡</span><strong data-spot-like-count>0</strong></button>
+            <div class="spot-summary-meta">
+              <strong id="community-active-spot-name">当前地点</strong>
+              <span id="community-active-spot-location"></span>
+            </div>
+            <button id="community-spot-like-btn" class="community-spot-like" type="button" aria-pressed="false">
+              <span>♡</span>
+              <strong data-spot-like-count>0</strong>
+            </button>
           </article>
 
           <form class="community-comment-form" id="community-comment-form">
-            <input name="author" maxlength="24" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
-            <textarea name="comment" rows="3" maxlength="220" required data-i18n-placeholder="commentPlaceholder" placeholder="写下你听到的、想到的…"></textarea>
-            <button type="submit" data-i18n="sendComment">发表评论</button>
+            <div class="comment-author-row">
+              <span class="comment-avatar-preview">💬</span>
+              <input name="author" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
+            </div>
+            <textarea name="comment" rows="3" maxlength="220" required class="modern-textarea" data-i18n-placeholder="commentPlaceholder" placeholder="写下你听到的、想到的与旅行寄语…"></textarea>
+            <button type="submit" class="comment-submit-btn" data-i18n="sendComment">发表评论</button>
           </form>
 
           <div class="community-comments-heading">
-            <div><strong data-i18n="allComments">全部评论</strong><span><span data-spot-comment-count>0</span> <span data-i18n="commentsUnit">条</span></span></div>
+            <div>
+              <strong data-i18n="allComments">全部寄语</strong>
+              <span><span data-spot-comment-count>0</span> <span data-i18n="commentsUnit">条</span></span>
+            </div>
             <div class="comment-sort-controls" aria-label="评论排序">
               <button class="active" type="button" data-comment-sort="hot" aria-pressed="true" data-i18n="hottestComments">最热</button>
               <button type="button" data-comment-sort="latest" aria-pressed="false" data-i18n="latestComments">最新</button>

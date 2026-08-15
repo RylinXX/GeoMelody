@@ -270,15 +270,25 @@
 }
 
 /* --- Bottom Left: Poetic Story & AI Audio Formula Card --- */
-.player-bottom-content {
+/* --- Bottom Row: Left Story Card + Right Floating Comments Modal Card --- */
+.player-bottom-layout {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 40px;
+  gap: 32px;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 84px; /* Leave clean clearance for bottom center play dock */
+  pointer-events: none;
+}
+
+.player-bottom-layout > * {
+  pointer-events: auto;
 }
 
 .player-story-card {
-  max-width: 480px;
+  width: 420px;
+  max-width: calc(50vw - 32px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -286,18 +296,290 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
-  padding: 20px 24px;
+  padding: 18px 22px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
   min-width: 0;
 }
 
 .story-quote {
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.7;
   color: #e2e8f0;
   font-style: italic;
   text-wrap: pretty;
+}
+
+/* --- Right Side Floating Comments & Likes Modal Card --- */
+.player-floating-comments {
+  width: 380px;
+  max-width: calc(50vw - 32px);
+  max-height: 460px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  transition: all var(--trans-normal);
+}
+
+.player-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.player-comments-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-comments-icon {
+  font-size: 14px;
+}
+
+.player-comments-badge {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--accent-cyan);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.player-floating-like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 113, 133, 0.15);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  color: #fb7185;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.player-floating-like-btn:hover {
+  background: rgba(251, 113, 133, 0.28);
+  transform: scale(1.05);
+}
+
+.player-floating-like-btn.liked {
+  background: #fb7185;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(251, 113, 133, 0.6);
+}
+
+/* Quick Interactive Comment Form */
+.player-comment-quick-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-author-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment-avatar-preview {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.comment-author-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--trans-fast);
+}
+
+.comment-author-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.comment-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  outline: none;
+  resize: none;
+  transition: border-color var(--trans-fast);
+  box-sizing: border-box;
+}
+
+.comment-textarea:focus {
+  border-color: var(--accent-cyan);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.comment-quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.quick-tag-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.quick-tag-chip:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.comment-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.comment-submit-btn:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  transform: translateY(-1px);
+}
+
+/* Comments Stream List */
+.player-comments-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.player-comments-stream::-webkit-scrollbar {
+  width: 4px;
+}
+
+.player-comments-stream::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.player-comment-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background var(--trans-fast);
+}
+
+.player-comment-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.comment-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-author-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comment-avatar {
+  font-size: 13px;
+}
+
+.comment-author-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.comment-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.comment-card-like-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: color var(--trans-fast);
+}
+
+.comment-card-like-btn:hover {
+  color: #fb7185;
+}
+
+.comment-body {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
 }
 
 :root[data-theme="light"] .player-spot-en-title {
@@ -510,6 +792,26 @@
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+  .player-bottom-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 76px;
+  }
+  .player-story-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 16px;
+  }
+  .player-floating-comments {
+    width: 100%;
+    max-width: 100%;
+    max-height: 240px;
+    padding: 12px 14px;
+  }
+}
+
 @media (max-width: 768px) {
   .player-ui-layer {
     padding: 16px;
@@ -520,17 +822,12 @@
   }
   .player-top-actions { gap: 6px; }
   .player-action-btn { width: 38px; height: 38px; }
-  .player-story-card {
-    max-width: 100%;
-    padding: 14px 16px;
-    margin-bottom: 70px;
-  }
   .story-quote {
     font-size: 12px;
     line-height: 1.5;
   }
   .player-control-island {
-    bottom: 16px;
+    bottom: 14px;
     padding: 6px 14px;
     gap: 8px;
   }
@@ -548,5 +845,4 @@
   .player-spot-title { max-width: calc(100vw - 170px); }
   .spot-coordinates-pill { max-width: calc(100vw - 180px); line-height: 1.5; }
   .audio-recipe-title { align-items: flex-start; gap: 12px; }
-  .player-story-card { margin-bottom: 62px; }
 }

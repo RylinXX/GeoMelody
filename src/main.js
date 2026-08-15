@@ -83,10 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const favListContainer = document.getElementById('fav-list-container');
   const favToggleBtn = document.getElementById('btn-toggle-favorites');
 
-  const mixerDrawer = document.getElementById('mixer-drawer');
-  const mixerBackdrop = document.getElementById('mixer-drawer-backdrop');
-  const mixerToggleBtn = document.getElementById('btn-toggle-mixer');
-
   // Settings Drawer Elements
   const settingsDrawer = document.getElementById('settings-drawer');
   const settingsBackdrop = document.getElementById('settings-drawer-backdrop');
@@ -136,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast,
     onBeforeOpen: () => {
       toggleFavDrawer(false);
-      toggleMixerDrawer(false);
       toggleSettingsDrawer(false);
     },
     onPublish: spot => {
@@ -419,7 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextState = open ?? !favDrawer?.classList.contains('open');
     if (nextState) {
       communityManager.close();
-      toggleMixerDrawer(false);
       toggleSettingsDrawer(false);
       renderFavoritesList();
     }
@@ -427,19 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
     favBackdrop?.classList.toggle('open', nextState);
     favToggleBtn?.setAttribute('aria-expanded', String(nextState));
     favDrawer?.setAttribute('aria-hidden', String(!nextState));
-  }
-
-  function toggleMixerDrawer(open) {
-    const nextState = open ?? !mixerDrawer?.classList.contains('open');
-    if (nextState) {
-      communityManager.close();
-      toggleFavDrawer(false);
-      toggleSettingsDrawer(false);
-    }
-    mixerDrawer?.classList.toggle('open', nextState);
-    mixerBackdrop?.classList.toggle('open', nextState);
-    mixerToggleBtn?.setAttribute('aria-expanded', String(nextState));
-    mixerDrawer?.setAttribute('aria-hidden', String(!nextState));
   }
 
   // ==================== Settings Drawer Management ====================
@@ -457,7 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextState) {
       communityManager.close();
       toggleFavDrawer(false);
-      toggleMixerDrawer(false);
       syncSettingsInputs();
     }
     settingsDrawer?.classList.toggle('open', nextState);
@@ -707,10 +687,6 @@ document.addEventListener('DOMContentLoaded', () => {
   favToggleBtn?.addEventListener('click', () => toggleFavDrawer());
   document.getElementById('btn-close-fav-drawer')?.addEventListener('click', () => toggleFavDrawer(false));
   favBackdrop?.addEventListener('click', () => toggleFavDrawer(false));
-  mixerToggleBtn?.addEventListener('click', () => toggleMixerDrawer());
-  document.getElementById('btn-close-mixer-drawer')?.addEventListener('click', () => toggleMixerDrawer(false));
-  mixerBackdrop?.addEventListener('click', () => toggleMixerDrawer(false));
-
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
     if (settingsDrawer?.classList.contains('open')) {
@@ -722,44 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (favDrawer?.classList.contains('open')) {
       event.stopPropagation();
       toggleFavDrawer(false);
-    } else if (mixerDrawer?.classList.contains('open')) {
-      event.stopPropagation();
-      toggleMixerDrawer(false);
     }
-  });
-
-  document.querySelectorAll('.channel-slider').forEach(slider => {
-    const channel = slider.dataset.channel;
-    const display = document.getElementById(`vol-text-${channel}`);
-    slider.addEventListener('input', event => {
-      const value = parseFloat(event.target.value);
-      soundEngine.setAmbientChannelVolume(channel, value);
-      if (display) display.textContent = `${Math.round(value * 100)}%`;
-    });
-  });
-
-  const presets = [
-    ['preset-rainy-town', 'presetRainyTown', { rain: 0.65, ocean: 0, wind: 0.2, birds: 0.1, campfire: 0, bell: 0.4 }],
-    ['preset-island-ocean', 'presetIslandOcean', { rain: 0, ocean: 0.75, wind: 0.35, birds: 0.2, campfire: 0, bell: 0 }],
-    ['preset-snow-zen', 'presetSnowZen', { rain: 0, ocean: 0.5, wind: 0, birds: 0, campfire: 0.2, bell: 0.6 }],
-    ['preset-forest-camp', 'presetForestCamp', { rain: 0.1, ocean: 0, wind: 0.25, birds: 0.65, campfire: 0.55, bell: 0 }]
-  ];
-  presets.forEach(([buttonId, nameKey, settings]) => {
-    document.getElementById(buttonId)?.addEventListener('click', () => {
-      Object.entries(settings).forEach(([channel, value]) => {
-        soundEngine.setAmbientChannelVolume(channel, value);
-        const slider = document.getElementById(`slider-${channel}`);
-        const display = document.getElementById(`vol-text-${channel}`);
-        if (slider) slider.value = value;
-        if (display) display.textContent = `${Math.round(value * 100)}%`;
-      });
-      document.querySelectorAll('.preset-chip').forEach(button => {
-        const isActive = button.id === buttonId;
-        button.classList.toggle('active', isActive);
-        button.setAttribute('aria-pressed', String(isActive));
-      });
-      showToast(t('presetApplied', currentLanguage, { name: t(nameKey, currentLanguage) }));
-    });
   });
 
   updateFavoriteBadge();

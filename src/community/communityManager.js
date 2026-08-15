@@ -197,6 +197,8 @@ export class CommunityManager {
     this.commentsForm = document.getElementById('community-comment-form');
     this.locationSelect = document.getElementById('community-location-select');
     this.commentsList = document.getElementById('community-comments-list');
+    this.playerCommentForm = document.getElementById('player-comment-form');
+    this.playerCommentsList = document.getElementById('player-comments-list');
 
     this.renderLocationOptions();
     this.bindEvents();
@@ -223,6 +225,25 @@ export class CommunityManager {
     document.getElementById('player-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
     document.getElementById('community-spot-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
 
+    // Player Quick Comment Form
+    this.playerCommentForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      this.addPlayerComment();
+    });
+
+    // Quick Feeling Tags in Player
+    document.getElementById('player-quick-tags')?.addEventListener('click', event => {
+      const chip = event.target.closest('.quick-tag-chip');
+      if (!chip) return;
+      const tagText = chip.textContent.trim();
+      const textarea = document.getElementById('player-comment-text-input');
+      if (textarea) {
+        if (textarea.value) textarea.value += ` ${tagText}`;
+        else textarea.value = `${tagText}，`;
+        textarea.focus();
+      }
+    });
+
     this.form?.addEventListener('submit', event => {
       event.preventDefault();
       this.publishPost();
@@ -232,7 +253,7 @@ export class CommunityManager {
       this.addComment();
     });
 
-    this.commentsList?.addEventListener('click', event => {
+    const handleCommentListClick = (event) => {
       const deleteButton = event.target.closest('[data-comment-delete]');
       if (deleteButton && this.activeSpot) {
         storage.deleteComment(this.activeSpot.id, deleteButton.dataset.commentDelete);
@@ -242,7 +263,7 @@ export class CommunityManager {
       const replyButton = event.target.closest('[data-comment-reply]');
       if (replyButton && this.activeSpot) {
         const comment = this.ensureActiveComments().find(item => item.id === replyButton.dataset.commentReply);
-        const textarea = this.commentsForm?.querySelector('textarea[name="comment"]');
+        const textarea = this.commentsForm?.querySelector('textarea[name="comment"]') || document.getElementById('player-comment-text-input');
         if (comment && textarea) {
           const author = this.getLanguage() === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
           textarea.value = `${t('replyTo', this.getLanguage(), { name: author })} `;
@@ -254,7 +275,10 @@ export class CommunityManager {
       if (!button || !this.activeSpot) return;
       storage.toggleCommentLike(this.activeSpot.id, button.dataset.commentLike);
       this.renderComments();
-    });
+    };
+
+    this.commentsList?.addEventListener('click', handleCommentListClick);
+    this.playerCommentsList?.addEventListener('click', handleCommentListClick);
 
     document.getElementById('community-cover-input')?.addEventListener('change', event => {
       this.updateFileLabel('community-cover-file-name', event.target.files?.[0]);
@@ -350,9 +374,16 @@ export class CommunityManager {
     document.querySelectorAll('[data-spot-comment-count]').forEach(element => {
       element.textContent = String(comments.length);
     });
+
+    const playerCommentsBadge = document.getElementById('player-comments-count-badge');
+    if (playerCommentsBadge) playerCommentsBadge.textContent = String(comments.length);
+
     [document.getElementById('player-like-btn'), document.getElementById('community-spot-like-btn')].forEach(button => {
       button?.classList.toggle('active', likeState.liked);
+      button?.classList.toggle('liked', likeState.liked);
       button?.setAttribute('aria-pressed', String(likeState.liked));
+      const heartIcon = button?.querySelector('.like-heart-icon');
+      if (heartIcon) heartIcon.textContent = likeState.liked ? '♥' : '♡';
     });
   }
 
@@ -373,7 +404,7 @@ export class CommunityManager {
   }
 
   renderComments() {
-    if (!this.commentsList || !this.activeSpot) return;
+    if (!this.activeSpot) return;
     const language = this.getLanguage();
     const comments = [...this.ensureActiveComments()].sort((a, b) => (
       this.commentSort === 'latest'
@@ -387,46 +418,77 @@ export class CommunityManager {
       button.setAttribute('aria-pressed', String(active));
     });
 
-    if (!comments.length) {
-      this.commentsList.innerHTML = `<div class="community-empty">${t('noComments', language)}</div>`;
-      this.renderEngagement();
-      return;
+    // 1. Render in Community Drawer
+    if (this.commentsList) {
+      if (!comments.length) {
+        this.commentsList.innerHTML = `<div class="community-empty">${t('noComments', language)}</div>`;
+      } else {
+        const pinnedId = this.commentSort === 'hot' && comments[0]?.likes > 0 ? comments[0].id : null;
+        this.commentsList.innerHTML = comments.map(comment => {
+          const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
+          const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
+          const replyAuthor = language === LANGUAGES.EN
+            ? (comment.reply?.enAuthor || comment.reply?.author)
+            : comment.reply?.author;
+          const replyText = language === LANGUAGES.EN
+            ? (comment.reply?.enText || comment.reply?.text)
+            : comment.reply?.text;
+          const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
+            month: 'short', day: 'numeric'
+          }).format(new Date(comment.createdAt));
+          return `
+            <article class="community-comment ${comment.id === pinnedId ? 'pinned' : ''}">
+              <div class="comment-meta">
+                <span class="comment-avatar" style="--avatar-hue:${avatarHue(author)}">${escapeHtml(author).slice(0, 1).toUpperCase()}</span>
+                <div class="comment-author-block">
+                  <strong>${escapeHtml(author)}</strong>
+                  <span>${date}</span>
+                </div>
+                ${comment.id === pinnedId ? `<span class="pinned-badge">${t('pinnedComment', language)}</span>` : ''}
+              </div>
+              <p>${escapeHtml(text)}</p>
+              ${comment.reply ? `<div class="comment-reply-preview"><strong>@${escapeHtml(replyAuthor)}</strong><span>${escapeHtml(replyText)}</span></div>` : ''}
+              <div class="comment-actions">
+                <button class="comment-reply-btn" type="button" data-comment-reply="${comment.id}">${t('reply', language)}</button>
+                <button class="comment-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}" aria-pressed="${Boolean(comment.liked)}">
+                  <span>♡</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
+                </button>
+                ${comment.isUser ? `<button class="comment-delete-btn" type="button" data-comment-delete="${comment.id}">${t('deleteComment', language)}</button>` : ''}
+              </div>
+            </article>`;
+        }).join('');
+      }
     }
 
-    const pinnedId = this.commentSort === 'hot' && comments[0]?.likes > 0 ? comments[0].id : null;
-    this.commentsList.innerHTML = comments.map(comment => {
-      const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
-      const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
-      const replyAuthor = language === LANGUAGES.EN
-        ? (comment.reply?.enAuthor || comment.reply?.author)
-        : comment.reply?.author;
-      const replyText = language === LANGUAGES.EN
-        ? (comment.reply?.enText || comment.reply?.text)
-        : comment.reply?.text;
-      const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
-        month: 'short', day: 'numeric'
-      }).format(new Date(comment.createdAt));
-      return `
-        <article class="community-comment ${comment.id === pinnedId ? 'pinned' : ''}">
-          <div class="comment-meta">
-            <span class="comment-avatar" style="--avatar-hue:${avatarHue(author)}">${escapeHtml(author).slice(0, 1).toUpperCase()}</span>
-            <div class="comment-author-block">
-              <strong>${escapeHtml(author)}</strong>
-              <span>${date}</span>
-            </div>
-            ${comment.id === pinnedId ? `<span class="pinned-badge">${t('pinnedComment', language)}</span>` : ''}
-          </div>
-          <p>${escapeHtml(text)}</p>
-          ${comment.reply ? `<div class="comment-reply-preview"><strong>@${escapeHtml(replyAuthor)}</strong><span>${escapeHtml(replyText)}</span></div>` : ''}
-          <div class="comment-actions">
-            <button class="comment-reply-btn" type="button" data-comment-reply="${comment.id}">${t('reply', language)}</button>
-            <button class="comment-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}" aria-pressed="${Boolean(comment.liked)}">
-              <span>♡</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
-            </button>
-            ${comment.isUser ? `<button class="comment-delete-btn" type="button" data-comment-delete="${comment.id}">${t('deleteComment', language)}</button>` : ''}
-          </div>
-        </article>`;
-    }).join('');
+    // 2. Render in Immersive Player Floating Comments Modal
+    if (this.playerCommentsList) {
+      if (!comments.length) {
+        this.playerCommentsList.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 12px 0; text-align: center;">${t('noComments', language)}</div>`;
+      } else {
+        this.playerCommentsList.innerHTML = comments.map(comment => {
+          const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
+          const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
+          const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
+            month: 'numeric', day: 'numeric'
+          }).format(new Date(comment.createdAt));
+          return `
+            <div class="player-comment-card">
+              <div class="comment-card-header">
+                <div class="comment-author-info">
+                  <span class="comment-avatar">🏮</span>
+                  <span class="comment-author-name">${escapeHtml(author)}</span>
+                  <span class="comment-time">${date}</span>
+                </div>
+                <button class="comment-card-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}">
+                  <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0)}</span>
+                </button>
+              </div>
+              <div class="comment-body">${escapeHtml(text)}</div>
+            </div>`;
+        }).join('');
+      }
+    }
+
     this.renderEngagement();
   }
 
@@ -446,6 +508,27 @@ export class CommunityManager {
       createdAt: new Date().toISOString()
     });
     this.commentsForm.reset();
+    this.renderComments();
+    this.showToast(t('commentAdded', this.getLanguage()));
+  }
+
+  addPlayerComment() {
+    if (!this.activeSpot) return;
+    const authorInput = document.getElementById('player-comment-author-input');
+    const textInput = document.getElementById('player-comment-text-input');
+    const text = String(textInput?.value || '').trim();
+    const author = String(authorInput?.value || '').trim() || t('anonymousTraveler', this.getLanguage());
+    if (!text) return;
+    storage.addComment(this.activeSpot.id, {
+      id: `comment-${Date.now()}`,
+      author,
+      text,
+      likes: 0,
+      liked: false,
+      isUser: true,
+      createdAt: new Date().toISOString()
+    });
+    if (textInput) textInput.value = '';
     this.renderComments();
     this.showToast(t('commentAdded', this.getLanguage()));
   }
