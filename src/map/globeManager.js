@@ -457,7 +457,26 @@ export class GlobeManager {
     const findSpotAtPoint = (point, buffer = 32) => {
       if (!point || typeof point.x !== 'number') return null;
 
-      // 1. Direct screen projection check
+      // 1. Layer feature query (most accurate on rendered canvas)
+      try {
+        const validLayers = interactiveLayers.filter(id => this.map.getLayer(id));
+        if (validLayers.length) {
+          const bbox = [
+            [point.x - buffer, point.y - buffer],
+            [point.x + buffer, point.y + buffer]
+          ];
+          const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
+          if (features.length) {
+            const spotId = features[0].properties?.id;
+            const match = this.spots.find(item => item.id === spotId);
+            if (match && (this.currentCategory === 'all' || match.category === this.currentCategory)) {
+              return match;
+            }
+          }
+        }
+      } catch (_) {}
+
+      // 2. Direct screen projection check
       let closestSpot = null;
       let minDistance = buffer * buffer;
       const center = this.map.getCenter();
@@ -467,13 +486,13 @@ export class GlobeManager {
       for (const spot of this.spots) {
         if (this.currentCategory !== 'all' && spot.category !== this.currentCategory) continue;
 
-        // In 3D globe mode, check if point is roughly facing camera (within 90 degrees)
+        // In 3D globe mode, check if point is roughly facing camera (within 95 degrees)
         if (this.viewMode === '3d') {
           const sLng = normalizeLng(spot.lng);
           let dLng = Math.abs(sLng - cLng);
           if (dLng > 180) dLng = 360 - dLng;
           const dLat = Math.abs(spot.lat - cLat);
-          if (dLng > 90 || dLat > 90) continue;
+          if (dLng > 95 || dLat > 95) continue;
         }
 
         try {
@@ -488,25 +507,7 @@ export class GlobeManager {
         } catch (_) {}
       }
 
-      if (closestSpot) return closestSpot;
-
-      // 2. Layer feature query fallback
-      try {
-        const validLayers = interactiveLayers.filter(id => this.map.getLayer(id));
-        if (validLayers.length) {
-          const bbox = [
-            [point.x - buffer, point.y - buffer],
-            [point.x + buffer, point.y + buffer]
-          ];
-          const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
-          if (features.length) {
-            const spotId = features[0].properties?.id;
-            return this.spots.find(item => item.id === spotId) || null;
-          }
-        }
-      } catch (_) {}
-
-      return null;
+      return closestSpot;
     };
 
     this.map.on('mousemove', event => {
@@ -526,6 +527,7 @@ export class GlobeManager {
     });
 
     let lastSpotActionTime = 0;
+    let lastTouchTapTime = 0;
 
     const selectSpot = (spot) => {
       lastSpotActionTime = Date.now();
@@ -553,14 +555,15 @@ export class GlobeManager {
         const dx = e.changedTouches[0].clientX - touchStartX;
         const dy = e.changedTouches[0].clientY - touchStartY;
         const elapsed = Date.now() - touchStartTime;
-        // Finger moved less than 16px and released within 450ms -> Genuine Tap!
-        if (Math.hypot(dx, dy) < 16 && elapsed < 450) {
+        // Finger moved less than 20px and released within 500ms -> Genuine Tap!
+        if (Math.hypot(dx, dy) < 20 && elapsed < 500) {
+          lastTouchTapTime = Date.now();
           const rect = canvas.getBoundingClientRect();
           const point = {
             x: e.changedTouches[0].clientX - rect.left,
             y: e.changedTouches[0].clientY - rect.top
           };
-          const spot = findSpotAtPoint(point, 38);
+          const spot = findSpotAtPoint(point, 42);
           if (spot) {
             selectSpot(spot);
           } else {
@@ -572,10 +575,11 @@ export class GlobeManager {
       }
     }, { passive: true });
 
-    // MapLibre Layer Click and Canvas Click
+    // MapLibre Layer Click and Canvas Click (Ignored if triggered by mobile touch within 800ms)
     interactiveLayers.forEach(layerId => {
       if (this.map.getLayer(layerId)) {
         this.map.on('click', layerId, (e) => {
+          if (Date.now() - lastTouchTapTime < 800) return;
           const spotId = e.features?.[0]?.properties?.id;
           const spot = this.spots.find(s => s.id === spotId);
           if (spot) {
@@ -586,6 +590,7 @@ export class GlobeManager {
     });
 
     this.map.on('click', (event) => {
+      if (Date.now() - lastTouchTapTime < 800) return;
       const now = Date.now();
       if (now - lastSpotActionTime < 300) return;
 
