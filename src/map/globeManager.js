@@ -460,15 +460,12 @@ export class GlobeManager {
   }
 
   bindMapInteractions() {
-    if (!this.map) return;
-    if (this.interactionsBound) return;
+    if (this.interactionsBound || !this.map) return;
     this.interactionsBound = true;
 
     const interactiveLayers = [SPOT_HIT_LAYER_ID, SPOT_CORE_LAYER_ID, SPOT_HALO_LAYER_ID, SPOT_GLOW_LAYER_ID];
 
-    const normalizeLng = lng => ((((lng + 180) % 360) + 360) % 360) - 180;
-
-    const findSpotAtPoint = (point, buffer = 32) => {
+    const findSpotAtPoint = (point, buffer = 36) => {
       if (!point || typeof point.x !== 'number') return null;
 
       // 1. Layer feature query (most accurate on rendered canvas)
@@ -480,7 +477,7 @@ export class GlobeManager {
             [point.x + buffer, point.y + buffer]
           ];
           const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
-          if (features.length) {
+          if (features && features.length) {
             const spotId = features[0].properties?.id;
             const match = this.spots.find(item => item.id === spotId);
             if (match && (this.currentCategory === 'all' || match.category === this.currentCategory)) {
@@ -493,21 +490,9 @@ export class GlobeManager {
       // 2. Direct screen projection check
       let closestSpot = null;
       let minDistance = buffer * buffer;
-      const center = this.map.getCenter();
-      const cLng = normalizeLng(center.lng);
-      const cLat = center.lat;
 
       for (const spot of this.spots) {
         if (this.currentCategory !== 'all' && spot.category !== this.currentCategory) continue;
-
-        // In 3D globe mode, check if point is roughly facing camera (within 95 degrees)
-        if (this.viewMode === '3d') {
-          const sLng = normalizeLng(spot.lng);
-          let dLng = Math.abs(sLng - cLng);
-          if (dLng > 180) dLng = 360 - dLng;
-          const dLat = Math.abs(spot.lat - cLat);
-          if (dLng > 95 || dLat > 95) continue;
-        }
 
         try {
           const spotPoint = this.map.project([spot.lng, spot.lat]);
@@ -525,7 +510,7 @@ export class GlobeManager {
     };
 
     this.map.on('mousemove', event => {
-      const spot = findSpotAtPoint(event.point, 20);
+      const spot = findSpotAtPoint(event.point, 22);
       if (spot) {
         this.map.getCanvas().style.cursor = 'pointer';
         this.showTooltip(spot, event.point);
@@ -541,59 +526,19 @@ export class GlobeManager {
     });
 
     let lastSpotActionTime = 0;
-    let lastTouchTapTime = 0;
 
     const selectSpot = (spot) => {
+      if (!spot) return;
       lastSpotActionTime = Date.now();
-      this.pauseRotation(8000);
+      this.pauseRotation(10000);
       this.hideTooltip();
       this.onSpotSelect?.(spot);
     };
 
-    // Native DOM Touch Support for Instant Mobile Response
-    const canvas = this.map.getCanvas();
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchStartTime = 0;
-
-    canvas?.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-      }
-    }, { passive: true });
-
-    canvas?.addEventListener('touchend', (e) => {
-      if (e.changedTouches.length === 1) {
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        const dy = e.changedTouches[0].clientY - touchStartY;
-        const elapsed = Date.now() - touchStartTime;
-        // Finger moved less than 20px and released within 500ms -> Genuine Tap!
-        if (Math.hypot(dx, dy) < 20 && elapsed < 500) {
-          lastTouchTapTime = Date.now();
-          const rect = canvas.getBoundingClientRect();
-          const point = {
-            x: e.changedTouches[0].clientX - rect.left,
-            y: e.changedTouches[0].clientY - rect.top
-          };
-          const spot = findSpotAtPoint(point, 42);
-          if (spot) {
-            selectSpot(spot);
-          } else {
-            if (Date.now() - lastSpotActionTime > 400) {
-              this.onMapClick?.(point);
-            }
-          }
-        }
-      }
-    }, { passive: true });
-
-    // MapLibre Layer Click and Canvas Click (Ignored if triggered by mobile touch within 800ms)
+    // Layer Clicks (Desktop & Mobile)
     interactiveLayers.forEach(layerId => {
       if (this.map.getLayer(layerId)) {
         this.map.on('click', layerId, (e) => {
-          if (Date.now() - lastTouchTapTime < 800) return;
           const spotId = e.features?.[0]?.properties?.id;
           const spot = this.spots.find(s => s.id === spotId);
           if (spot) {
@@ -603,20 +548,50 @@ export class GlobeManager {
       }
     });
 
+    // Map General Click / Tap (Desktop & Mobile)
     this.map.on('click', (event) => {
-      if (Date.now() - lastTouchTapTime < 800) return;
-      const now = Date.now();
-      if (now - lastSpotActionTime < 300) return;
-
-      const spot = findSpotAtPoint(event.point, 28);
+      const spot = findSpotAtPoint(event.point, 38);
       if (spot) {
         selectSpot(spot);
       } else {
-        if (now - lastSpotActionTime > 400) {
+        if (Date.now() - lastSpotActionTime > 450) {
           this.onMapClick?.(event);
         }
       }
     });
+
+    // Mobile Container Touch Tap Handling
+    const container = this.map.getContainer();
+    let touchStartPt = null;
+    let touchStartT = 0;
+
+    container?.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartPt = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        touchStartT = Date.now();
+      }
+    }, { passive: true });
+
+    container?.addEventListener('touchend', (e) => {
+      if (touchStartPt && e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - touchStartPt.x;
+        const dy = e.changedTouches[0].clientY - touchStartPt.y;
+        const dt = Date.now() - touchStartT;
+        // Clean tap within 450ms and moved < 16px
+        if (Math.hypot(dx, dy) < 16 && dt < 450) {
+          const rect = container.getBoundingClientRect();
+          const point = {
+            x: e.changedTouches[0].clientX - rect.left,
+            y: e.changedTouches[0].clientY - rect.top
+          };
+          const spot = findSpotAtPoint(point, 45);
+          if (spot) {
+            selectSpot(spot);
+          }
+        }
+      }
+      touchStartPt = null;
+    }, { passive: true });
 
     if (this.tooltip) {
       this.tooltip.addEventListener('click', () => {
@@ -853,10 +828,19 @@ export class GlobeManager {
     const cLng = normalizeLongitude(center.lng);
     const cLat = center.lat;
 
-    // If currently displaying a spot, check if it has moved out of range (> 850km)
+    const zoom = this.map?.getZoom() ?? 2.2;
+    // Scale detection range based on zoom level:
+    // At zoom 2.2 (global): ~600km enter, ~850km exit
+    // At zoom 7 (provinces): ~60km enter, ~90km exit
+    // At zoom 11 (cities/districts): ~8km enter, ~12km exit
+    const zoomScale = Math.pow(2, Math.min(0, 2.2 - zoom));
+    const enterRadiusKm = Math.max(6, 600 * zoomScale);
+    const exitRadiusKm = Math.max(10, 850 * zoomScale);
+
+    // If currently displaying a spot, check if it has moved out of range
     if (this.currentFlybySpot) {
       const dist = calculateDistanceKm(cLat, cLng, this.currentFlybySpot.lat, this.currentFlybySpot.lng);
-      if (dist < 850) {
+      if (dist < exitRadiusKm) {
         // Keep showing current spot while cruising above this region
         return;
       } else {
@@ -866,11 +850,11 @@ export class GlobeManager {
       }
     }
 
-    // Find all spots within flyby detection range (within 600km)
+    // Find all spots within flyby detection range
     const nearbySpots = [];
     for (const spot of this.spots) {
       const dist = calculateDistanceKm(cLat, cLng, spot.lat, spot.lng);
-      if (dist < 600) {
+      if (dist < enterRadiusKm) {
         nearbySpots.push({ spot, dist });
       }
     }
@@ -933,11 +917,21 @@ export class GlobeManager {
         return;
       }
 
-      // Standby / Roaming: Show center airplane HUD and rotate Earth gently (cinematic panoramic pace)
+      // Standby / Roaming: Show center airplane HUD and rotate Earth at zoom-adaptive speed
       this.showAirplane();
       const center = this.map.getCenter();
-      // Gentle flyover pace: 0.011 (smooth and calming)
-      const nextLng = normalizeLongitude(center.lng + 0.011);
+      const zoom = this.map.getZoom();
+
+      // Dynamically scale stepLng inversely with 2^zoom:
+      // At global zoom (2.2): step = 0.011 deg/tick
+      // At provincial zoom (6.0): step = 0.0008 deg/tick
+      // At city/district zoom (11.0): step = 0.000025 deg/tick
+      // At street zoom (15.0): step = 0.0000015 deg/tick
+      // Screen ground-velocity remains perfectly smooth, serene, and steady across all zoom levels!
+      const zoomFactor = Math.pow(2, Math.min(0, 2.2 - zoom));
+      const stepLng = Math.max(0.000001, 0.011 * zoomFactor);
+
+      const nextLng = normalizeLongitude(center.lng + stepLng);
       this.map.setCenter([nextLng, center.lat]);
       this.checkFlyoverSpots({ lng: nextLng, lat: center.lat });
     }, 50);
