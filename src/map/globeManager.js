@@ -381,9 +381,9 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 8, 6, 12, 12, 16],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 22, 6, 30, 12, 38],
             'circle-opacity': 0.0001,
-            'circle-pitch-alignment': 'map'
+            'circle-pitch-alignment': 'viewport'
           }
         });
       }
@@ -398,7 +398,7 @@ export class GlobeManager {
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 8, 6, 13, 12, 20],
             'circle-blur': 0.96,
             'circle-opacity': 0.38,
-            'circle-pitch-alignment': 'map'
+            'circle-pitch-alignment': 'viewport'
           }
         });
       }
@@ -413,7 +413,7 @@ export class GlobeManager {
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 3.8, 6, 6.2, 12, 8.5],
             'circle-blur': 0.55,
             'circle-opacity': 0.52,
-            'circle-pitch-alignment': 'map'
+            'circle-pitch-alignment': 'viewport'
           }
         });
       }
@@ -427,7 +427,7 @@ export class GlobeManager {
             'circle-color': '#ffffff',
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.6, 6, 2.3, 12, 3.2],
             'circle-opacity': 0.85,
-            'circle-pitch-alignment': 'map'
+            'circle-pitch-alignment': 'viewport'
           }
         });
       }
@@ -446,21 +446,28 @@ export class GlobeManager {
 
     const interactiveLayers = [SPOT_HIT_LAYER_ID, SPOT_CORE_LAYER_ID, SPOT_HALO_LAYER_ID, SPOT_GLOW_LAYER_ID];
 
-    const findSpotAtPoint = (point, buffer = 22) => {
-      // 1. Direct screen projection check (fast and 100% reliable across 2D and 3D)
+    const normalizeLng = lng => ((((lng + 180) % 360) + 360) % 360) - 180;
+
+    const findSpotAtPoint = (point, buffer = 32) => {
+      if (!point || typeof point.x !== 'number') return null;
+
+      // 1. Direct screen projection check
       let closestSpot = null;
       let minDistance = buffer * buffer;
       const center = this.map.getCenter();
+      const cLng = normalizeLng(center.lng);
+      const cLat = center.lat;
 
       for (const spot of this.spots) {
         if (this.currentCategory !== 'all' && spot.category !== this.currentCategory) continue;
 
-        // In 3D globe mode, check if point is roughly facing camera (within 85 degrees)
+        // In 3D globe mode, check if point is roughly facing camera (within 90 degrees)
         if (this.viewMode === '3d') {
-          let dLng = Math.abs(spot.lng - center.lng);
+          const sLng = normalizeLng(spot.lng);
+          let dLng = Math.abs(sLng - cLng);
           if (dLng > 180) dLng = 360 - dLng;
-          const dLat = Math.abs(spot.lat - center.lat);
-          if (dLng > 85 || dLat > 85) continue; // on back side of globe
+          const dLat = Math.abs(spot.lat - cLat);
+          if (dLng > 90 || dLat > 90) continue;
         }
 
         try {
@@ -472,30 +479,32 @@ export class GlobeManager {
             minDistance = distSq;
             closestSpot = spot;
           }
-        } catch {}
+        } catch (_) {}
       }
 
       if (closestSpot) return closestSpot;
 
       // 2. Layer feature query fallback
-      const validLayers = interactiveLayers.filter(id => this.map.getLayer(id));
-      if (validLayers.length) {
-        const bbox = [
-          [point.x - buffer, point.y - buffer],
-          [point.x + buffer, point.y + buffer]
-        ];
-        const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
-        if (features.length) {
-          const spotId = features[0].properties?.id;
-          return this.spots.find(item => item.id === spotId) || null;
+      try {
+        const validLayers = interactiveLayers.filter(id => this.map.getLayer(id));
+        if (validLayers.length) {
+          const bbox = [
+            [point.x - buffer, point.y - buffer],
+            [point.x + buffer, point.y + buffer]
+          ];
+          const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
+          if (features.length) {
+            const spotId = features[0].properties?.id;
+            return this.spots.find(item => item.id === spotId) || null;
+          }
         }
-      }
+      } catch (_) {}
 
       return null;
     };
 
     this.map.on('mousemove', event => {
-      const spot = findSpotAtPoint(event.point, 18);
+      const spot = findSpotAtPoint(event.point, 20);
       if (spot) {
         this.map.getCanvas().style.cursor = 'pointer';
         this.showTooltip(spot, event.point);
@@ -512,31 +521,82 @@ export class GlobeManager {
 
     let lastSpotActionTime = 0;
 
-    const handleSpotSelection = (event, isTouch = false) => {
+    const selectSpot = (spot) => {
+      lastSpotActionTime = Date.now();
+      this.pauseRotation(8000);
+      this.hideTooltip();
+      this.onSpotSelect?.(spot);
+    };
+
+    // Native DOM Touch Support for Instant Mobile Response
+    const canvas = this.map.getCanvas();
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    canvas?.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+      }
+    }, { passive: true });
+
+    canvas?.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        const elapsed = Date.now() - touchStartTime;
+        // Finger moved less than 16px and released within 450ms -> Genuine Tap!
+        if (Math.hypot(dx, dy) < 16 && elapsed < 450) {
+          const rect = canvas.getBoundingClientRect();
+          const point = {
+            x: e.changedTouches[0].clientX - rect.left,
+            y: e.changedTouches[0].clientY - rect.top
+          };
+          const spot = findSpotAtPoint(point, 38);
+          if (spot) {
+            selectSpot(spot);
+          } else {
+            if (Date.now() - lastSpotActionTime > 400) {
+              this.onMapClick?.(point);
+            }
+          }
+        }
+      }
+    }, { passive: true });
+
+    // MapLibre Layer Click and Canvas Click
+    interactiveLayers.forEach(layerId => {
+      if (this.map.getLayer(layerId)) {
+        this.map.on('click', layerId, (e) => {
+          const spotId = e.features?.[0]?.properties?.id;
+          const spot = this.spots.find(s => s.id === spotId);
+          if (spot) {
+            selectSpot(spot);
+          }
+        });
+      }
+    });
+
+    this.map.on('click', (event) => {
       const now = Date.now();
       if (now - lastSpotActionTime < 300) return;
 
-      const buffer = isTouch ? 28 : 22;
-      const spot = findSpotAtPoint(event.point, buffer);
+      const spot = findSpotAtPoint(event.point, 28);
       if (spot) {
-        lastSpotActionTime = now;
-        this.pauseRotation(8000);
-        this.hideTooltip();
-        this.onSpotSelect?.(spot);
+        selectSpot(spot);
       } else {
-        if (now - lastSpotActionTime > 350) {
+        if (now - lastSpotActionTime > 400) {
           this.onMapClick?.(event);
         }
       }
-    };
-
-    this.map.on('click', event => handleSpotSelection(event, false));
-    this.map.on('touchend', event => handleSpotSelection(event, true));
+    });
 
     if (this.tooltip) {
       this.tooltip.addEventListener('click', () => {
         if (this.hoveredSpot) {
-          this.onSpotSelect?.(this.hoveredSpot);
+          selectSpot(this.hoveredSpot);
         }
       });
     }
