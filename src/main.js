@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     settings: currentSettings,
     onSpotSelect: spot => {
       hideSpotPreviewCard();
-      playerManager.openSpot(spot, true);
+      globeManager.flyToSpot(spot, undefined, true);
     },
     onFlybyPlay: spot => {
       hideSpotPreviewCard();
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     spots: SCENIC_SPOTS,
     getLanguage: () => currentLanguage,
     onSpotChange: spot => {
-      globeManager.flyToSpot(spot);
+      globeManager.flyToSpot(spot, undefined, false);
       updateMiniAudioIsland(spot, soundEngine.isPlaying);
       communityManager?.setActiveSpot(spot);
     },

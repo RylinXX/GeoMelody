@@ -733,10 +733,15 @@ export class GlobeManager {
     }
   }
 
-  flyToSpot(spot, zoom) {
+  flyToSpot(spot, zoom, showFlyby = true) {
     if (!this.map || !spot) return;
     const targetZoom = zoom ?? (this.viewMode === '3d' ? 5.4 : 7);
-    this.pauseRotation(9000);
+    this.pauseRotation(10000);
+    this.showAirplane();
+    this.currentFlybySpot = spot;
+    if (showFlyby) {
+      this.showFlybyCard(spot);
+    }
     this.map.flyTo({
       center: [spot.lng, spot.lat],
       zoom: targetZoom,
