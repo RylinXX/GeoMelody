@@ -950,21 +950,25 @@
 
   .player-story-card {
     position: fixed;
-    bottom: 118px;
-    left: 14px;
-    right: 14px;
+    bottom: 116px;
+    left: 12px;
+    right: 12px;
     width: auto;
     max-width: none;
-    max-height: 52vh;
+    max-height: 65vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     z-index: 25;
     opacity: 0;
     pointer-events: none;
     transform: translateY(16px);
     transition: all var(--trans-normal);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 14px 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .player-story-card.mobile-open {
@@ -974,32 +978,36 @@
   }
 
   .story-quote {
-    font-size: 13px;
-    line-height: 1.6;
-    padding-right: 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    padding-right: 24px;
   }
   .audio-recipe-box {
-    padding: 8px 12px;
-    gap: 4px;
+    padding: 10px 14px;
+    gap: 6px;
   }
 
   .player-floating-comments {
     position: fixed;
-    bottom: 118px;
-    left: 14px;
-    right: 14px;
+    bottom: 116px;
+    left: 12px;
+    right: 12px;
     width: auto;
     max-width: none;
-    max-height: 60vh;
-    overflow-y: auto;
+    height: 72vh;
+    max-height: 75vh;
+    overflow: hidden;
     z-index: 25;
     opacity: 0;
     pointer-events: none;
     transform: translateY(16px);
     transition: all var(--trans-normal);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 14px 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 16px 16px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .player-floating-comments.mobile-open {
@@ -1008,21 +1016,40 @@
     transform: translateY(0);
   }
 
+  .player-comments-header {
+    flex-shrink: 0;
+    padding-right: 28px;
+    margin-bottom: 6px;
+  }
+
   .player-comments-stream {
-    max-height: 160px;
-    min-height: 80px;
+    flex: 1 1 auto;
+    min-height: 180px;
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    padding-right: 4px;
+    margin-bottom: 8px;
+  }
+
+  .player-comment-quick-form {
+    flex-shrink: 0;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     gap: 6px;
   }
+
   .player-comment-card {
-    padding: 6px 8px;
+    padding: 8px 10px;
   }
   .comment-textarea {
-    font-size: 11.5px;
-    padding: 6px 8px;
+    font-size: 12px;
+    padding: 8px 10px;
   }
   .quick-tag-chip {
-    font-size: 10.5px;
-    padding: 2px 6px;
+    font-size: 11px;
+    padding: 3px 8px;
   }
   .player-control-island {
     bottom: 12px;

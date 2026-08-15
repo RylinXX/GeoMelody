@@ -111,7 +111,7 @@ export class GlobeManager {
   }
 
   async getResolvedStyle(skin = 'streets-dark') {
-    const targetSkin = skin === 'dataviz-light' ? 'streets-dark' : skin;
+    const targetSkin = skin || 'streets-dark';
     if (!this.usingMapTilerCloud) {
       return await fetchAndLocalizeStyle(targetSkin, this.currentLanguage, false);
     }
@@ -123,6 +123,8 @@ export class GlobeManager {
         return MapStyle.DATAVIZ.DARK;
       case 'backdrop-dark':
         return MapStyle.BACKDROP.DARK;
+      case 'dataviz-light':
+        return MapStyle.DATAVIZ.LIGHT;
       case 'satellite':
         return MapStyle.SATELLITE;
       default:
@@ -182,7 +184,7 @@ export class GlobeManager {
     const style = this.map.getStyle();
     if (!style || !Array.isArray(style.layers)) return;
 
-    const { showHillshade = false, showCities = true, showCountries = true, showBorders = true } = this.mapSettings;
+    const { showHillshade, showCities, showCountries, showBorders } = this.mapSettings;
 
     style.layers.forEach(layer => {
       const id = layer.id.toLowerCase();
@@ -217,9 +219,9 @@ export class GlobeManager {
         id.includes('admin_level_3') ||
         id.includes('poi');
 
-      if (isCityOrState && showCities === false) {
+      if (isCityOrState) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', showCities ? 'visible' : 'none');
         } catch (_) {}
       }
 
@@ -231,9 +233,9 @@ export class GlobeManager {
         id.includes('label_country') ||
         id.includes('country_label');
 
-      if (isCountry && showCountries === false) {
+      if (isCountry) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', showCountries ? 'visible' : 'none');
         } catch (_) {}
       }
 
@@ -243,9 +245,9 @@ export class GlobeManager {
         id.includes('admin_level_2') ||
         id.includes('admin0');
 
-      if (isCountryBorder && showBorders === false) {
+      if (isCountryBorder) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', showBorders ? 'visible' : 'none');
         } catch (_) {}
       }
     });

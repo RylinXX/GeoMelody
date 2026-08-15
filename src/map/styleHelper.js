@@ -12,6 +12,7 @@ const FALLBACK_STYLES = {
   'streets-dark': 'https://tiles.openfreemap.org/styles/dark',
   'dataviz-dark': 'https://tiles.openfreemap.org/styles/dark',
   'backdrop-dark': 'https://tiles.openfreemap.org/styles/dark',
+  'dataviz-light': 'https://tiles.openfreemap.org/styles/positron',
   'satellite': 'https://tiles.openfreemap.org/styles/dark'
 };
 

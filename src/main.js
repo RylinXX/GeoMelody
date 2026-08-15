@@ -499,22 +499,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
   }
 
-  function applyTheme(nextTheme = 'dark') {
-    currentTheme = 'dark';
+  function applyTheme(nextTheme) {
+    if (nextTheme === 'light' || nextTheme === 'dark') {
+      currentTheme = nextTheme;
+    } else {
+      currentTheme = 'dark';
+    }
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+      localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
     } catch {}
-    document.documentElement.dataset.theme = 'dark';
-    document.documentElement.style.colorScheme = 'dark';
-    globeManager.setTheme('dark');
-    const themeTitle = '经典深色暗夜';
+    document.documentElement.dataset.theme = currentTheme;
+    document.documentElement.style.colorScheme = currentTheme;
+    globeManager.setTheme(currentTheme);
+    const isLight = currentTheme === 'light';
+    const themeTitle = isLight
+      ? (currentLanguage === LANGUAGES.EN ? 'Switch to Dark Theme' : '切换为深色模式')
+      : (currentLanguage === LANGUAGES.EN ? 'Switch to Light Theme' : '切换为浅色模式');
+
     [themeBtn, playerThemeBtn].forEach(btn => {
       if (!btn) return;
-      btn.classList.remove('is-light');
-      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.toggle('is-light', isLight);
+      btn.setAttribute('aria-pressed', String(isLight));
       btn.setAttribute('title', themeTitle);
       btn.setAttribute('aria-label', themeTitle);
     });
+  }
+
+  function toggleTheme() {
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    showToast(t(nextTheme === 'light' ? 'switchedLight' : 'switchedDark', currentLanguage));
   }
 
   function toggleLanguage() {
@@ -523,6 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   languageBtn?.addEventListener('click', toggleLanguage);
   playerLanguageBtn?.addEventListener('click', toggleLanguage);
+  themeBtn?.addEventListener('click', toggleTheme);
+  playerThemeBtn?.addEventListener('click', toggleTheme);
 
   toggleViewModeBtn?.addEventListener('click', () => {
     viewMode = viewMode === '3d' ? '2d' : '3d';
