@@ -278,7 +278,7 @@
   gap: 32px;
   width: 100%;
   min-width: 0;
-  margin-bottom: 84px; /* Leave clean clearance for bottom center play dock */
+  margin-bottom: 68px; /* Leave clean clearance for bottom audio dock */
   pointer-events: none;
 }
 
@@ -686,21 +686,21 @@
 /* --- Bottom Center: Audiovisual Control Dock (Wide Horizontal Modern Bar) --- */
 .player-control-island {
   position: absolute;
-  bottom: 28px;
+  bottom: max(14px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(660px, calc(100vw - 48px));
-  height: 64px;
-  padding: 0 20px;
-  background: rgba(15, 23, 42, 0.9);
+  width: min(680px, calc(100vw - 32px));
+  height: 56px;
+  padding: 0 18px;
+  background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 24px rgba(56, 189, 248, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.08);
   pointer-events: auto;
   z-index: 50;
   box-sizing: border-box;

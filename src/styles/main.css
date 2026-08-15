@@ -451,36 +451,40 @@ button, input {
   margin-left: 2px;
 }
 
-/* ==================== Floating Map Control Bar (Bottom) ==================== */
+/* ==================== Floating Map Control Bar (Right Vertical Toolbar) ==================== */
 .floating-map-dock {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1000;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  background: var(--bg-glass-heavy);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-medium);
-  padding: 8px 16px;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-lg);
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 8px 6px;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.1);
   pointer-events: auto;
 }
 
 .dock-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius-full);
-  border: none;
+  justify-content: center;
+  gap: 3px;
+  width: 52px;
+  padding: 7px 4px;
+  border-radius: 12px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 10.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--trans-fast);
@@ -489,34 +493,45 @@ button, input {
 .dock-btn:hover {
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: scale(1.04);
 }
 
 .dock-btn.primary {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(3, 105, 161, 0.4) 100%);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.25);
 }
 
 .dock-btn.primary:hover {
-  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
 }
 
 .dock-btn.highlight {
   background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-color: rgba(56, 189, 248, 0.4);
   color: var(--accent-cyan);
 }
 
+.dock-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
 .dock-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .dock-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--border-subtle);
+  width: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 2px 0;
 }
 
 /* ==================== Real-time User Geolocation Radar Marker ==================== */
@@ -1212,11 +1227,25 @@ button, input {
   .search-input { width: 110px; }
   .search-input:focus { width: 160px; }
   .floating-map-dock {
-    bottom: 20px;
-    padding: 6px 12px;
-    gap: 6px;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    gap: 4px;
+    padding: 6px 4px;
+    border-radius: 16px;
   }
-  .dock-btn span { display: none; }
+  .dock-btn {
+    width: 44px;
+    padding: 6px 2px;
+    font-size: 9.5px;
+  }
+  .dock-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+  .dock-divider {
+    width: 18px;
+  }
 }
 
 /* Refined typography, language switch, and adaptive navigation */
@@ -1590,13 +1619,25 @@ button, input {
     height: 32px;
   }
   .floating-map-dock {
-    width: max-content;
-    max-width: calc(100vw - 16px);
-    gap: 4px;
-    padding: 5px 7px;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    gap: 3px;
+    padding: 5px 3px;
+    border-radius: 14px;
   }
-  .dock-btn { padding: 6px 8px; }
-  .dock-btn span { display: none; }
+  .dock-btn {
+    width: 40px;
+    padding: 5px 2px;
+    font-size: 9px;
+  }
+  .dock-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  .dock-divider {
+    width: 16px;
+  }
   .drawer-header, .drawer-body { padding-left: 14px; padding-right: 14px; }
 }
 
