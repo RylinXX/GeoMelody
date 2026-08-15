@@ -181,7 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
     language: currentLanguage,
     theme: currentTheme,
     settings: currentSettings,
-    onSpotSelect: spot => showSpotPreviewCard(spot),
+    onSpotSelect: spot => {
+      hideSpotPreviewCard();
+      playerManager.openSpot(spot, true);
+    },
     onFlybyPlay: spot => {
       hideSpotPreviewCard();
       playerManager.openSpot(spot, true);
