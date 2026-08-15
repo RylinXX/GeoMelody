@@ -380,7 +380,7 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 24, 6, 32, 12, 44],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 8, 6, 12, 12, 16],
             'circle-opacity': 0.0001,
             'circle-pitch-alignment': 'map'
           }
@@ -394,7 +394,7 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 9, 6, 15, 12, 22],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 8, 6, 13, 12, 20],
             'circle-blur': 0.96,
             'circle-opacity': 0.38,
             'circle-pitch-alignment': 'map'
@@ -409,7 +409,7 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 4.2, 6, 6.8, 12, 9.5],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 3.8, 6, 6.2, 12, 8.5],
             'circle-blur': 0.55,
             'circle-opacity': 0.52,
             'circle-pitch-alignment': 'map'
@@ -424,7 +424,7 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 2.5, 12, 3.6],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.6, 6, 2.3, 12, 3.2],
             'circle-opacity': 0.85,
             'circle-pitch-alignment': 'map'
           }
@@ -445,7 +445,7 @@ export class GlobeManager {
 
     const interactiveLayers = [SPOT_HIT_LAYER_ID, SPOT_CORE_LAYER_ID, SPOT_HALO_LAYER_ID, SPOT_GLOW_LAYER_ID];
 
-    const findSpotAtPoint = (point, buffer = 24) => {
+    const findSpotAtPoint = (point, buffer = 12) => {
       const bbox = [
         [point.x - buffer, point.y - buffer],
         [point.x + buffer, point.y + buffer]
@@ -454,12 +454,28 @@ export class GlobeManager {
       if (!validLayers.length) return null;
       const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
       if (!features.length) return null;
-      const spotId = features[0].properties?.id;
-      return this.spots.find(item => item.id === spotId) || null;
+
+      let closestSpot = null;
+      let minDistance = Infinity;
+      for (const feature of features) {
+        const spotId = feature.properties?.id;
+        const spot = this.spots.find(item => item.id === spotId);
+        if (spot) {
+          const spotPoint = this.map.project([spot.lng, spot.lat]);
+          const dx = spotPoint.x - point.x;
+          const dy = spotPoint.y - point.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < minDistance) {
+            minDistance = distSq;
+            closestSpot = spot;
+          }
+        }
+      }
+      return closestSpot;
     };
 
     this.map.on('mousemove', event => {
-      const spot = findSpotAtPoint(event.point, 16);
+      const spot = findSpotAtPoint(event.point, 10);
       if (spot) {
         this.map.getCanvas().style.cursor = 'pointer';
         this.showTooltip(spot, event.point);
@@ -475,7 +491,7 @@ export class GlobeManager {
     });
 
     const handleSpotSelection = event => {
-      const spot = findSpotAtPoint(event.point, 32);
+      const spot = findSpotAtPoint(event.point, 14);
       if (spot) {
         this.pauseRotation(7000);
         this.hideTooltip();
