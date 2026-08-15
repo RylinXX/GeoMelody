@@ -897,8 +897,97 @@
   color: #ffffff;
 }
 
-/* Mobile Floating Pills Bar (Hidden on Desktop) */
-.player-mobile-pills-bar,
+/* ==================== Morphic Segmented Glass View Switcher Dock (介绍 · 图集 · 评论) ==================== */
+.player-view-switcher-dock {
+  position: absolute;
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 64px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 28px rgba(56, 189, 248, 0.1);
+  z-index: 45;
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.player-view-tab {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  white-space: nowrap;
+  word-break: keep-all;
+  flex-shrink: 0;
+}
+
+.player-view-tab .tab-icon {
+  width: 15px;
+  height: 15px;
+  color: inherit;
+  flex-shrink: 0;
+  transition: transform var(--trans-fast);
+}
+
+.player-view-tab .tab-label {
+  white-space: nowrap;
+  word-break: keep-all;
+  display: inline-block;
+}
+
+.player-view-tab .tab-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-left: 2px;
+  flex-shrink: 0;
+  transition: all var(--trans-fast);
+}
+
+.player-view-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.player-view-tab:hover .tab-icon {
+  transform: scale(1.1);
+}
+
+.player-view-tab.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(2, 132, 199, 0.4) 100%);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  box-shadow: 0 2px 12px rgba(56, 189, 248, 0.3);
+}
+
+.player-view-tab.active .tab-badge {
+  background: rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+}
+
 .player-mobile-back-btn {
   display: none;
 }
@@ -931,76 +1020,23 @@
     display: flex;
   }
 
-  .player-mobile-pills-bar {
-    position: absolute;
-    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 60px);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    z-index: 45;
-    width: max-content;
+  .player-view-switcher-dock {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 58px);
+    padding: 3px;
+    gap: 3px;
     max-width: calc(100vw - 20px);
-    white-space: nowrap;
-    pointer-events: auto;
   }
 
-  .mobile-pill-btn {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 6px 13px;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: var(--radius-full);
-    color: #f1f5f9;
+  .player-view-tab {
+    height: 35px;
+    padding: 0 12px;
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-    transition: all var(--trans-fast);
-    white-space: nowrap;
-    word-break: keep-all;
-    flex-shrink: 0;
+    gap: 5px;
   }
 
-  .mobile-pill-btn span {
-    white-space: nowrap;
-    word-break: keep-all;
-    display: inline-block;
-  }
-
-  .mobile-pill-btn svg {
-    flex-shrink: 0;
-    width: 13px;
-    height: 13px;
-  }
-
-  .mobile-pill-btn:hover,
-  .mobile-pill-btn.active {
-    background: rgba(56, 189, 248, 0.25);
-    border-color: var(--accent-cyan);
-    color: #ffffff;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
-    transform: scale(1.04);
-  }
-
-  .mobile-pill-badge {
-    background: rgba(56, 189, 248, 0.3);
-    color: var(--accent-cyan);
-    font-size: 10px;
-    padding: 1px 5px;
-    border-radius: 99px;
-    font-weight: 700;
-    flex-shrink: 0;
+  .player-view-tab .tab-icon {
+    width: 14px;
+    height: 14px;
   }
 
   .player-ui-layer {
@@ -1551,6 +1587,44 @@
   font-size: 10px;
   padding: 2px 7px;
   border-radius: 6px;
+}
+
+.gallery-card-like-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  color: #f1f5f9;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 5;
+  transition: all var(--trans-fast);
+}
+
+.gallery-card-like-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: scale(1.08);
+}
+
+.gallery-card-like-btn.liked {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.gallery-card-like-btn .like-heart {
+  font-size: 11.5px;
 }
 
 .gallery-card-info {

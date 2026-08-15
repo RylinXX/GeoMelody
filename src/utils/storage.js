@@ -207,7 +207,7 @@ export const storage = {
       .sort((a, b) => b.likes - a.likes);
   },
 
-  // ==================== Scenery Photo Gallery & Moderation ====================
+  // ==================== Scenery Photo Gallery, Likes & Moderation ====================
   getPhotoAuditMode() {
     return localStorage.getItem('geomelody_photo_audit_mode') || 'auto_approve';
   },
@@ -221,30 +221,66 @@ export const storage = {
     return all[spotId] || [];
   },
 
+  getPhotoLike(photoId) {
+    const allLikes = readJson('geomelody_photo_likes', {});
+    if (allLikes[photoId]) return allLikes[photoId];
+    // Authentic seed likes based on photo ID hash
+    let hash = 0;
+    for (let i = 0; i < photoId.length; i++) {
+      hash = (hash << 5) - hash + photoId.charCodeAt(i);
+      hash |= 0;
+    }
+    const seed = Math.abs(hash % 38) + 12;
+    return { count: seed, liked: false };
+  },
+
+  togglePhotoLike(photoId) {
+    const allLikes = readJson('geomelody_photo_likes', {});
+    const current = this.getPhotoLike(photoId);
+    current.liked = !current.liked;
+    current.count = Math.max(0, Number(current.count || 0) + (current.liked ? 1 : -1));
+    allLikes[photoId] = current;
+    writeJson('geomelody_photo_likes', allLikes);
+    return current;
+  },
+
   getSpotPhotos(spot) {
     if (!spot) return [];
-    const basePhotos = Array.isArray(spot.photos) ? spot.photos : [];
-    const userPhotos = this.getCommunityPhotos(spot.id)
-      .filter(p => p.status === 'approved')
-      .map(p => p.url);
-    return [...basePhotos, ...userPhotos];
+    const records = this.getSpotPhotoRecords(spot);
+    return records.filter(p => p.status === 'approved').map(p => p.url);
   },
 
   getSpotPhotoRecords(spot, spotName = '') {
     if (!spot) return [];
-    const basePhotos = (spot.photos || []).map((url, i) => ({
-      id: `builtin_${spot.id}_${i}`,
-      spotId: spot.id,
-      url,
-      author: '官方精选壁纸',
-      caption: `${spotName || spot.name} · ${i + 1}`,
-      timestamp: 0,
-      isBuiltin: true,
-      status: 'approved'
-    }));
+    const basePhotos = (spot.photos || []).map((url, i) => {
+      const id = `builtin_${spot.id}_${i}`;
+      const likeInfo = this.getPhotoLike(id);
+      return {
+        id,
+        spotId: spot.id,
+        url,
+        author: '官方精选壁纸',
+        caption: `${spotName || spot.name} · ${i + 1}`,
+        timestamp: 0,
+        isBuiltin: true,
+        status: 'approved',
+        likes: likeInfo.count,
+        liked: likeInfo.liked
+      };
+    });
 
-    const userPhotos = this.getCommunityPhotos(spot.id);
-    return [...basePhotos, ...userPhotos];
+    const userPhotos = this.getCommunityPhotos(spot.id).map(p => {
+      const likeInfo = this.getPhotoLike(p.id);
+      return {
+        ...p,
+        likes: likeInfo.count,
+        liked: likeInfo.liked
+      };
+    });
+
+    const all = [...basePhotos, ...userPhotos];
+    // Sort by likes descending (higher likes first) so most-popular wallpapers show first in gallery and slideshow
+    return all.sort((a, b) => b.likes - a.likes);
   },
 
   addSpotPhoto(spotId, { url, author, caption }) {

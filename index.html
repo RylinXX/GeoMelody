@@ -361,23 +361,23 @@
           </aside>
         </div>
 
-        <!-- Mobile Floating Toggle Pills Bar (Visible on mobile screens <= 768px) -->
-        <div class="player-mobile-pills-bar" id="player-mobile-pills-bar">
-          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-story">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-            <span data-i18n="storyTab">介绍</span>
+        <!-- ==================== Designed Segmented Morphic View Switcher Dock ==================== -->
+        <nav class="player-view-switcher-dock" id="player-view-switcher-dock" aria-label="视听内容切换">
+          <button type="button" class="player-view-tab" id="btn-player-tab-story" data-tab="story" aria-pressed="false" title="查看胜景故事与意境介绍">
+            <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            <span class="tab-label" data-i18n="storyTab">介绍</span>
           </button>
-          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-gallery">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-            <span data-i18n="galleryTab">图集</span>
-            <span class="mobile-pill-badge" id="mobile-gallery-badge">0</span>
+          <button type="button" class="player-view-tab" id="btn-player-tab-gallery" data-tab="gallery" aria-pressed="false" title="浏览与共创高清胜景图集">
+            <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span class="tab-label" data-i18n="galleryTab">图集</span>
+            <span class="tab-badge" id="player-tab-gallery-badge">0</span>
           </button>
-          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-comments">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span data-i18n="commentsTab">评论</span>
-            <span class="mobile-pill-badge" id="mobile-comments-badge">0</span>
+          <button type="button" class="player-view-tab" id="btn-player-tab-comments" data-tab="comments" aria-pressed="false" title="查看与发表实时互动评论">
+            <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="tab-label" data-i18n="commentsTab">评论</span>
+            <span class="tab-badge" id="player-tab-comments-badge">0</span>
           </button>
-        </div>
+        </nav>
 
         <!-- ==================== Scenery Photo Gallery & Community Contribution Modal ==================== -->
         <div class="player-gallery-modal" id="player-gallery-modal" aria-hidden="true" role="dialog" aria-label="胜景图集">

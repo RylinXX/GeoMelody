@@ -57,6 +57,15 @@ export class PlayerManager {
   }
 
   bindEvents() {
+    // ==================== Segmented Morphic View Switcher Dock ====================
+    const storyCard = document.getElementById('player-story-card');
+    const commentsCard = document.getElementById('player-floating-comments');
+    const tabStoryBtn = document.getElementById('btn-player-tab-story') || document.getElementById('btn-mobile-toggle-story');
+    const tabGalleryBtn = document.getElementById('btn-player-tab-gallery') || document.getElementById('btn-mobile-toggle-gallery');
+    const tabCommentsBtn = document.getElementById('btn-player-tab-comments') || document.getElementById('btn-mobile-toggle-comments');
+    const closeStoryBtn = document.getElementById('btn-close-story-sheet');
+    const closeCommentsBtn = document.getElementById('btn-close-comments-sheet');
+
     if (this.overlay) {
       this.overlay.addEventListener('mousemove', () => this.handleUserActivity());
       this.overlay.addEventListener('click', (e) => {
@@ -64,44 +73,35 @@ export class PlayerManager {
           this.revealUI();
         }
         if (window.innerWidth <= 768) {
-          if (!e.target.closest('#player-story-card') && !e.target.closest('#player-floating-comments') && !e.target.closest('#player-mobile-pills-bar')) {
+          if (!e.target.closest('#player-story-card') && !e.target.closest('#player-floating-comments') && !e.target.closest('#player-view-switcher-dock') && !e.target.closest('#player-mobile-pills-bar')) {
             storyCard?.classList.remove('mobile-open');
             commentsCard?.classList.remove('mobile-open');
-            toggleStoryBtn?.classList.remove('active');
-            toggleCommentsBtn?.classList.remove('active');
+            tabStoryBtn?.classList.remove('active');
+            tabCommentsBtn?.classList.remove('active');
           }
         }
       });
     }
 
-    // Mobile Drawer Toggle Pills
-    const storyCard = document.getElementById('player-story-card');
-    const commentsCard = document.getElementById('player-floating-comments');
-    const toggleStoryBtn = document.getElementById('btn-mobile-toggle-story');
-    const toggleCommentsBtn = document.getElementById('btn-mobile-toggle-comments');
-    const toggleGalleryBtn = document.getElementById('btn-mobile-toggle-gallery');
-    const closeStoryBtn = document.getElementById('btn-close-story-sheet');
-    const closeCommentsBtn = document.getElementById('btn-close-comments-sheet');
-
-    toggleStoryBtn?.addEventListener('click', (e) => {
+    tabStoryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = storyCard?.classList.contains('mobile-open');
       commentsCard?.classList.remove('mobile-open');
-      toggleCommentsBtn?.classList.remove('active');
+      tabCommentsBtn?.classList.remove('active');
       storyCard?.classList.toggle('mobile-open', !isOpen);
-      toggleStoryBtn?.classList.toggle('active', !isOpen);
+      tabStoryBtn?.classList.toggle('active', !isOpen);
     });
 
-    toggleCommentsBtn?.addEventListener('click', (e) => {
+    tabCommentsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = commentsCard?.classList.contains('mobile-open');
       storyCard?.classList.remove('mobile-open');
-      toggleStoryBtn?.classList.remove('active');
+      tabStoryBtn?.classList.remove('active');
       commentsCard?.classList.toggle('mobile-open', !isOpen);
-      toggleCommentsBtn?.classList.toggle('active', !isOpen);
+      tabCommentsBtn?.classList.toggle('active', !isOpen);
     });
 
-    toggleGalleryBtn?.addEventListener('click', (e) => {
+    tabGalleryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.openGallery();
     });
@@ -109,13 +109,13 @@ export class PlayerManager {
     closeStoryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       storyCard?.classList.remove('mobile-open');
-      toggleStoryBtn?.classList.remove('active');
+      tabStoryBtn?.classList.remove('active');
     });
 
     closeCommentsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       commentsCard?.classList.remove('mobile-open');
-      toggleCommentsBtn?.classList.remove('active');
+      tabCommentsBtn?.classList.remove('active');
     });
 
     const galleryBtn = document.getElementById('player-gallery-btn');
@@ -300,9 +300,9 @@ export class PlayerManager {
       this.photoDots.appendChild(dot);
     });
 
-    const mobileGalleryBadge = document.getElementById('mobile-gallery-badge');
-    if (mobileGalleryBadge) {
-      mobileGalleryBadge.textContent = String(photos.length);
+    const galleryBadge = document.getElementById('player-tab-gallery-badge') || document.getElementById('mobile-gallery-badge');
+    if (galleryBadge) {
+      galleryBadge.textContent = String(photos.length);
     }
   }
 
@@ -420,6 +420,10 @@ export class PlayerManager {
             <img src="${record.url}" alt="${record.caption || ''}" class="gallery-card-thumb" loading="lazy" />
             ${isActive ? `<span class="gallery-active-badge">✓ 当前壁纸</span>` : ''}
             ${tag}
+            <button type="button" class="gallery-card-like-btn ${record.liked ? 'liked' : ''}" data-photo-id="${record.id}" title="为这幅壁纸点赞 (高赞优先轮播)">
+              <span class="like-heart">${record.liked ? '❤️' : '🤍'}</span>
+              <span class="like-num">${record.likes || 0}</span>
+            </button>
           </div>
           <div class="gallery-card-info">
             <span class="gallery-card-caption">${record.caption || '胜景留影'}</span>
@@ -432,9 +436,29 @@ export class PlayerManager {
       `;
     }).join('');
 
+    // Photo like / upvote button click
+    container.querySelectorAll('.gallery-card-like-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const photoId = btn.dataset.photoId;
+        if (photoId) {
+          const res = storage.togglePhotoLike(photoId);
+          btn.classList.toggle('liked', res.liked);
+          const heart = btn.querySelector('.like-heart');
+          const num = btn.querySelector('.like-num');
+          if (heart) heart.textContent = res.liked ? '❤️' : '🤍';
+          if (num) num.textContent = res.count;
+          this.showToast(res.liked ? '已为壁纸点赞！高赞照片将优先轮播' : '已取消点赞');
+          // Re-sort wallpapers so highest-liked ranked photos appear first in gallery & slideshow
+          this.renderPhotos();
+          this.renderGalleryModal();
+        }
+      });
+    });
+
     container.querySelectorAll('.gallery-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.gallery-delete-photo-btn')) return;
+        if (e.target.closest('.gallery-delete-photo-btn') || e.target.closest('.gallery-card-like-btn')) return;
         const idx = Number(card.dataset.photoIndex);
         if (!isNaN(idx)) {
           this.switchPhoto(idx);
