@@ -312,19 +312,19 @@
 
 /* --- Right Side Floating Comments & Likes Modal Card --- */
 .player-floating-comments {
-  width: 380px;
+  width: 410px;
   max-width: calc(50vw - 32px);
-  max-height: 460px;
-  background: rgba(15, 23, 42, 0.85);
+  max-height: 540px;
+  background: rgba(15, 23, 42, 0.88);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 16px 18px;
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   overflow: hidden;
   transition: all var(--trans-normal);
 }
@@ -504,12 +504,12 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 220px;
+  max-height: 280px;
   min-height: 80px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 6px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .player-comments-stream::-webkit-scrollbar {
@@ -592,9 +592,12 @@
 }
 
 .comment-body {
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 :root[data-theme="light"] .player-spot-en-title {
