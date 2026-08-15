@@ -76,9 +76,11 @@ export class GlobeManager {
     this.airplaneMarker = null;
     this.airplaneProgress = 0.0;
     this.flightOrbitCoords = [];
-    this.contrailTrail = [];
     this.isAirplaneActive = false;
     this.isRoaming = false;
+    this.currentFlybySpot = null;
+    this.lastFlybyRotationTime = 0;
+    this.flybyCandidateIndex = 0;
   }
 
   async init() {
@@ -845,42 +847,46 @@ export class GlobeManager {
 
     const zoom = this.map?.getZoom() ?? 2.2;
     // Scale detection range based on zoom level:
-    // At zoom 2.2 (global): ~500km enter, ~750km exit
-    // At zoom 7 (provinces): ~50km enter, ~80km exit
-    // At zoom 11 (cities/districts): ~6km enter, ~10km exit
     const zoomScale = Math.pow(2, Math.min(0, 2.2 - zoom));
     const enterRadiusKm = Math.max(5, 500 * zoomScale);
-    const exitRadiusKm = Math.max(8, 750 * zoomScale);
-
-    // If currently displaying a spot, check if it has moved out of range
-    if (this.currentFlybySpot) {
-      const dist = calculateDistanceKm(cLat, cLng, this.currentFlybySpot.lat, this.currentFlybySpot.lng);
-      if (dist < exitRadiusKm) {
-        // Keep showing current spot while cruising above this region
-        return;
-      } else {
-        // Drifting away from current spot -> clear
-        this.currentFlybySpot = null;
-        this.hideFlybyCard();
-      }
-    }
+    const now = Date.now();
 
     // Find all spots within flyby detection range
     const nearbySpots = [];
     for (const spot of this.spots) {
       const dist = calculateDistanceKm(cLat, cLng, spot.lat, spot.lng);
       if (dist < enterRadiusKm) {
-        nearbySpots.push({ spot, dist });
+        nearbySpots.push(spot);
       }
     }
 
     if (nearbySpots.length > 0) {
-      // If multiple spots are nearby in this region, pick one randomly so the screen is clean!
-      const chosen = nearbySpots[Math.floor(Math.random() * nearbySpots.length)].spot;
-      this.currentFlybySpot = chosen;
-      this.showFlybyCard(chosen);
+      // If there are multiple spots nearby (e.g. 2, 3, or more)
+      // Rotate every 3 seconds (3000ms) smoothly through the candidate spots!
+      if (now - this.lastFlybyRotationTime > 3000) {
+        this.lastFlybyRotationTime = now;
+        this.flybyCandidateIndex = (this.flybyCandidateIndex + 1) % nearbySpots.length;
+        const nextSpot = nearbySpots[this.flybyCandidateIndex];
+        this.currentFlybySpot = nextSpot;
+        this.showFlybyCard(nextSpot);
+      } else if (!this.currentFlybySpot || !nearbySpots.some(s => s.id === this.currentFlybySpot?.id)) {
+        // Current spot is no longer in nearby list or not initialized -> show first nearby spot
+        this.flybyCandidateIndex = 0;
+        const chosen = nearbySpots[0];
+        this.currentFlybySpot = chosen;
+        this.lastFlybyRotationTime = now;
+        this.showFlybyCard(chosen);
+      }
     } else {
-      this.hideFlybyCard();
+      // When there are no nearby spots (e.g. flying over ocean / sparse regions):
+      // Keep displaying the previously shown song (一直显示之前的一首歌儿)!
+      // If none was ever displayed, pick a random spot from the global library:
+      if (!this.currentFlybySpot) {
+        const randomSpot = this.spots[Math.floor(Math.random() * this.spots.length)];
+        this.currentFlybySpot = randomSpot;
+        this.lastFlybyRotationTime = now;
+        this.showFlybyCard(randomSpot);
+      }
     }
   }
 
@@ -903,20 +909,28 @@ export class GlobeManager {
     if (badge) badge.style.display = 'none';
     card.style.display = 'flex';
 
-    const triggerPlay = (e) => {
-      e.stopPropagation();
-      this.pauseRotation(15000);
-      if (this.onFlybyPlay) {
-        this.onFlybyPlay(spot);
-      } else {
-        this.onSpotSelect?.(spot);
-      }
-    };
+    // 1. Left side click: Smoothly fly the camera to this spot's exact location!
+    const leftSide = document.getElementById('flyby-left-side');
+    if (leftSide) {
+      leftSide.onclick = (e) => {
+        e.stopPropagation();
+        this.pauseRotation(6000);
+        this.flyToSpot(spot, this.viewMode === '3d' ? 5.8 : 7.5);
+      };
+    }
 
-    card.onclick = triggerPlay;
+    // 2. Right "听这首" button click: Immediately open the player and start music!
     const playBtn = document.getElementById('btn-flyby-play');
     if (playBtn) {
-      playBtn.onclick = triggerPlay;
+      playBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.pauseRotation(15000);
+        if (this.onFlybyPlay) {
+          this.onFlybyPlay(spot);
+        } else {
+          this.onSpotSelect?.(spot);
+        }
+      };
     }
   }
 

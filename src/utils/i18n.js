@@ -193,7 +193,9 @@ const MESSAGES = {
     setAsCurrentWallpaper: '设为当前壁纸',
     activeWallpaper: '当前壁纸',
     travelingTag: '旅行中',
-    listenThis: '听这首'
+    listenThis: '听这首',
+    flyToSpotTitle: '点击飞往此胜景位置',
+    openPlaybackTitle: '点击直接进入播放'
   },
   en: {
     documentTitle: 'GeoMelody - Immersive 3D Soundscape Map',
@@ -383,7 +385,9 @@ const MESSAGES = {
     setAsCurrentWallpaper: 'Set as Active Wallpaper',
     activeWallpaper: 'Active',
     travelingTag: 'Traveling',
-    listenThis: 'Play This'
+    listenThis: 'Play This',
+    flyToSpotTitle: 'Fly to spot location',
+    openPlaybackTitle: 'Open immersive player'
   }
 };
 
