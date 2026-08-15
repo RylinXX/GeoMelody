@@ -394,9 +394,9 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 12, 6, 20, 12, 30],
-            'circle-blur': 0.92,
-            'circle-opacity': 0.76,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 9, 6, 15, 12, 22],
+            'circle-blur': 0.96,
+            'circle-opacity': 0.38,
             'circle-pitch-alignment': 'map'
           }
         });
@@ -409,12 +409,9 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 5.5, 6, 8.5, 12, 13],
-            'circle-blur': 0.28,
-            'circle-opacity': 0.92,
-            'circle-stroke-width': 1.6,
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-opacity': 0.85,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 4.2, 6, 6.8, 12, 9.5],
+            'circle-blur': 0.55,
+            'circle-opacity': 0.52,
             'circle-pitch-alignment': 'map'
           }
         });
@@ -427,8 +424,8 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 6, 3.8, 12, 5.5],
-            'circle-opacity': 1.0,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 2.5, 12, 3.6],
+            'circle-opacity': 0.85,
             'circle-pitch-alignment': 'map'
           }
         });
