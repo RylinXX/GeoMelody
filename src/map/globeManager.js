@@ -59,7 +59,6 @@ export class GlobeManager {
     if (this.map) return;
     if (MAPTILER_KEY) config.apiKey = MAPTILER_KEY;
 
-    // Pre-fetch localized style (Chinese labels & deep dark background pre-baked)
     const initialStyle = await this.getResolvedStyle(this.mapSettings.mapSkin);
 
     this.map = new Map({
@@ -76,7 +75,7 @@ export class GlobeManager {
       antialias: true,
       terrain: false,
       space: this.mapSettings.showStars ? { preset: 'stars', color: '#ffffff' } : { color: '#02060c' },
-      halo: false, // Prevent white circle halo artifact
+      halo: false,
       navigationControl: false,
       geolocateControl: false,
       projectionControl: false,
@@ -87,11 +86,12 @@ export class GlobeManager {
       logSDKVersion: false
     });
 
-    this.map.on('load', () => {
-      this.handleStyleReady();
-    });
-    this.map.on('style.load', () => {
-      this.handleStyleReady();
+    this.map.on('load', () => this.handleStyleReady());
+    this.map.on('style.load', () => this.handleStyleReady());
+    this.map.on('idle', () => {
+      if (!this.map?.getLayer(SPOT_CORE_LAYER_ID)) {
+        this.renderLightDotMarkers();
+      }
     });
 
     this.map.on('error', event => {
@@ -129,21 +129,23 @@ export class GlobeManager {
   }
 
   handleStyleReady() {
-    if (!this.map || !this.map.isStyleLoaded()) return;
+    if (!this.map) return;
+    const style = this.map.getStyle();
+    if (!style) return;
+
     this.styleReady = true;
     this.map.getContainer().dataset.mapReady = 'true';
+
     if (!this.mapSettings.showHalo) {
       this.removeHaloArtifacts();
     }
+
     this.applyLayerFilters();
     this.renderLightDotMarkers();
     this.updateSpaceAppearance();
     this.applyMapLanguage();
   }
 
-  /**
-   * Remove any white halo/gradient layer artifacts
-   */
   removeHaloArtifacts() {
     if (!this.map) return;
     try {
@@ -173,19 +175,17 @@ export class GlobeManager {
     } catch (_) {}
   }
 
-  /**
-   * Apply user settings to show/hide hillshading, cities, countries, borders
-   */
   applyLayerFilters() {
-    if (!this.map || !this.map.isStyleLoaded()) return;
-    const { showHillshade, showCities, showCountries, showBorders } = this.mapSettings;
-    const layers = this.map.getStyle()?.layers || [];
+    if (!this.map) return;
+    const style = this.map.getStyle();
+    if (!style || !Array.isArray(style.layers)) return;
 
-    layers.forEach(layer => {
+    const { showHillshade, showCities, showCountries, showBorders } = this.mapSettings;
+
+    style.layers.forEach(layer => {
       const id = layer.id.toLowerCase();
       if (id.startsWith('geomelody-')) return;
 
-      // 1. Hillshade & 3D Terrain Shading
       if (
         layer.type === 'hillshade' ||
         id.includes('hillshade') ||
@@ -199,7 +199,6 @@ export class GlobeManager {
         } catch (_) {}
       }
 
-      // 2. State & City Labels and boundaries
       const isCityOrState =
         id.includes('boundary_state') ||
         id.includes('place_state') ||
@@ -222,7 +221,6 @@ export class GlobeManager {
         } catch (_) {}
       }
 
-      // 3. Country Names
       const isCountry =
         id.includes('place_country_major') ||
         id.includes('place_country_minor') ||
@@ -237,7 +235,6 @@ export class GlobeManager {
         } catch (_) {}
       }
 
-      // 4. Country Borders
       const isCountryBorder =
         id.includes('boundary_country') ||
         id.includes('boundary_admin0') ||
@@ -263,7 +260,7 @@ export class GlobeManager {
     const prevSkin = this.mapSettings.mapSkin;
     this.mapSettings = { ...this.mapSettings, ...newSettings };
 
-    // If map base skin changed, switch style
+    // If map base skin changed, cleanly switch style and restore markers
     if (newSettings.mapSkin && newSettings.mapSkin !== prevSkin && this.map) {
       this.styleReady = false;
       this.interactionsBound = false;
@@ -271,6 +268,7 @@ export class GlobeManager {
       delete this.map.getContainer().dataset.spotCount;
       const nextStyle = await this.getResolvedStyle(this.mapSettings.mapSkin);
       this.map.setStyle(nextStyle);
+      this.map.once('style.load', () => this.handleStyleReady());
       this.map.once('idle', () => this.handleStyleReady());
       return;
     }
@@ -352,62 +350,69 @@ export class GlobeManager {
   }
 
   renderLightDotMarkers() {
-    if (!this.map || !this.styleReady || !this.map.isStyleLoaded()) return;
+    if (!this.map) return;
+    const style = this.map.getStyle();
+    if (!style) return;
+
     const data = this.toGeoJson();
     this.map.getContainer().dataset.spotCount = String(data.features.length);
-    const source = this.map.getSource(SPOT_SOURCE_ID);
-    if (source) {
-      source.setData(data);
-      this.map.getContainer().dataset.markerLayer = 'true';
-      this.bindMapInteractions();
-      return;
-    }
 
     try {
-      this.map.addSource(SPOT_SOURCE_ID, {
-        type: 'geojson',
-        data
-      });
+      let source = this.map.getSource(SPOT_SOURCE_ID);
+      if (!source) {
+        this.map.addSource(SPOT_SOURCE_ID, {
+          type: 'geojson',
+          data
+        });
+      } else {
+        source.setData(data);
+      }
 
-      this.map.addLayer({
-        id: SPOT_GLOW_LAYER_ID,
-        type: 'circle',
-        source: SPOT_SOURCE_ID,
-        paint: {
-          'circle-color': ['get', 'color'],
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 8, 6, 14, 12, 20],
-          'circle-blur': 1,
-          'circle-opacity': 0.46,
-          'circle-pitch-alignment': 'map'
-        }
-      });
+      if (!this.map.getLayer(SPOT_GLOW_LAYER_ID)) {
+        this.map.addLayer({
+          id: SPOT_GLOW_LAYER_ID,
+          type: 'circle',
+          source: SPOT_SOURCE_ID,
+          paint: {
+            'circle-color': ['get', 'color'],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 9, 6, 16, 12, 22],
+            'circle-blur': 0.85,
+            'circle-opacity': 0.65,
+            'circle-pitch-alignment': 'map'
+          }
+        });
+      }
 
-      this.map.addLayer({
-        id: SPOT_HALO_LAYER_ID,
-        type: 'circle',
-        source: SPOT_SOURCE_ID,
-        paint: {
-          'circle-color': ['get', 'color'],
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 4.5, 6, 7.5, 12, 10],
-          'circle-blur': 0.55,
-          'circle-opacity': 0.72,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': 'rgba(255,255,255,0.72)',
-          'circle-pitch-alignment': 'map'
-        }
-      });
+      if (!this.map.getLayer(SPOT_HALO_LAYER_ID)) {
+        this.map.addLayer({
+          id: SPOT_HALO_LAYER_ID,
+          type: 'circle',
+          source: SPOT_SOURCE_ID,
+          paint: {
+            'circle-color': ['get', 'color'],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 5.5, 6, 9, 12, 12],
+            'circle-blur': 0.35,
+            'circle-opacity': 0.85,
+            'circle-stroke-width': 1.5,
+            'circle-stroke-color': '#ffffff',
+            'circle-pitch-alignment': 'map'
+          }
+        });
+      }
 
-      this.map.addLayer({
-        id: SPOT_CORE_LAYER_ID,
-        type: 'circle',
-        source: SPOT_SOURCE_ID,
-        paint: {
-          'circle-color': '#ffffff',
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 3.2, 12, 4.6],
-          'circle-opacity': 0.96,
-          'circle-pitch-alignment': 'map'
-        }
-      });
+      if (!this.map.getLayer(SPOT_CORE_LAYER_ID)) {
+        this.map.addLayer({
+          id: SPOT_CORE_LAYER_ID,
+          type: 'circle',
+          source: SPOT_SOURCE_ID,
+          paint: {
+            'circle-color': '#ffffff',
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 6, 4, 12, 5.5],
+            'circle-opacity': 1.0,
+            'circle-pitch-alignment': 'map'
+          }
+        });
+      }
 
       this.map.getContainer().dataset.markerLayer = 'true';
       this.bindMapInteractions();
@@ -510,15 +515,17 @@ export class GlobeManager {
   }
 
   applyMapLanguage() {
-    if (!this.map || !this.styleReady || !this.map.isStyleLoaded()) return;
+    if (!this.map) return;
+    const style = this.map.getStyle();
+    if (!style || !Array.isArray(style.layers)) return;
+
     try {
       const isChinese = this.currentLanguage !== 'en';
       if (typeof this.map.setLanguage === 'function') {
         this.map.setLanguage(isChinese ? Language.CHINESE : Language.ENGLISH);
       }
 
-      const layers = this.map.getStyle()?.layers || [];
-      layers.forEach(layer => {
+      style.layers.forEach(layer => {
         if (layer.type === 'symbol' && layer.layout && layer.layout['text-field']) {
           if (isChinese) {
             this.map.setLayoutProperty(layer.id, 'text-field', [
@@ -549,7 +556,7 @@ export class GlobeManager {
   setTheme(theme) {
     if (theme !== 'light' && theme !== 'dark') return;
     this.currentTheme = theme;
-    const skin = theme === 'light' ? 'dataviz-light' : 'dataviz-dark';
+    const skin = theme === 'light' ? 'dataviz-light' : 'streets-dark';
     this.applyMapSettings({ mapSkin: skin });
   }
 
@@ -601,7 +608,7 @@ export class GlobeManager {
     const resumeSoon = () => this.pauseRotation(2500);
     canvas.addEventListener('pointerdown', pause, { passive: true });
     canvas.addEventListener('pointerup', resumeSoon, { passive: true });
-    canvas.addEventListener('pointercancel', resumeSoon, { passive: true });
+    canvas.addEventListener('cancel', resumeSoon, { passive: true });
     canvas.addEventListener('wheel', pause, { passive: true });
   }
 

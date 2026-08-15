@@ -3,13 +3,14 @@
  * Pre-fetches and localizes map styles to guarantee:
  * 1. 100% Chinese country/city names from the very first frame (zero English flash).
  * 2. Instant dark cosmic background (zero white flash).
+ * 3. Fresh deep clones so MapLibre state mutations never corrupt cached styles.
  */
 
 const STYLE_CACHE = new Map();
 
 const FALLBACK_STYLES = {
-  'dataviz-dark': 'https://tiles.openfreemap.org/styles/dark',
   'streets-dark': 'https://tiles.openfreemap.org/styles/dark',
+  'dataviz-dark': 'https://tiles.openfreemap.org/styles/dark',
   'backdrop-dark': 'https://tiles.openfreemap.org/styles/dark',
   'dataviz-light': 'https://tiles.openfreemap.org/styles/positron',
   'satellite': 'https://tiles.openfreemap.org/styles/dark'
@@ -35,13 +36,13 @@ const ENGLISH_TEXT_FIELD = [
   ['get', 'name']
 ];
 
-export async function fetchAndLocalizeStyle(skin = 'dataviz-dark', language = 'zh', showHillshade = false) {
+export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'zh', showHillshade = false) {
   const cacheKey = `${skin}-${language}-${showHillshade}`;
   if (STYLE_CACHE.has(cacheKey)) {
-    return STYLE_CACHE.get(cacheKey);
+    return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
   }
 
-  const url = FALLBACK_STYLES[skin] || FALLBACK_STYLES['dataviz-dark'];
+  const url = FALLBACK_STYLES[skin] || FALLBACK_STYLES['streets-dark'];
   try {
     const response = await fetch(url);
     const styleJson = await response.json();
@@ -60,7 +61,7 @@ export async function fetchAndLocalizeStyle(skin = 'dataviz-dark', language = 'z
     if (Array.isArray(styleJson.layers)) {
       styleJson.layers.forEach(layer => {
         if (layer.type === 'symbol' && layer.layout && layer.layout['text-field']) {
-          layer.layout['text-field'] = targetTextField;
+          layer.layout = { ...layer.layout, 'text-field': targetTextField };
         }
 
         // 3. Pre-filter hillshade if disabled
@@ -80,7 +81,7 @@ export async function fetchAndLocalizeStyle(skin = 'dataviz-dark', language = 'z
     }
 
     STYLE_CACHE.set(cacheKey, styleJson);
-    return styleJson;
+    return JSON.parse(JSON.stringify(styleJson));
   } catch (error) {
     console.warn('[GeoMelody StyleHelper] Failed to localize style online, using direct URL', error);
     return url;
