@@ -151,7 +151,14 @@ const MESSAGES = {
     localInstruments: '地方原声乐器 · 自然环境音',
     scaleLabel: '调式',
     instrumentsLabel: '乐器',
-    tempoLabel: '节奏'
+    tempoLabel: '节奏',
+    locateMe: '我的定位',
+    locateMeTitle: '实时定位我的当前位置',
+    locating: '正在获取实时位置…',
+    locateSuccess: '定位成功！距离最近胜景「{name}」约 {distance} km',
+    locateSuccessSimple: '定位成功，已移动至您的当前位置',
+    locateDenied: '定位权限未开启，请在浏览器中允许位置访问',
+    locateError: '暂无法获取定位信息，请检查网络或定位服务'
   },
   en: {
     documentTitle: 'GeoMelody - Immersive 3D Soundscape Map',
@@ -298,7 +305,14 @@ const MESSAGES = {
     localInstruments: 'Acoustic instruments & nature recordings',
     scaleLabel: 'Scale',
     instrumentsLabel: 'Instruments',
-    tempoLabel: 'Tempo'
+    tempoLabel: 'Tempo',
+    locateMe: 'Locate Me',
+    locateMeTitle: 'Locate my real-time position',
+    locating: 'Getting real-time position…',
+    locateSuccess: 'Located! Nearest place “{name}” is ~{distance} km away',
+    locateSuccessSimple: 'Location found, centered on your position',
+    locateDenied: 'Location access denied. Please allow location in your browser',
+    locateError: 'Unable to get location. Please check your network or GPS'
   }
 };
 

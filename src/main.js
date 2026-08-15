@@ -574,6 +574,75 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(t('viewReset', currentLanguage));
   });
 
+  function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c * 10) / 10;
+  }
+
+  const locateBtn = document.getElementById('dock-btn-locate-me');
+  locateBtn?.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      showToast(t('locateError', currentLanguage));
+      return;
+    }
+
+    showToast(t('locating', currentLanguage));
+    locateBtn.classList.add('loading');
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        locateBtn.classList.remove('loading');
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        globeManager.setUserLocation({ lng, lat, accuracy });
+
+        // Find nearest scenic spot
+        let closestSpot = null;
+        let minDistance = Infinity;
+
+        SCENIC_SPOTS.forEach(spot => {
+          const dist = calculateDistanceKm(lat, lng, spot.lat, spot.lng);
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestSpot = spot;
+          }
+        });
+
+        if (closestSpot && minDistance < 12000) {
+          showToast(t('locateSuccess', currentLanguage, {
+            name: getSpotName(closestSpot, currentLanguage),
+            distance: minDistance
+          }));
+        } else {
+          showToast(t('locateSuccessSimple', currentLanguage));
+        }
+      },
+      error => {
+        locateBtn.classList.remove('loading');
+        console.warn('[GeoMelody Geolocation]', error);
+        if (error.code === error.PERMISSION_DENIED) {
+          showToast(t('locateDenied', currentLanguage));
+        } else {
+          showToast(t('locateError', currentLanguage));
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  });
+
   searchInput?.addEventListener('input', event => renderSearchResults(event.target.value));
   searchInput?.addEventListener('focus', () => renderSearchResults(searchInput.value));
   searchInput?.addEventListener('click', () => renderSearchResults(searchInput.value));

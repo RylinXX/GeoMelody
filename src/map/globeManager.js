@@ -2,7 +2,8 @@ import {
   config,
   Language,
   Map,
-  MapStyle
+  MapStyle,
+  Marker
 } from '@maptiler/sdk';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { CATEGORY_MAP } from '../data/categories.js';
@@ -53,6 +54,8 @@ export class GlobeManager {
     this.rotationPausedUntil = 0;
     this.tooltip = document.getElementById('globe-tooltip');
     this.usingMapTilerCloud = Boolean(MAPTILER_KEY);
+    this.userMarker = null;
+    this.userLocation = null;
   }
 
   async init() {
@@ -624,6 +627,54 @@ export class GlobeManager {
       const center = this.map.getCenter();
       this.map.setCenter([normalizeLongitude(center.lng + 0.018), center.lat]);
     }, 60);
+  }
+
+  setUserLocation({ lng, lat, accuracy }) {
+    if (!this.map || typeof lng !== 'number' || typeof lat !== 'number') return;
+    this.userLocation = { lng, lat, accuracy };
+
+    if (!this.userMarker) {
+      const el = document.createElement('div');
+      el.className = 'user-location-marker';
+      el.setAttribute('title', this.currentLanguage === 'en' ? 'My Location' : '我的位置');
+      el.innerHTML = `
+        <div class="user-radar-ring"></div>
+        <div class="user-radar-ring ring-2"></div>
+        <div class="user-marker-dot"></div>
+        <div class="user-marker-badge">${this.currentLanguage === 'en' ? 'My Location' : '我的位置'}</div>
+      `;
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.flyToUserLocation();
+      });
+      this.userMarker = new Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map);
+    } else {
+      this.userMarker.setLngLat([lng, lat]);
+      const badge = this.userMarker.getElement()?.querySelector('.user-marker-badge');
+      if (badge) badge.textContent = this.currentLanguage === 'en' ? 'My Location' : '我的位置';
+    }
+
+    this.flyToUserLocation();
+  }
+
+  getUserLocation() {
+    return this.userLocation;
+  }
+
+  flyToUserLocation() {
+    if (!this.map || !this.userLocation) return;
+    this.pauseRotation(10000);
+    const targetZoom = this.viewMode === '3d' ? 6.5 : 9.0;
+    this.map.flyTo({
+      center: [this.userLocation.lng, this.userLocation.lat],
+      zoom: targetZoom,
+      pitch: this.viewMode === '3d' ? 20 : 0,
+      bearing: 0,
+      duration: 1800,
+      essential: true
+    });
   }
 
   stopAutoRotation() {
