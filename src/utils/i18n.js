@@ -191,7 +191,9 @@ const MESSAGES = {
     photoApprovedToast: '壁纸已成功加入图集并开启背景轮播！',
     photoPendingToast: '壁纸已提交，开启审核后待管理员确认展示。',
     setAsCurrentWallpaper: '设为当前壁纸',
-    activeWallpaper: '当前壁纸'
+    activeWallpaper: '当前壁纸',
+    travelingTag: '旅行中',
+    listenThis: '听这首'
   },
   en: {
     documentTitle: 'GeoMelody - Immersive 3D Soundscape Map',
@@ -379,7 +381,9 @@ const MESSAGES = {
     photoApprovedToast: 'Wallpaper added to gallery & slideshow!',
     photoPendingToast: 'Wallpaper submitted for moderation.',
     setAsCurrentWallpaper: 'Set as Active Wallpaper',
-    activeWallpaper: 'Active'
+    activeWallpaper: 'Active',
+    travelingTag: 'Traveling',
+    listenThis: 'Play This'
   }
 };
 

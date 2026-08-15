@@ -182,6 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: currentTheme,
     settings: currentSettings,
     onSpotSelect: spot => showSpotPreviewCard(spot),
+    onFlybyPlay: spot => {
+      hideSpotPreviewCard();
+      playerManager.openSpot(spot, true);
+    },
     onMapClick: () => hideSpotPreviewCard()
   });
   try {

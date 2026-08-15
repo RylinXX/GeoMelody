@@ -52,10 +52,11 @@ function normalizeLongitude(value) {
 }
 
 export class GlobeManager {
-  constructor({ containerId, spots, onSpotSelect, onMapClick, language = 'zh', theme = 'dark', settings = {} }) {
+  constructor({ containerId, spots, onSpotSelect, onFlybyPlay, onMapClick, language = 'zh', theme = 'dark', settings = {} }) {
     this.containerId = containerId;
     this.spots = spots;
     this.onSpotSelect = onSpotSelect;
+    this.onFlybyPlay = onFlybyPlay;
     this.onMapClick = onMapClick;
     this.currentLanguage = language || 'zh';
     this.currentTheme = theme;
@@ -887,10 +888,22 @@ export class GlobeManager {
 
     if (badge) badge.style.display = 'none';
     card.style.display = 'flex';
-    card.onclick = (e) => {
+
+    const triggerPlay = (e) => {
       e.stopPropagation();
-      this.onSpotSelect?.(spot);
+      this.pauseRotation(15000);
+      if (this.onFlybyPlay) {
+        this.onFlybyPlay(spot);
+      } else {
+        this.onSpotSelect?.(spot);
+      }
     };
+
+    card.onclick = triggerPlay;
+    const playBtn = document.getElementById('btn-flyby-play');
+    if (playBtn) {
+      playBtn.onclick = triggerPlay;
+    }
   }
 
   hideFlybyCard() {
