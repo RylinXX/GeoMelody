@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS } from '../utils/storage.js';
 import { fetchAndLocalizeStyle } from './styleHelper.js';
 
 const SPOT_SOURCE_ID = 'geomelody-spots';
+const SPOT_HIT_LAYER_ID = 'geomelody-spot-hit';
 const SPOT_GLOW_LAYER_ID = 'geomelody-spot-glow';
 const SPOT_HALO_LAYER_ID = 'geomelody-spot-halo';
 const SPOT_CORE_LAYER_ID = 'geomelody-spot-core';
@@ -265,7 +266,7 @@ export class GlobeManager {
     this.mapSettings = { ...this.mapSettings, ...newSettings };
 
     // If map base skin changed, cleanly switch style and restore markers
-    if (newSettings.mapSkin && newSettings.mapSkin !== prevSkin && this.map) {
+    if (newSettings.mapSkin && newSettings.mapSkin !== prevSkin && this.map && this.styleReady) {
       this.styleReady = false;
       this.interactionsBound = false;
       delete this.map.getContainer().dataset.markerLayer;
@@ -372,6 +373,20 @@ export class GlobeManager {
         source.setData(data);
       }
 
+      if (!this.map.getLayer(SPOT_HIT_LAYER_ID)) {
+        this.map.addLayer({
+          id: SPOT_HIT_LAYER_ID,
+          type: 'circle',
+          source: SPOT_SOURCE_ID,
+          paint: {
+            'circle-color': '#ffffff',
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 24, 6, 32, 12, 44],
+            'circle-opacity': 0.0001,
+            'circle-pitch-alignment': 'map'
+          }
+        });
+      }
+
       if (!this.map.getLayer(SPOT_GLOW_LAYER_ID)) {
         this.map.addLayer({
           id: SPOT_GLOW_LAYER_ID,
@@ -379,9 +394,9 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 9, 6, 16, 12, 22],
-            'circle-blur': 0.85,
-            'circle-opacity': 0.65,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 12, 6, 20, 12, 30],
+            'circle-blur': 0.92,
+            'circle-opacity': 0.76,
             'circle-pitch-alignment': 'map'
           }
         });
@@ -394,11 +409,12 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': ['get', 'color'],
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 5.5, 6, 9, 12, 12],
-            'circle-blur': 0.35,
-            'circle-opacity': 0.85,
-            'circle-stroke-width': 1.5,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 5.5, 6, 8.5, 12, 13],
+            'circle-blur': 0.28,
+            'circle-opacity': 0.92,
+            'circle-stroke-width': 1.6,
             'circle-stroke-color': '#ffffff',
+            'circle-stroke-opacity': 0.85,
             'circle-pitch-alignment': 'map'
           }
         });
@@ -411,7 +427,7 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 6, 4, 12, 5.5],
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 6, 3.8, 12, 5.5],
             'circle-opacity': 1.0,
             'circle-pitch-alignment': 'map'
           }
@@ -430,27 +446,48 @@ export class GlobeManager {
     if (this.interactionsBound) return;
     this.interactionsBound = true;
 
-    this.map.on('mousemove', SPOT_CORE_LAYER_ID, event => {
-      const feature = event.features?.[0];
-      const spot = this.spots.find(item => item.id === feature?.properties?.id);
-      if (!spot) return;
-      this.map.getCanvas().style.cursor = 'pointer';
-      this.showTooltip(spot, event.point);
+    const interactiveLayers = [SPOT_HIT_LAYER_ID, SPOT_CORE_LAYER_ID, SPOT_HALO_LAYER_ID, SPOT_GLOW_LAYER_ID];
+
+    const findSpotAtPoint = (point, buffer = 24) => {
+      const bbox = [
+        [point.x - buffer, point.y - buffer],
+        [point.x + buffer, point.y + buffer]
+      ];
+      const validLayers = interactiveLayers.filter(id => this.map.getLayer(id));
+      if (!validLayers.length) return null;
+      const features = this.map.queryRenderedFeatures(bbox, { layers: validLayers });
+      if (!features.length) return null;
+      const spotId = features[0].properties?.id;
+      return this.spots.find(item => item.id === spotId) || null;
+    };
+
+    this.map.on('mousemove', event => {
+      const spot = findSpotAtPoint(event.point, 16);
+      if (spot) {
+        this.map.getCanvas().style.cursor = 'pointer';
+        this.showTooltip(spot, event.point);
+      } else {
+        this.map.getCanvas().style.cursor = '';
+        this.hideTooltip();
+      }
     });
 
-    this.map.on('mouseleave', SPOT_CORE_LAYER_ID, () => {
+    this.map.on('mouseleave', () => {
       this.map.getCanvas().style.cursor = '';
       this.hideTooltip();
     });
 
-    this.map.on('click', SPOT_CORE_LAYER_ID, event => {
-      const feature = event.features?.[0];
-      const spot = this.spots.find(item => item.id === feature?.properties?.id);
-      if (!spot) return;
-      this.pauseRotation(7000);
-      this.hideTooltip();
-      this.onSpotSelect?.(spot);
-    });
+    const handleSpotSelection = event => {
+      const spot = findSpotAtPoint(event.point, 32);
+      if (spot) {
+        this.pauseRotation(7000);
+        this.hideTooltip();
+        this.onSpotSelect?.(spot);
+      }
+    };
+
+    this.map.on('click', handleSpotSelection);
+    this.map.on('touchend', handleSpotSelection);
   }
 
   showTooltip(spot, point) {
@@ -558,9 +595,11 @@ export class GlobeManager {
   }
 
   setTheme(theme = 'dark') {
-    this.currentTheme = 'dark';
-    const skin = this.mapSettings.mapSkin || 'streets-dark';
-    this.applyMapSettings({ mapSkin: skin === 'dataviz-light' ? 'streets-dark' : skin });
+    this.currentTheme = theme;
+    const targetSkin = theme === 'light' ? 'dataviz-light' : 'streets-dark';
+    if (this.mapSettings.mapSkin !== targetSkin) {
+      this.applyMapSettings({ mapSkin: targetSkin });
+    }
   }
 
   flyToSpot(spot, zoom) {

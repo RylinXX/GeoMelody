@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
   }
 
-  function applyTheme(nextTheme) {
+  function applyTheme(nextTheme, updateMap = true) {
     if (nextTheme === 'light' || nextTheme === 'dark') {
       currentTheme = nextTheme;
     } else {
@@ -510,7 +510,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {}
     document.documentElement.dataset.theme = currentTheme;
     document.documentElement.style.colorScheme = currentTheme;
-    globeManager.setTheme(currentTheme);
+    if (updateMap) {
+      globeManager.setTheme(currentTheme);
+    }
     const isLight = currentTheme === 'light';
     const themeTitle = isLight
       ? (currentLanguage === LANGUAGES.EN ? 'Switch to Dark Theme' : '切换为深色模式')
@@ -527,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleTheme() {
     const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(nextTheme);
+    applyTheme(nextTheme, true);
     showToast(t(nextTheme === 'light' ? 'switchedLight' : 'switchedDark', currentLanguage));
   }
 
@@ -719,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateFavoriteBadge();
   syncSettingsInputs();
-  applyTheme();
+  applyTheme(currentTheme, false);
   applyLanguage();
   globeManager.flyToRegion(MAP_REGIONS.find(region => region.id === activeRegion));
 

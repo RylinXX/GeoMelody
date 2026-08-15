@@ -835,7 +835,8 @@
 }
 
 /* Mobile Floating Pills Bar (Hidden on Desktop) */
-.player-mobile-pills-bar {
+.player-mobile-pills-bar,
+.player-mobile-back-btn {
   display: none;
 }
 
@@ -913,15 +914,50 @@
   }
 
   .player-ui-layer {
-    padding: 14px;
+    padding: max(14px, env(safe-area-inset-top)) 14px 14px 14px;
   }
+
   .player-top-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
+    z-index: 50;
   }
-  .player-meta-group {
-    max-width: calc(100vw - 140px);
+
+  .player-mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 6px 12px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-full);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    z-index: 100;
+    pointer-events: auto;
+    transition: all var(--trans-fast);
+  }
+
+  .player-mobile-back-btn:active {
+    background: rgba(56, 189, 248, 0.3);
+    border-color: var(--accent-cyan);
+    transform: scale(0.96);
+  }
+
+  .player-spot-meta {
+    max-width: calc(100vw - 120px);
     gap: 4px;
   }
+
   .player-spot-title {
     font-size: 20px;
   }
@@ -936,12 +972,40 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
   .player-top-actions {
-    gap: 4px;
+    position: absolute;
+    top: max(14px, env(safe-area-inset-top));
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 60;
   }
+
+  /* Hide desktop-only gimmicks on mobile header */
+  #player-zen-btn,
+  #player-fullscreen-btn,
+  #player-theme-toggle {
+    display: none !important;
+  }
+
   .player-action-btn {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+  }
+
+  #player-close-btn {
+    display: flex !important;
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #fca5a5 !important;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3) !important;
+  }
+
+  #player-close-btn:active {
+    background: rgba(239, 68, 68, 0.5) !important;
+    transform: scale(0.95);
   }
 
   /* Pop-up Bottom Sheet on Mobile */

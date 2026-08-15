@@ -112,6 +112,18 @@ export class PlayerManager {
       toggleCommentsBtn?.classList.remove('active');
     });
 
+    const closeBtn = document.getElementById('player-close-btn');
+    const mobileBackBtn = document.getElementById('player-mobile-back-btn');
+    const handleClose = (e) => {
+      e?.stopPropagation?.();
+      e?.preventDefault?.();
+      this.close();
+    };
+    closeBtn?.addEventListener('click', handleClose);
+    closeBtn?.addEventListener('touchend', handleClose);
+    mobileBackBtn?.addEventListener('click', handleClose);
+    mobileBackBtn?.addEventListener('touchend', handleClose);
+
     window.addEventListener('keydown', (e) => {
       if (!this.currentSpot || !this.overlay.classList.contains('active')) return;
       if (e.code === 'Space') {
