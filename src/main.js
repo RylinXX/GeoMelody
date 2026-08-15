@@ -783,7 +783,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(t('viewReset', currentLanguage));
   });
 
-  document.getElementById('dock-btn-wander')?.addEventListener('click', () => playerManager.randomRoam());
+  document.getElementById('dock-btn-wander')?.addEventListener('click', () => {
+    globeManager.initAirplaneMarker();
+    playerManager.randomRoam();
+  });
 
   autoTourBtn?.addEventListener('click', () => {
     const isActive = playerManager.toggleAutoTour();
@@ -791,6 +794,9 @@ document.addEventListener('DOMContentLoaded', () => {
     autoTourBtn.setAttribute('aria-pressed', String(isActive));
     if (autoTourText) {
       autoTourText.textContent = isActive ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
+    }
+    if (isActive) {
+      globeManager.initAirplaneMarker();
     }
   });
 
