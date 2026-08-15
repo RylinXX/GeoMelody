@@ -1535,6 +1535,198 @@ export const SCENIC_SPOTS = [
     }
   },
   {
+    id: 'forbiddencity',
+    name: '北京故宫紫禁城',
+    enName: 'Forbidden City Beijing',
+    location: '中国 · 北京市东城区',
+    country: '中国',
+    category: 'historic',
+    lat: 39.9163,
+    lng: 116.3971,
+    description: '红墙金瓦，六百年巍峨帝阙。太和殿前云气缭绕，角楼倒映护城河夕照，回荡着华夏文明的宏大历史回响。',
+    tags: ['世界文化遗产', '国家5A级', '紫禁城', '太和殿', '角楼夕照'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'imperial_epic',
+      bpm: 72,
+      scale: '宫调 · 紫禁龙骧',
+      instruments: '编钟 · 古琴 · 琵琶 · 大堂鼓',
+      naturalSound: 'wind',
+      prompt: '中国宫廷宏伟古风纯音乐，编钟古琴，庄严肃穆，厚重历史感'
+    }
+  },
+  {
+    id: 'templeofheaven',
+    name: '北京天坛祈年殿',
+    enName: 'Temple of Heaven Beijing',
+    location: '中国 · 北京市东城区',
+    country: '中国',
+    category: 'historic',
+    lat: 39.8837,
+    lng: 116.4128,
+    description: '三重蓝琉璃瓦顶直插苍穹，汉白玉基座层层环绕。古柏森森，回音壁前轻语犹在，天人合一之至高哲学体现。',
+    tags: ['世界文化遗产', '国家5A级', '祈年殿', '天人合一', '古柏森森'],
+    photos: [
+      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'sacred_zen',
+      bpm: 60,
+      scale: '角调 · 祈天之音',
+      instruments: '古瑟 · 洞箫 · 铜磬 · 晨钟',
+      naturalSound: 'bell',
+      prompt: '天坛祭天古韵，铜磬悠远，洞箫清越，天地苍茫，空灵神圣'
+    }
+  },
+  {
+    id: 'badalinggreatwall',
+    name: '北京八达岭长城',
+    enName: 'Badaling Great Wall Beijing',
+    location: '中国 · 北京市延庆区',
+    country: '中国',
+    category: 'mountain',
+    lat: 40.3598,
+    lng: 116.0152,
+    description: '不到长城非好汉。巨龙蜿蜒盘旋于崇山峻岭之巅，烽火台俯瞰燕山雄关，秋风吹拂千年金戈铁马。',
+    tags: ['世界七大奇迹', '世界文化遗产', '八达岭', '燕山雄关'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_epic',
+      bpm: 80,
+      scale: '商调 · 烽燧雄关',
+      instruments: '埙 · 战鼓 · 琵琶大潮',
+      naturalSound: 'wind',
+      prompt: '雄浑长城古风乐，埙与琵琶，万山叠嶂，历史长风呼啸'
+    }
+  },
+  {
+    id: 'shichahai',
+    name: '北京什刹海后海',
+    enName: 'Shichahai Lake Beijing',
+    location: '中国 · 北京市西城区',
+    country: '中国',
+    category: 'lake',
+    lat: 39.9405,
+    lng: 116.3889,
+    description: '银锭观山，柳岸斜阳。摇橹船轻荡后海微波，四合院胡同深处传来鸽哨与京胡声，最地道的老北京水乡风情。',
+    tags: ['国家4A级', '银锭桥', '胡同京韵', '摇橹船', '什刹海'],
+    photos: [
+      'https://images.unsplash.com/photo-1513415564515-763d91423bdd?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_folk',
+      bpm: 76,
+      scale: '微调 · 银锭晚风',
+      instruments: '三弦 · 琵琶 · 鸽哨 · 柳浪水声',
+      naturalSound: 'water',
+      prompt: '老北京后海民谣风情，三弦轻弹，清脆鸽哨，夏夜晚风，舒适治愈'
+    }
+  },
+  {
+    id: 'yonghegong',
+    name: '北京雍和宫',
+    enName: 'Yonghe Palace Beijing',
+    location: '中国 · 北京市东城区',
+    country: '中国',
+    category: 'historic',
+    lat: 39.9472,
+    lng: 116.4178,
+    description: '藏传佛教皇家寺院，藏香缭绕，法铃清脆。高耸万福阁内伫立迈达拉巨佛，红墙黄瓦间沉淀着万千虔诚与宁静。',
+    tags: ['国家5A级', '皇家寺院', '万福阁', '藏香古刹', '祈福胜地'],
+    photos: [
+      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'temple_peace',
+      bpm: 56,
+      scale: '禅调 · 梵音清净',
+      instruments: '颂钵 · 铜铃 · 诵经长音',
+      naturalSound: 'bell',
+      prompt: '藏地与京城寺院梵音，颂钵空灵，铜铃轻响，抚慰心灵，极度治愈'
+    }
+  },
+  {
+    id: 'nanluoguxiang',
+    name: '北京南锣鼓巷与钟鼓楼',
+    enName: 'Nanluoguxiang & Drum Tower Beijing',
+    location: '中国 · 北京市东城区',
+    country: '中国',
+    category: 'city',
+    lat: 39.9388,
+    lng: 116.4022,
+    description: '暮鼓晨钟，七百载古巷幽深。灰砖灰瓦四合院，槐树荫下自行车铃叮咚，现代艺术与老北京胡同肌理完美交融。',
+    tags: ['历史文化街区', '钟鼓楼', '四合院', '胡同慢生活'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'hutong_lofi',
+      bpm: 82,
+      scale: '羽调 · 胡同慢调',
+      instruments: '木吉他 · 手风琴 · 叮咚车铃',
+      naturalSound: 'city',
+      prompt: '北京胡同慢调Lofi纯音乐，木吉他清脆，手风琴悠扬，闲适惬意'
+    }
+  },
+  {
+    id: 'beihaipark',
+    name: '北京北海公园白塔',
+    enName: 'Beihai Park White Pagoda Beijing',
+    location: '中国 · 北京市西城区',
+    country: '中国',
+    category: 'lake',
+    lat: 39.9255,
+    lng: 116.3880,
+    description: '“让我们荡起双桨，小船儿推开波浪。” 琼华岛上藏式白塔巍然耸立，碧波荡漾，荷花映日，一代代人的童年浪漫记忆。',
+    tags: ['国家4A级', '皇家御苑', '琼华岛', '白塔映湖', '荡起双桨'],
+    photos: [
+      'https://images.unsplash.com/photo-1513415564515-763d91423bdd?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'nostalgia_lake',
+      bpm: 70,
+      scale: '宫调 · 荡漾双桨',
+      instruments: '童声旋律八音盒 · 竹笛 · 木吉他 · 湖水波浪',
+      naturalSound: 'water',
+      prompt: '轻柔童年回忆八音盒与竹笛，湖水波光粼粼，轻柔温暖，治愈怀旧'
+    }
+  },
+  {
+    id: 'jingshanpark',
+    name: '北京景山公园万春亭',
+    enName: 'Jingshan Park Beijing',
+    location: '中国 · 北京市西城区',
+    country: '中国',
+    category: 'mountain',
+    lat: 39.9242,
+    lng: 116.3965,
+    description: '北京内城中轴最高峰。登临万春亭，南望紫禁城金顶如海，北观钟鼓楼中轴连绵，落日余晖洒满整座千年古都。',
+    tags: ['中轴线核心', '万春亭', '俯瞰故宫', '京城全景', '落日余晖'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'sunset_zen',
+      bpm: 64,
+      scale: '徽调 · 登高揽胜',
+      instruments: '古筝 · 大提琴 · 晚风呼啸',
+      naturalSound: 'wind',
+      prompt: '高处俯瞰壮丽落日，古筝与深情大提琴，辽阔庄严，黄昏史诗'
+    }
+  },
+  {
     id: 'potala',
     name: '拉萨布达拉宫',
     enName: 'Potala Palace Lhasa',
