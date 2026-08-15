@@ -264,10 +264,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function selectSearchSpot(spot) {
     if (!spot) return;
-    playerManager.openSpot(spot, currentSettings.autoPlay);
     searchDropdown?.classList.remove('visible');
-    if (searchInput) searchInput.value = '';
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.blur();
+    }
     globeManager.setSearchQuery('');
+    showSpotPreviewCard(spot);
   }
 
   function renderSearchRecommendations() {
@@ -382,8 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ${matches.map(spot => {
           const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage), enName: t('explore', currentLanguage) };
           const track = getDemoTrack(spot);
+          const photo = spot.photos?.[0] || '';
           return `
             <button class="search-result-item" type="button" data-id="${spot.id}">
+              ${photo ? `<img src="${photo}" alt="" class="search-result-thumb" loading="lazy" />` : ''}
               <span class="search-result-info">
                 <span class="search-result-name">${getSpotName(spot, currentLanguage)}</span>
                 <span class="search-result-loc">${getSpotLocation(spot, currentLanguage)} · ♫ ${track?.title || ''}</span>
