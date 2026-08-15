@@ -2783,6 +2783,482 @@ export const SCENIC_SPOTS = [
       naturalSound: 'rain',
       prompt: '南京十里秦淮夜色国风纯乐、二胡与琵琶、画舫灯影、六朝烟雨、繁华与温婉'
     }
+  },
+  // ==================== 9. 世界享誉全球的国际著名胜景 (World Famous International Landmarks) ====================
+  {
+    id: 'eiffeltower',
+    name: '法国巴黎 · 埃菲尔铁塔与战神广场',
+    enName: 'Paris Eiffel Tower & Champ de Mars',
+    location: '法国 · 巴黎第七区',
+    country: '法国',
+    category: 'city',
+    lat: 48.8584,
+    lng: 2.2945,
+    description: '浪漫之都的永恒象征。钢铁巨塔拔地而起，每当夜幕降临，两万盏闪光灯点亮塞纳河畔的夜空，流淌着法兰西的优雅与深情。',
+    tags: ['世界文化遗产', '巴黎地标', '浪漫之都', '塞纳河畔', '铁塔夜景'],
+    photos: [
+      'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 76,
+      scale: 'Parisian Chanson · C Major',
+      instruments: '手风琴 · 爵士吉他 · 塞纳河微风',
+      naturalSound: 'wind',
+      prompt: '巴黎塞纳河手风琴香颂纯音乐、法式浪漫、夜色微光、优雅治愈'
+    }
+  },
+  {
+    id: 'louvremuseum',
+    name: '法国巴黎 · 卢浮宫与玻璃金字塔',
+    enName: 'Louvre Museum & Glass Pyramid',
+    location: '法国 · 巴黎第一区',
+    country: '法国',
+    category: 'city',
+    lat: 48.8606,
+    lng: 2.3376,
+    description: '世界四大历史博物馆之首。贝聿铭设计的玻璃金字塔倒映在拿破仑广场水池中，蒙娜丽莎与胜利女神在此沉淀人类千年的艺术巅峰。',
+    tags: ['世界四大博物馆', '贝聿铭金字塔', '蒙娜丽莎', '艺术殿堂', '古典建筑'],
+    photos: [
+      'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 70,
+      scale: 'Baroque Chamber · G Minor',
+      instruments: '大提琴 · 竖琴泛音 · 宫廷回廊回音',
+      naturalSound: 'bell',
+      prompt: '卢浮宫古典室内交响乐、大提琴独奏与竖琴、庄重优雅、艺术沉淀'
+    }
+  },
+  {
+    id: 'rome_colosseum',
+    name: '意大利罗马 · 斗兽场与古罗马遗迹',
+    enName: 'Rome Colosseum & Roman Forum',
+    location: '意大利 · 拉齐奥大区罗马',
+    country: '意大利',
+    category: 'city',
+    lat: 41.8902,
+    lng: 12.4922,
+    description: '永恒之城的千年见证。宏伟的拱门弧壁在落日余晖中投下深邃阴影，石柱与雕刻诉说着古罗马帝国的辉煌历史与沧桑变迁。',
+    tags: ['世界新七大奇迹', '世界文化遗产', '永恒之城', '古罗马帝国', '古典建筑史诗'],
+    photos: [
+      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 68,
+      scale: 'Classical Roman Epic · D Minor',
+      instruments: '古典木管 · 弦乐四重奏 · 历史回响',
+      naturalSound: 'wind',
+      prompt: '古罗马斗兽场交响弦乐、史诗沧桑感、夕阳古迹、厚重悠扬'
+    }
+  },
+  {
+    id: 'venice_stmarks',
+    name: '意大利威尼斯 · 圣马可广场与大运河贡多拉',
+    enName: 'Venice Grand Canal & St. Mark’s Square',
+    location: '意大利 · 威尼托大区威尼斯',
+    country: '意大利',
+    category: 'town',
+    lat: 45.4342,
+    lng: 12.3388,
+    description: '亚得里亚海的水上明珠。贡多拉小船穿行在数百座石桥与水巷之间，圣马可大教堂金碧辉煌，水波荡漾着水上之都的梦幻诗篇。',
+    tags: ['世界文化遗产', '水上之城', '贡多拉水巷', '叹息桥', '圣马可广场'],
+    photos: [
+      'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1534113414509-0eec2bfb493f?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 65,
+      scale: 'Venetian Barcarolle · 432Hz',
+      instruments: '曼陀林 · 手风琴 · 运河摇橹波光',
+      naturalSound: 'ocean',
+      prompt: '威尼斯水城船歌纯音乐、曼陀林与手风琴、水巷波光、浪漫悠然'
+    }
+  },
+  {
+    id: 'neuschwanstein',
+    name: '德国新天鹅堡 · 阿尔卑斯童话城堡',
+    enName: 'Neuschwanstein Castle Bavaria',
+    location: '德国 · 巴伐利亚州富森',
+    country: '德国',
+    category: 'mountain',
+    lat: 47.5576,
+    lng: 10.7498,
+    description: '迪士尼城堡的灵感原型。白色尖塔耸立在阿尔卑斯翠绿峡谷之巅，云雾缭绕宛若梦幻仙境，寄托着路德维希二世的浪漫幻想。',
+    tags: ['童话城堡原型', '巴伐利亚仙境', '阿尔卑斯山脉', '路德维希二世', '梦幻建筑'],
+    photos: [
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 66,
+      scale: 'Romantic Fairy Symphony · A Major',
+      instruments: '圆号 · 竖琴 · 森林清泉鸟鸣',
+      naturalSound: 'birds',
+      prompt: '新天鹅堡童话交响纯乐、竖琴与管乐、梦幻森林城堡、纯净高雅'
+    }
+  },
+  {
+    id: 'sagradafamilia',
+    name: '西班牙巴塞罗那 · 圣家堂',
+    enName: 'Barcelona Sagrada Família',
+    location: '西班牙 · 加泰罗尼亚巴塞罗那',
+    country: '西班牙',
+    category: 'city',
+    lat: 41.4036,
+    lng: 2.1744,
+    description: '建筑鬼才高迪的未完史诗。森林般升腾的立柱，五彩斑斓的花窗将地中海阳光化作彩虹倾泻而下，人类向自然与上帝致敬的极致艺术。',
+    tags: ['世界文化遗产', '高迪建筑杰作', '光影森林', '巴塞罗那地标', '现代主义建筑'],
+    photos: [
+      'https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 72,
+      scale: 'Spanish Classical Guitar · E Minor',
+      instruments: '西班牙古典吉他 · 管风琴微音 · 彩窗光芒',
+      naturalSound: 'bell',
+      prompt: '圣家堂西班牙古典吉他纯音乐、光影斑斓、崇高灵性、悠扬深邃'
+    }
+  },
+  {
+    id: 'acropolis_athens',
+    name: '希腊雅典卫城 · 帕特农神庙',
+    enName: 'Athens Acropolis & Parthenon',
+    location: '希腊 · 阿提卡大区雅典',
+    country: '希腊',
+    category: 'city',
+    lat: 37.9715,
+    lng: 23.7257,
+    description: '西方文明与民主思想的摇篮。高耸的多立克柱矗立在爱琴海的蓝天之下，夕阳洒在两千五百年的白色大理石上，闪烁着智慧之光。',
+    tags: ['世界文化遗产', '西方文明发源地', '帕特农神庙', '雅典卫城', '爱琴海微风'],
+    photos: [
+      'https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 68,
+      scale: 'Ancient Greek Harmony · D Major',
+      instruments: '里拉琴音色 · 长笛 · 爱琴海长风',
+      naturalSound: 'wind',
+      prompt: '雅典卫城古希腊里拉琴风情纯乐、爱琴海蓝天、古代神庙、清澈辽远'
+    }
+  },
+  {
+    id: 'iceland_bluelagoon',
+    name: '冰岛 · 蓝湖地热温泉与黄金圈瀑布',
+    enName: 'Iceland Blue Lagoon & Gullfoss',
+    location: '冰岛 · 格林达维克',
+    country: '冰岛',
+    category: 'lake',
+    lat: 63.8804,
+    lng: -22.4495,
+    description: '冰与火之歌的世界尽头。奶蓝色的地热温泉在黑色熔岩中升腾着温暖白雾，冬夜仰望苍穹，绿色欧若拉极光在极夜中跳动起舞。',
+    tags: ['世界地质奇观', '极光秘境', '冰与火之国', '蓝湖温泉', '地球尽头'],
+    photos: [
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 58,
+      scale: 'Nordic Aurora Ambient · 432Hz',
+      instruments: '极光合成器 · 空灵钢琴 · 冰川风声',
+      naturalSound: 'wind',
+      prompt: '冰岛极光与蓝湖空灵氛围音乐、北欧极简钢琴、冰与火、冥想治愈'
+    }
+  },
+  {
+    id: 'statueofliberty',
+    name: '美国纽约 · 自由女神像与曼哈顿天际线',
+    enName: 'New York Statue of Liberty & Manhattan Skyline',
+    location: '美国 · 纽约州纽约市',
+    country: '美国',
+    category: 'city',
+    lat: 40.6892,
+    lng: -74.0445,
+    description: '世界大都会的无眠心跳。自由女神手擎火炬守望哈德逊河口，帝国大厦与华尔街摩天大楼森林在夕阳与夜色中璀璨生辉。',
+    tags: ['世界文化遗产', '自由女神像', '曼哈顿天际线', '纽约地标', '时代广场'],
+    photos: [
+      'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 88,
+      scale: 'New York Jazz Soul · F Major',
+      instruments: '萨克斯风 · 爵士钢琴 · 城市夜景节拍',
+      naturalSound: 'wind',
+      prompt: '纽约曼哈顿夜景爵士萨克斯纯乐、都市天际线、摩登节奏、慵懒沉醉'
+    }
+  },
+  {
+    id: 'machupicchu',
+    name: '秘鲁 · 马丘比丘印加天空之城',
+    enName: 'Machu Picchu Inca Citadel',
+    location: '秘鲁 · 库斯科大区',
+    country: '秘鲁',
+    category: 'mountain',
+    lat: -13.1631,
+    lng: -72.5450,
+    description: '安第斯山脉高耸山脊上的失落之城。梯田与巨石神庙在晨雾中若隐若现，羊驼在太阳门前悠闲漫步，人类与高原云海的永恒对话。',
+    tags: ['世界新七大奇迹', '世界文化与自然双遗产', '印加帝国', '天空之城', '安第斯山脉'],
+    photos: [
+      'https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509299349698-dd22323b5963?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 66,
+      scale: 'Andean Folk · G Major',
+      instruments: '排箫 · 恰朗哥琴 · 安第斯山鹰呼啸',
+      naturalSound: 'wind',
+      prompt: '马丘比丘安第斯排箫印加风情纯乐、高山云海、雄鹰翱翔、神秘辽阔'
+    }
+  },
+  {
+    id: 'christredeemer',
+    name: '巴西里约热内卢 · 耶稣山基督像',
+    enName: 'Rio de Janeiro Christ the Redeemer',
+    location: '巴西 · 里约热内卢州',
+    country: '巴西',
+    category: 'mountain',
+    lat: -22.9519,
+    lng: -43.2105,
+    description: '七百米驼背山顶张开双臂守护全城的巨型雕像。俯瞰科帕卡巴纳海滩与糖面包山，大西洋的海风吹拂着热带桑巴的奔放与包容。',
+    tags: ['世界新七大奇迹', '里约地标', '驼背山', '桑巴之城', '大西洋海湾'],
+    photos: [
+      'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_wave',
+      bpm: 82,
+      scale: 'Bossa Nova Sunset · D Major',
+      instruments: '波萨诺瓦尼龙吉他 · 沙锤 · 海湾落日浪涛',
+      naturalSound: 'ocean',
+      prompt: '里约热内卢波萨诺瓦轻柔吉他纯乐、海湾落日、热带温暖、松弛惬意'
+    }
+  },
+  {
+    id: 'salardeuyuni',
+    name: '玻利维亚 · 乌尤尼盐沼天空之镜',
+    enName: 'Salar de Uyuni Sky Mirror',
+    location: '玻利维亚 · 波托西省',
+    country: '玻利维亚',
+    category: 'lake',
+    lat: -20.1338,
+    lng: -67.4891,
+    description: '世界最大的盐沼，一万平方公里的绝对平坦。雨季时浅水覆盖形成无边无际的倒影，昼见纯白天穹，夜卧漫天银河，如同漫步星际。',
+    tags: ['世界最大盐沼', '天空之镜', '银河倒影', '仙人掌岛', '纯净奇迹'],
+    photos: [
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 60,
+      scale: 'Cosmic Mirror Harmony · 432Hz',
+      instruments: '氛围电钢琴 · 星空泛音 · 辽阔微风',
+      naturalSound: 'wind',
+      prompt: '乌尤尼盐沼天空之镜空灵音乐、星空倒影、极简钢琴、水天相接、洗涤心灵'
+    }
+  },
+  {
+    id: 'pyramids_giza',
+    name: '埃及开罗 · 吉萨金字塔群与狮身人面像',
+    enName: 'Giza Pyramids & Great Sphinx',
+    location: '埃及 · 吉萨省开罗近郊',
+    country: '埃及',
+    category: 'desert',
+    lat: 29.9792,
+    lng: 31.1342,
+    description: '古代世界七大奇迹仅存的丰碑。胡夫金字塔巍然耸立在撒哈拉黄沙之中四千五百年，狮身人面像默默凝望尼罗河的晨曦与落日。',
+    tags: ['世界古代七大奇迹', '世界文化遗产', '胡夫金字塔', '狮身人面像', '尼罗河古文明'],
+    photos: [
+      'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_oasis',
+      bpm: 65,
+      scale: 'Ancient Egyptian Scale · G Minor',
+      instruments: '乌德琴 · 纳伊笛 · 撒哈拉长风',
+      naturalSound: 'wind',
+      prompt: '埃及金字塔古埃及风情纯音乐、乌德琴与纳伊笛、沙漠夕阳、沧桑神秘'
+    }
+  },
+  {
+    id: 'tajmahal',
+    name: '印度阿格拉 · 泰姬陵',
+    enName: 'Taj Mahal Agra',
+    location: '印度 · 北方邦阿格拉',
+    country: '印度',
+    category: 'town',
+    lat: 27.1751,
+    lng: 78.0421,
+    description: '大理石雕琢的永恒泪珠。纯白大理石圆顶倒映在亚穆纳河畔的莲花池中，精美绝伦的宝石镶嵌，诉说着沙贾汗对爱妃的旷世绝恋。',
+    tags: ['世界新七大奇迹', '世界文化遗产', '纯白大理石', '旷世绝恋', '莫卧儿艺术巅峰'],
+    photos: [
+      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'guzheng_rain',
+      bpm: 68,
+      scale: 'Indian Raga Romance · C Major',
+      instruments: '西塔琴 · 塔布拉鼓微音 · 水池涟漪',
+      naturalSound: 'wind',
+      prompt: '泰姬陵印度古典西塔琴纯音乐、纯白大理石倒影、深情悠扬、宁静圣洁'
+    }
+  },
+  {
+    id: 'angkorwat',
+    name: '柬埔寨暹粒 · 吴哥窟与高棉的微笑',
+    enName: 'Angkor Wat & Bayon Temple',
+    location: '柬埔寨 · 暹粒省',
+    country: '柬埔寨',
+    category: 'forest',
+    lat: 13.4125,
+    lng: 103.8670,
+    description: '热带丛林深处的石头奇迹。五座莲花佛塔倒映在护城河的日出朝霞中，巴戎寺二百一十六面慈悲安详的佛面，凝望着千年的风雨沧桑。',
+    tags: ['世界文化遗产', '东方四大奇迹', '高棉的微笑', '吴哥日出', '热带巨树纠缠'],
+    photos: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 62,
+      scale: 'Khmer Mystic Harmony · 432Hz',
+      instruments: '热带木琴 · 铜锣微鸣 · 丛林晨鸟',
+      naturalSound: 'birds',
+      prompt: '吴哥窟热带丛林古刹纯音乐、高棉微笑、晨光微露、静谧祥和'
+    }
+  },
+  {
+    id: 'cappadocia',
+    name: '土耳其 · 卡帕多奇亚热气球奇石林',
+    enName: 'Cappadocia Hot Air Balloons & Fairy Chimneys',
+    location: '土耳其 · 内夫谢希尔省格雷梅',
+    country: '土耳其',
+    category: 'desert',
+    lat: 38.6431,
+    lng: 34.8289,
+    description: '精灵烟囱与外星地貌的浪漫升腾。清晨数百只彩色热气球迎着朝阳冉冉升起，俯瞰千沟万壑的月球地貌与古老洞穴城堡。',
+    tags: ['世界文化与自然双遗产', '热气球胜地', '精灵烟囱', '月球地貌', '格雷梅国家公园'],
+    photos: [
+      'https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_oasis',
+      bpm: 72,
+      scale: 'Anatolian Dawn Melody · G Major',
+      instruments: '卡龙琴 · 原声吉他 · 朝阳清风',
+      naturalSound: 'wind',
+      prompt: '卡帕多奇亚热气球日出纯乐、土耳其卡龙琴与木吉他、浪漫升腾、视野开阔'
+    }
+  },
+  {
+    id: 'serengeti',
+    name: '坦桑尼亚 · 塞伦盖蒂大草原野生动物大迁徙',
+    enName: 'Serengeti National Park Great Migration',
+    location: '坦桑尼亚 · 塞伦盖蒂',
+    country: '坦桑尼亚',
+    category: 'forest',
+    lat: -2.3333,
+    lng: 34.8333,
+    description: '地球上最壮丽的生命交响诗。数百万角马与斑马跨越马拉河，金合欢树在非洲火红夕阳下勾勒出苍茫剪影，大自然生生不息的原始力量。',
+    tags: ['世界自然遗产', '动物大迁徙', '塞伦盖蒂大草原', '非洲五霸', '生命奇观'],
+    photos: [
+      'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 78,
+      scale: 'African Savannah Rhythms · D Major',
+      instruments: '卡林巴琴 · 拇指琴 · 非洲大地鼓声 · 草原微风',
+      naturalSound: 'wind',
+      prompt: '塞伦盖蒂非洲草原纯乐、卡林巴琴与轻柔手鼓、落日金合欢树、辽阔苍茫'
+    }
+  },
+  {
+    id: 'borabora_island',
+    name: '法属波利尼西亚 · 大溪地波拉波拉岛',
+    enName: 'Bora Bora Overwater Paradise Tahiti',
+    location: '法属波利尼西亚 · 社会群岛',
+    country: '法属波利尼西亚',
+    category: 'island',
+    lat: -16.5004,
+    lng: -151.7415,
+    description: '太平洋上的梦幻绿松石。奥特马努山峰拔海而起，泻湖呈现出渐变的宝石蓝与薄荷绿，水上木屋直通清澈海底，人间天堂的终极定义。',
+    tags: ['太平洋明珠', '水上木屋', '绿松石泻湖', '大溪地风情', '蜜月度假胜地'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_wave',
+      bpm: 70,
+      scale: 'Polynesian Ukulele Breeze · C Major',
+      instruments: '大溪地尤克里里 · 舒缓吉他 · 碧海清波',
+      naturalSound: 'ocean',
+      prompt: '波拉波拉岛热带海岛纯乐、尤克里里与海浪拍岸、阳光泻湖、无忧无虑'
+    }
+  },
+  {
+    id: 'antarctica_lemaire',
+    name: '南极洲 · 勒梅尔海峡冰川与企鹅海湾',
+    enName: 'Antarctica Lemaire Channel & Penguin Bay',
+    location: '南极洲 · 南极半岛',
+    country: '南极洲',
+    category: 'mountain',
+    lat: -65.1319,
+    lng: -63.9533,
+    description: '地球最南端的纯白史诗。千米冰崖峭壁夹峙着如镜航道，浮冰上帽带企鹅憨态可掬，座头鲸跃出海面，第七大陆无与伦比的寂静与圣洁。',
+    tags: ['第七大陆', '极地冰川', '勒梅尔海峡', '企鹅王国', '地球最后净土'],
+    photos: [
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 56,
+      scale: 'Polar Glacier Serenity · 432Hz',
+      instruments: '水晶清脆合成器 · 极地大提琴 · 冰川崩落回响',
+      naturalSound: 'wind',
+      prompt: '南极洲极地纯净空灵音乐、水晶清音与冰川长风、纯白无瑕、净化心灵'
+    }
   }
 ];
 
