@@ -1,0 +1,596 @@
+import { SCENIC_SPOTS } from './data/spots.js';
+import { CATEGORY_MAP } from './data/categories.js';
+import { MAP_REGIONS, getRegionName } from './data/regions.js';
+import { GlobeManager } from './map/globeManager.js';
+import { PlayerManager } from './player/playerManager.js';
+import { CommunityManager } from './community/communityManager.js';
+import { soundEngine } from './audio/soundEngine.js';
+import { storage, DEFAULT_SETTINGS } from './utils/storage.js';
+import { shareUtil } from './utils/share.js';
+import { CosmicStarfield } from './utils/cosmicStars.js';
+import {
+  LANGUAGES,
+  applyTranslations,
+  getCategoryName,
+  getInitialLanguage,
+  getSpotLocation,
+  getSpotName,
+  persistLanguage,
+  t
+} from './utils/i18n.js';
+
+function showToast(message) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast-msg';
+  toast.setAttribute('role', 'status');
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Cosmic Outer-Space Twinkling Starfield
+  try {
+    const starfield = new CosmicStarfield();
+    starfield.init();
+  } catch (err) {
+    console.warn('Cosmic starfield fallback:', err);
+  }
+
+  const THEME_STORAGE_KEY = 'geomelody-theme';
+  let viewMode = '3d';
+  let activeRegion = 'asia';
+  let currentLanguage = getInitialLanguage();
+  let currentTheme = 'dark';
+  let currentSettings = storage.getSettings();
+
+  try {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === 'light' || storedTheme === 'dark') currentTheme = storedTheme;
+  } catch {
+    // Storage can be unavailable in privacy-restricted browser contexts.
+  }
+
+  storage.getCommunityPosts().forEach(post => {
+    if (!SCENIC_SPOTS.some(spot => spot.id === post.id)) SCENIC_SPOTS.unshift(post);
+  });
+
+  const regionNavigation = document.getElementById('region-navigation');
+  const searchInput = document.getElementById('spot-search-input');
+  const searchDropdown = document.getElementById('search-dropdown');
+  const toggleViewModeBtn = document.getElementById('dock-btn-toggle-view-mode');
+  const viewModeText = document.getElementById('view-mode-btn-text');
+  const autoTourBtn = document.getElementById('dock-btn-auto-tour');
+  const autoTourText = document.getElementById('auto-tour-btn-text');
+  const languageBtn = document.getElementById('btn-language-toggle');
+  const playerLanguageBtn = document.getElementById('player-language-toggle');
+  const playerLanguageLabel = document.getElementById('player-language-label');
+  const themeBtn = document.getElementById('btn-theme-toggle');
+  const playerThemeBtn = document.getElementById('player-theme-toggle');
+
+  const miniIsland = document.getElementById('mini-audio-island');
+  const miniThumb = document.getElementById('mini-audio-thumb');
+  const miniName = document.getElementById('mini-audio-name');
+  const miniDesc = document.getElementById('mini-audio-desc');
+  const miniPlayBtn = document.getElementById('mini-play-toggle-btn');
+
+  const favDrawer = document.getElementById('fav-drawer');
+  const favBackdrop = document.getElementById('fav-drawer-backdrop');
+  const favCountBadge = document.getElementById('fav-count-badge');
+  const favListContainer = document.getElementById('fav-list-container');
+  const favToggleBtn = document.getElementById('btn-toggle-favorites');
+
+  const mixerDrawer = document.getElementById('mixer-drawer');
+  const mixerBackdrop = document.getElementById('mixer-drawer-backdrop');
+  const mixerToggleBtn = document.getElementById('btn-toggle-mixer');
+
+  // Settings Drawer Elements
+  const settingsDrawer = document.getElementById('settings-drawer');
+  const settingsBackdrop = document.getElementById('settings-drawer-backdrop');
+  const settingsToggleBtn = document.getElementById('btn-toggle-settings');
+  const closeSettingsBtn = document.getElementById('btn-close-settings-drawer');
+  const resetSettingsBtn = document.getElementById('btn-reset-settings');
+
+  const selectMapSkinInput = document.getElementById('setting-select-mapskin');
+  const toggleStarsInput = document.getElementById('setting-toggle-stars');
+  const toggleHaloInput = document.getElementById('setting-toggle-halo');
+  const toggleAutoSpinInput = document.getElementById('setting-toggle-autospin');
+  const toggleAutoPlayInput = document.getElementById('setting-toggle-autoplay');
+
+  let playerManager;
+  let communityManager;
+
+  const globeManager = new GlobeManager({
+    containerId: 'globe-container',
+    spots: SCENIC_SPOTS,
+    language: currentLanguage,
+    theme: currentTheme,
+    settings: currentSettings,
+    onSpotSelect: spot => playerManager.openSpot(spot, currentSettings.autoPlay)
+  });
+  try {
+    globeManager.init();
+  } catch (error) {
+    document.documentElement.dataset.mapError = error?.message || String(error);
+    console.error('[GeoMelody map] Initialization failed.', error);
+  }
+
+  playerManager = new PlayerManager({
+    spots: SCENIC_SPOTS,
+    getLanguage: () => currentLanguage,
+    onSpotChange: spot => {
+      globeManager.flyToSpot(spot);
+      updateMiniAudioIsland(spot, soundEngine.isPlaying);
+      communityManager?.setActiveSpot(spot);
+    },
+    onExit: spot => updateMiniAudioIsland(spot, soundEngine.isPlaying),
+    showToast
+  });
+
+  communityManager = new CommunityManager({
+    spots: SCENIC_SPOTS,
+    getLanguage: () => currentLanguage,
+    showToast,
+    onBeforeOpen: () => {
+      toggleFavDrawer(false);
+      toggleMixerDrawer(false);
+      toggleSettingsDrawer(false);
+    },
+    onPublish: spot => {
+      globeManager.renderLightDotMarkers();
+      playerManager.openSpot(spot, true);
+    }
+  });
+
+  function renderRegionNavigation() {
+    if (!regionNavigation) return;
+    regionNavigation.innerHTML = '';
+    MAP_REGIONS.forEach(region => {
+      const chip = document.createElement('button');
+      const regionName = getRegionName(region, currentLanguage);
+      chip.className = `category-chip region-chip ${region.id === activeRegion ? 'active' : ''}`;
+      chip.dataset.region = region.id;
+      chip.setAttribute('aria-pressed', String(region.id === activeRegion));
+      chip.innerHTML = `<span class="region-chip-icon">${region.icon}</span><span>${regionName}</span>`;
+      chip.addEventListener('click', () => {
+        activeRegion = region.id;
+        globeManager.flyToRegion(region);
+        renderRegionNavigation();
+        showToast(t('regionFocused', currentLanguage, { name: regionName }));
+      });
+      regionNavigation.appendChild(chip);
+    });
+  }
+
+  function getMatches(query) {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return [];
+    return SCENIC_SPOTS.filter(spot => [
+      spot.name, spot.enName, spot.location, spot.country, ...(spot.tags || [])
+    ].some(value => value?.toLowerCase().includes(normalizedQuery))).slice(0, 6);
+  }
+
+  function selectSearchSpot(spot) {
+    if (!spot) return;
+    playerManager.openSpot(spot, currentSettings.autoPlay);
+    searchDropdown?.classList.remove('visible');
+    if (searchInput) searchInput.value = '';
+    globeManager.setSearchQuery('');
+  }
+
+  function renderSearchResults(query) {
+    if (!searchDropdown) return;
+    const matches = getMatches(query);
+    if (!query.trim()) {
+      searchDropdown.classList.remove('visible');
+      return;
+    }
+    if (!matches.length) {
+      searchDropdown.innerHTML = `<div class="search-empty-state">${t('noResults', currentLanguage)}</div>`;
+      searchDropdown.classList.add('visible');
+      return;
+    }
+    searchDropdown.innerHTML = matches.map(spot => {
+      const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage), enName: t('explore', currentLanguage) };
+      return `
+        <button class="search-result-item" type="button" data-id="${spot.id}">
+          <span class="search-result-info">
+            <span class="search-result-name">${getSpotName(spot, currentLanguage)}</span>
+            <span class="search-result-loc">${getSpotLocation(spot, currentLanguage)}</span>
+          </span>
+          <span class="search-result-cat">${getCategoryName(category, currentLanguage)}</span>
+        </button>`;
+    }).join('');
+    searchDropdown.classList.add('visible');
+    searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => selectSearchSpot(SCENIC_SPOTS.find(spot => spot.id === item.dataset.id)));
+    });
+  }
+
+  function updateMiniPlayButton(isPlaying) {
+    if (!miniPlayBtn) return;
+    miniPlayBtn.innerHTML = isPlaying
+      ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+      : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+    miniPlayBtn.setAttribute('aria-pressed', String(isPlaying));
+  }
+
+  function updateMiniAudioIsland(spot, isPlaying) {
+    if (!spot || !miniIsland) {
+      miniIsland?.classList.remove('visible');
+      return;
+    }
+    const playerIsOpen = document.getElementById('immersive-player')?.classList.contains('active');
+    if (!playerIsOpen && isPlaying) {
+      miniIsland.classList.add('visible');
+      miniThumb.src = spot.photos[0];
+      miniThumb.alt = getSpotName(spot, currentLanguage);
+      miniName.textContent = getSpotName(spot, currentLanguage);
+      miniDesc.textContent = currentLanguage === LANGUAGES.EN
+        ? t('soundscape', currentLanguage)
+        : (spot.audioRecipe?.scale || t('soundscape', currentLanguage));
+    } else {
+      miniIsland.classList.remove('visible');
+    }
+    miniIsland.classList.toggle('paused', !isPlaying);
+    updateMiniPlayButton(isPlaying);
+  }
+
+  function updateFavoriteBadge() {
+    if (favCountBadge) favCountBadge.textContent = storage.getFavorites().length;
+  }
+
+  function renderFavoritesList() {
+    if (!favListContainer) return;
+    const favoriteSpots = storage.getFavorites()
+      .map(id => SCENIC_SPOTS.find(spot => spot.id === id))
+      .filter(Boolean);
+    if (!favoriteSpots.length) {
+      favListContainer.innerHTML = `
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <p>${t('emptyFavorites', currentLanguage)}</p>
+          <span>${t('emptyFavoritesHint', currentLanguage)}</span>
+        </div>`;
+      return;
+    }
+    favListContainer.innerHTML = favoriteSpots.map(spot => {
+      const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage) };
+      return `
+        <article class="fav-item-card" data-id="${spot.id}" tabindex="0">
+          <img src="${spot.photos[0]}" class="fav-thumb" alt="${getSpotName(spot, currentLanguage)}" loading="lazy"/>
+          <div class="fav-info">
+            <span class="fav-name">${getSpotName(spot, currentLanguage)}</span>
+            <span class="fav-location">${getSpotLocation(spot, currentLanguage)}</span>
+            <span class="fav-tag">${getCategoryName(category, currentLanguage)}</span>
+          </div>
+          <button class="fav-remove-btn" title="${t('removeFavorite', currentLanguage)}" aria-label="${t('removeFavorite', currentLanguage)}" data-remove="${spot.id}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </article>`;
+    }).join('');
+    favListContainer.querySelectorAll('.fav-item-card').forEach(card => {
+      const openCard = () => {
+        const spot = SCENIC_SPOTS.find(item => item.id === card.dataset.id);
+        if (!spot) return;
+        playerManager.openSpot(spot, true);
+        toggleFavDrawer(false);
+      };
+      card.addEventListener('click', event => {
+        if (event.target.closest('.fav-remove-btn')) return;
+        openCard();
+      });
+      card.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openCard();
+        }
+      });
+    });
+    favListContainer.querySelectorAll('.fav-remove-btn').forEach(btn => {
+      btn.addEventListener('click', event => {
+        event.stopPropagation();
+        storage.toggleFavorite(btn.dataset.remove);
+        updateFavoriteBadge();
+        renderFavoritesList();
+        playerManager.updateFavoriteButton();
+        showToast(t('favoriteRemoved', currentLanguage));
+      });
+    });
+  }
+
+  function toggleFavDrawer(open) {
+    const nextState = open ?? !favDrawer?.classList.contains('open');
+    if (nextState) {
+      communityManager.close();
+      toggleMixerDrawer(false);
+      toggleSettingsDrawer(false);
+      renderFavoritesList();
+    }
+    favDrawer?.classList.toggle('open', nextState);
+    favBackdrop?.classList.toggle('open', nextState);
+    favToggleBtn?.setAttribute('aria-expanded', String(nextState));
+    favDrawer?.setAttribute('aria-hidden', String(!nextState));
+  }
+
+  function toggleMixerDrawer(open) {
+    const nextState = open ?? !mixerDrawer?.classList.contains('open');
+    if (nextState) {
+      communityManager.close();
+      toggleFavDrawer(false);
+      toggleSettingsDrawer(false);
+    }
+    mixerDrawer?.classList.toggle('open', nextState);
+    mixerBackdrop?.classList.toggle('open', nextState);
+    mixerToggleBtn?.setAttribute('aria-expanded', String(nextState));
+    mixerDrawer?.setAttribute('aria-hidden', String(!nextState));
+  }
+
+  // ==================== Settings Drawer Management ====================
+  function syncSettingsInputs() {
+    currentSettings = storage.getSettings();
+    if (selectMapSkinInput) selectMapSkinInput.value = currentSettings.mapSkin || 'streets-dark';
+    if (toggleStarsInput) toggleStarsInput.checked = Boolean(currentSettings.showStars);
+    if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
+    if (toggleAutoSpinInput) toggleAutoSpinInput.checked = Boolean(currentSettings.autoSpin);
+    if (toggleAutoPlayInput) toggleAutoPlayInput.checked = Boolean(currentSettings.autoPlay);
+  }
+
+  function toggleSettingsDrawer(open) {
+    const nextState = open ?? !settingsDrawer?.classList.contains('open');
+    if (nextState) {
+      communityManager.close();
+      toggleFavDrawer(false);
+      toggleMixerDrawer(false);
+      syncSettingsInputs();
+    }
+    settingsDrawer?.classList.toggle('open', nextState);
+    settingsBackdrop?.classList.toggle('open', nextState);
+    settingsToggleBtn?.setAttribute('aria-expanded', String(nextState));
+    settingsDrawer?.setAttribute('aria-hidden', String(!nextState));
+  }
+
+  function handleSettingChange(key, value) {
+    currentSettings = storage.saveSettings({ [key]: value });
+    globeManager.applyMapSettings({ [key]: value });
+    showToast(t('settingsSaved', currentLanguage));
+  }
+
+  selectMapSkinInput?.addEventListener('change', e => handleSettingChange('mapSkin', e.target.value));
+  toggleStarsInput?.addEventListener('change', e => handleSettingChange('showStars', e.target.checked));
+  toggleHaloInput?.addEventListener('change', e => handleSettingChange('showHalo', e.target.checked));
+  toggleAutoSpinInput?.addEventListener('change', e => handleSettingChange('autoSpin', e.target.checked));
+  toggleAutoPlayInput?.addEventListener('change', e => handleSettingChange('autoPlay', e.target.checked));
+
+  resetSettingsBtn?.addEventListener('click', () => {
+    currentSettings = storage.resetSettings();
+    syncSettingsInputs();
+    globeManager.applyMapSettings(currentSettings);
+    showToast(t('settingsReset', currentLanguage));
+  });
+
+  settingsToggleBtn?.addEventListener('click', () => toggleSettingsDrawer());
+  closeSettingsBtn?.addEventListener('click', () => toggleSettingsDrawer(false));
+  settingsBackdrop?.addEventListener('click', () => toggleSettingsDrawer(false));
+
+  function applyLanguage(nextLanguage = currentLanguage) {
+    currentLanguage = nextLanguage;
+    persistLanguage(currentLanguage);
+    document.documentElement.lang = currentLanguage === LANGUAGES.EN ? 'en' : 'zh-CN';
+    applyTranslations(document, currentLanguage);
+    globeManager.setLanguage(currentLanguage);
+    playerManager.setLanguage(currentLanguage);
+    communityManager.setLanguage(currentLanguage);
+    renderRegionNavigation();
+    renderFavoritesList();
+    if (searchInput?.value) renderSearchResults(searchInput.value);
+    if (playerManager.currentSpot) updateMiniAudioIsland(playerManager.currentSpot, soundEngine.isPlaying);
+    viewModeText.textContent = viewMode === '3d' ? t('view3d', currentLanguage) : t('view2d', currentLanguage);
+    if (autoTourText) {
+      autoTourText.textContent = playerManager.isAutoTourActive
+        ? t('touring', currentLanguage)
+        : t('autoTour', currentLanguage);
+    }
+    languageBtn?.querySelectorAll('[data-language-option]').forEach(el => {
+      el.classList.toggle('is-active', el.dataset.languageOption === currentLanguage);
+    });
+    if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
+  }
+
+  function applyTheme(nextTheme = currentTheme) {
+    currentTheme = nextTheme;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+    } catch {}
+    document.documentElement.dataset.theme = currentTheme;
+    document.documentElement.style.colorScheme = currentTheme;
+    globeManager.setTheme(currentTheme);
+    const themeTitle = t(currentTheme === 'dark' ? 'switchLightTheme' : 'switchDarkTheme', currentLanguage);
+    [themeBtn, playerThemeBtn].forEach(btn => {
+      if (!btn) return;
+      btn.classList.toggle('is-light', currentTheme === 'light');
+      btn.setAttribute('aria-pressed', String(currentTheme === 'light'));
+      btn.setAttribute('title', themeTitle);
+      btn.setAttribute('aria-label', themeTitle);
+    });
+  }
+
+  function toggleLanguage() {
+    applyLanguage(currentLanguage === LANGUAGES.ZH ? LANGUAGES.EN : LANGUAGES.ZH);
+  }
+
+  function toggleTheme() {
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  }
+
+  languageBtn?.addEventListener('click', toggleLanguage);
+  playerLanguageBtn?.addEventListener('click', toggleLanguage);
+  themeBtn?.addEventListener('click', toggleTheme);
+  playerThemeBtn?.addEventListener('click', toggleTheme);
+
+  toggleViewModeBtn?.addEventListener('click', () => {
+    viewMode = viewMode === '3d' ? '2d' : '3d';
+    globeManager.setViewMode(viewMode);
+    viewModeText.textContent = viewMode === '3d' ? t('view3d', currentLanguage) : t('view2d', currentLanguage);
+    toggleViewModeBtn.classList.toggle('highlight', viewMode === '3d');
+    toggleViewModeBtn.setAttribute('aria-pressed', String(viewMode === '3d'));
+    showToast(t(viewMode === '3d' ? 'switched3d' : 'switched2d', currentLanguage));
+  });
+
+  document.getElementById('btn-brand-home')?.addEventListener('click', () => {
+    globeManager.resetView();
+    showToast(t('viewReset', currentLanguage));
+  });
+
+  document.getElementById('dock-btn-wander')?.addEventListener('click', () => playerManager.randomRoam());
+
+  autoTourBtn?.addEventListener('click', () => {
+    const isActive = playerManager.toggleAutoTour();
+    autoTourBtn.classList.toggle('primary', isActive);
+    autoTourBtn.setAttribute('aria-pressed', String(isActive));
+    if (autoTourText) {
+      autoTourText.textContent = isActive ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
+    }
+  });
+
+  document.getElementById('dock-btn-reset-view')?.addEventListener('click', () => {
+    globeManager.resetView();
+    showToast(t('viewReset', currentLanguage));
+  });
+
+  searchInput?.addEventListener('input', event => renderSearchResults(event.target.value));
+  searchInput?.addEventListener('focus', event => {
+    if (event.target.value) renderSearchResults(event.target.value);
+  });
+  searchInput?.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      selectSearchSpot(getMatches(searchInput.value)[0]);
+    } else if (event.key === 'Escape') {
+      event.stopPropagation();
+      searchDropdown?.classList.remove('visible');
+      searchInput.blur();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.search-box-wrapper')) searchDropdown?.classList.remove('visible');
+  });
+
+  document.getElementById('player-play-btn')?.addEventListener('click', () => playerManager.togglePlay());
+  document.getElementById('player-btn-next')?.addEventListener('click', () => playerManager.nextSpot());
+  document.getElementById('player-btn-prev')?.addEventListener('click', () => playerManager.prevSpot());
+  document.getElementById('player-close-btn')?.addEventListener('click', () => playerManager.close());
+  document.getElementById('player-fav-btn')?.addEventListener('click', () => {
+    playerManager.toggleFavorite();
+    updateFavoriteBadge();
+  });
+  document.getElementById('player-share-btn')?.addEventListener('click', () => playerManager.shareCurrentSpot());
+  document.getElementById('player-zen-btn')?.addEventListener('click', () => playerManager.toggleZenMode());
+  document.getElementById('player-fullscreen-btn')?.addEventListener('click', () => playerManager.toggleFullscreen());
+  document.getElementById('player-btn-open-mixer')?.addEventListener('click', () => toggleMixerDrawer(true));
+
+  const volumeSlider = document.getElementById('player-volume-slider');
+  const muteBtn = document.getElementById('player-btn-mute');
+  volumeSlider?.addEventListener('input', event => soundEngine.setMasterVolume(parseFloat(event.target.value)));
+  muteBtn?.addEventListener('click', () => {
+    const isMuted = soundEngine.toggleMute();
+    muteBtn.classList.toggle('active', isMuted);
+    muteBtn.setAttribute('aria-pressed', String(isMuted));
+    showToast(t(isMuted ? 'muted' : 'unmuted', currentLanguage));
+  });
+  document.addEventListener('fullscreenchange', () => {
+    const fullscreenBtn = document.getElementById('player-fullscreen-btn');
+    const isFullscreen = Boolean(document.fullscreenElement);
+    fullscreenBtn?.classList.toggle('active', isFullscreen);
+    fullscreenBtn?.setAttribute('aria-pressed', String(isFullscreen));
+  });
+
+  miniIsland?.addEventListener('click', event => {
+    if (!event.target.closest('#mini-play-toggle-btn') && playerManager.currentSpot) {
+      playerManager.openSpot(playerManager.currentSpot, false);
+    }
+  });
+  miniPlayBtn?.addEventListener('click', event => {
+    event.stopPropagation();
+    playerManager.togglePlay();
+  });
+  soundEngine.subscribe((event, data) => {
+    if (event === 'playStateChange') {
+      playerManager.updatePlayButton(data.isPlaying);
+      updateMiniAudioIsland(data.spot, data.isPlaying);
+    }
+  });
+
+  favToggleBtn?.addEventListener('click', () => toggleFavDrawer());
+  document.getElementById('btn-close-fav-drawer')?.addEventListener('click', () => toggleFavDrawer(false));
+  favBackdrop?.addEventListener('click', () => toggleFavDrawer(false));
+  mixerToggleBtn?.addEventListener('click', () => toggleMixerDrawer());
+  document.getElementById('btn-close-mixer-drawer')?.addEventListener('click', () => toggleMixerDrawer(false));
+  mixerBackdrop?.addEventListener('click', () => toggleMixerDrawer(false));
+
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (settingsDrawer?.classList.contains('open')) {
+      event.stopPropagation();
+      toggleSettingsDrawer(false);
+    } else if (document.getElementById('community-drawer')?.classList.contains('open')) {
+      event.stopPropagation();
+      communityManager.close();
+    } else if (favDrawer?.classList.contains('open')) {
+      event.stopPropagation();
+      toggleFavDrawer(false);
+    } else if (mixerDrawer?.classList.contains('open')) {
+      event.stopPropagation();
+      toggleMixerDrawer(false);
+    }
+  });
+
+  document.querySelectorAll('.channel-slider').forEach(slider => {
+    const channel = slider.dataset.channel;
+    const display = document.getElementById(`vol-text-${channel}`);
+    slider.addEventListener('input', event => {
+      const value = parseFloat(event.target.value);
+      soundEngine.setAmbientChannelVolume(channel, value);
+      if (display) display.textContent = `${Math.round(value * 100)}%`;
+    });
+  });
+
+  const presets = [
+    ['preset-rainy-town', 'presetRainyTown', { rain: 0.65, ocean: 0, wind: 0.2, birds: 0.1, campfire: 0, bell: 0.4 }],
+    ['preset-island-ocean', 'presetIslandOcean', { rain: 0, ocean: 0.75, wind: 0.35, birds: 0.2, campfire: 0, bell: 0 }],
+    ['preset-snow-zen', 'presetSnowZen', { rain: 0, ocean: 0.5, wind: 0, birds: 0, campfire: 0.2, bell: 0.6 }],
+    ['preset-forest-camp', 'presetForestCamp', { rain: 0.1, ocean: 0, wind: 0.25, birds: 0.65, campfire: 0.55, bell: 0 }]
+  ];
+  presets.forEach(([buttonId, nameKey, settings]) => {
+    document.getElementById(buttonId)?.addEventListener('click', () => {
+      Object.entries(settings).forEach(([channel, value]) => {
+        soundEngine.setAmbientChannelVolume(channel, value);
+        const slider = document.getElementById(`slider-${channel}`);
+        const display = document.getElementById(`vol-text-${channel}`);
+        if (slider) slider.value = value;
+        if (display) display.textContent = `${Math.round(value * 100)}%`;
+      });
+      document.querySelectorAll('.preset-chip').forEach(button => {
+        const isActive = button.id === buttonId;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+      showToast(t('presetApplied', currentLanguage, { name: t(nameKey, currentLanguage) }));
+    });
+  });
+
+  updateFavoriteBadge();
+  syncSettingsInputs();
+  applyTheme();
+  applyLanguage();
+  globeManager.flyToRegion(MAP_REGIONS.find(region => region.id === activeRegion));
+
+  const initialSpot = SCENIC_SPOTS.find(spot => spot.id === shareUtil.getInitialSpotId());
+  if (initialSpot) {
+    setTimeout(() => {
+      playerManager.openSpot(initialSpot, currentSettings.autoPlay);
+      showToast(t('loadingSpot', currentLanguage, { name: getSpotName(initialSpot, currentLanguage) }));
+    }, 500);
+  }
+});

@@ -1,0 +1,144 @@
+/* MapTiler SDK is the single renderer for both globe and flat projections. */
+
+#globe-container,
+#globe-container .maplibregl-canvas-container,
+#globe-container .maplibregl-map {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #02060c !important;
+}
+
+:root[data-theme="light"] #globe-container,
+:root[data-theme="light"] #globe-container .maplibregl-canvas-container,
+:root[data-theme="light"] #globe-container .maplibregl-map {
+  background: #dce8ed !important;
+}
+
+#globe-container .maplibregl-canvas {
+  outline: none;
+  background: #02060c !important;
+  opacity: 0;
+  transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="light"] #globe-container .maplibregl-canvas {
+  background: #dce8ed !important;
+}
+
+#globe-container[data-map-ready="true"] .maplibregl-canvas {
+  opacity: 1;
+}
+
+#globe-container .maplibregl-ctrl-bottom-left,
+#globe-container .maplibregl-ctrl-bottom-right {
+  z-index: 30;
+}
+
+#globe-container .maplibregl-ctrl-bottom-left {
+  bottom: 4px;
+  left: 8px;
+}
+
+#globe-container .maplibregl-ctrl-bottom-right {
+  right: 8px;
+  bottom: 4px;
+}
+
+#globe-container .maplibregl-ctrl-attrib {
+  max-width: min(52vw, 560px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+#globe-container .maplibregl-ctrl-attrib a {
+  color: var(--text-secondary);
+}
+
+#globe-container .maplibregl-ctrl-logo {
+  opacity: 0.8;
+}
+
+/* Lightweight hover card for GeoMelody audio points. */
+.globe-tooltip-card {
+  position: absolute;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(280px, calc(100vw - 24px));
+  padding: 10px 14px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-lg), 0 0 22px rgba(56, 189, 248, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.globe-tooltip-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.globe-tooltip-thumb {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.globe-tooltip-content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.globe-tooltip-title,
+.globe-tooltip-loc,
+.globe-tooltip-hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.globe-tooltip-title {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.globe-tooltip-loc {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.globe-tooltip-hint {
+  margin-top: 2px;
+  color: var(--accent-cyan);
+  font-size: 10px;
+}
+
+@media (max-width: 720px) {
+  #globe-container .maplibregl-ctrl-attrib {
+    max-width: 70vw;
+  }
+
+  .globe-tooltip-card {
+    display: none;
+  }
+}

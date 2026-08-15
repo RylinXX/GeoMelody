@@ -1,0 +1,375 @@
+const STORAGE_KEY = 'geomelody-language';
+
+export const LANGUAGES = {
+  ZH: 'zh',
+  EN: 'en'
+};
+
+const MESSAGES = {
+  zh: {
+    documentTitle: '境音地图 GeoMelody - 3D 沉浸式全球视听体验',
+    documentDescription: '旋转 3D 地球探索全球美景，在地域专属音乐与自然声中沉浸旅行。',
+    brandName: '境音地图',
+    categoryNav: '风景分类筛选',
+    regionNav: '七大洲快捷切换',
+    publish: '投稿',
+    communityTitleAttr: '发布音景或参与评论',
+    communityTitle: '社区共创',
+    publishSoundscape: '发布音景',
+    commentsInteraction: '评论互动',
+    publishIntroTitle: '把一段声音放到世界上',
+    publishIntroText: '选择城市，上传音乐和背景图，发布后会立刻出现在地图对应位置。',
+    chooseLocation: '选择发布位置',
+    workTitle: '音景标题',
+    workTitlePlaceholder: '例如：北京胡同的清晨',
+    creatorName: '创作者昵称',
+    creatorPlaceholder: '你的昵称',
+    soundscapeDescription: '声音与场景介绍',
+    descriptionPlaceholder: '说说这里的声音、时间和故事…',
+    backgroundImage: '背景图片',
+    musicFile: '音乐文件',
+    noFileSelected: '未选择文件',
+    prototypeUploadNote: '当前为本地演示：发布流程、地图落点和互动数据可体验；正式版本接入对象存储后即可持久保存原始文件。',
+    publishNow: '发布到地图',
+    like: '点赞',
+    comments: '评论',
+    commentPlaceholder: '写下你听到的、想到的…',
+    sendComment: '发表评论',
+    allComments: '全部评论',
+    commentsUnit: '条',
+    hottestComments: '最热',
+    latestComments: '最新',
+    reply: '回复',
+    replyTo: '回复 @{name}：',
+    noComments: '还没有评论，来写下第一条吧。',
+    pinnedComment: '热评置顶',
+    anonymousTraveler: '匿名旅人',
+    commentAdded: '💬 评论发布成功',
+    deleteComment: '删除',
+    publishedSuccess: '✦《{name}》已发布到地图',
+    userUpload: '用户上传',
+    demoMusic: '示例音乐',
+    regionFocused: '已切换至：{name}',
+    searchPlaceholder: '搜索景点 / 城市 / 标签…',
+    mixer: '自然混音',
+    favorites: '收藏',
+    settings: '设置',
+    settingsTitle: '偏好设置',
+    settingsMapSection: '地图底图皮肤',
+    settingMapSkin: '底图风格选择',
+    settingMapSkinDesc: '切换 MapTiler 官方底层渲染皮肤，默认经典深色街道',
+    skinStreetsDark: '经典深色街道 (Streets Dark · 默认推荐)',
+    skinDatavizDark: '极简暗黑灰 (Dataviz Dark)',
+    skinBackdropDark: '深邃纯黑底图 (Backdrop Dark)',
+    skinDatavizLight: '极简明亮浅色 (Dataviz Light)',
+    skinSatellite: '真实遥感卫星 (Satellite)',
+    settingsGlobeSection: '地球仪与视效',
+    settingShowStars: '深空点点星宿背景',
+    settingShowStarsDesc: '在地球仪外太空渲染 3D 闪烁星辰',
+    settingShowHalo: '3D 大气层微光晕',
+    settingShowHaloDesc: '在 3D 地球外围渲染微弱的大气光晕（默认关闭以保持纯净）',
+    settingAutoSpin: '闲置时自动慢速自转',
+    settingAutoSpinDesc: '无交互操作时地球仪保持缓慢自转',
+    settingAutoPlay: '选中景点自动播放音乐',
+    settingAutoPlayDesc: '点击点位时立即自动开启专属 AI 音景',
+    resetDefaults: '恢复默认设置',
+    settingsSaved: '设置已更新',
+    settingsReset: '已恢复默认设置',
+    languageTitle: '切换为 English',
+    switchLightTheme: '切换为浅色模式',
+    switchDarkTheme: '切换为深色模式',
+    view3d: '3D 地球',
+    view2d: '2D 平面',
+    wander: '随机漫游',
+    autoTour: '自动巡航',
+    touring: '巡航中…',
+    reset: '复位',
+    zenHint: '晃动鼠标显示控制 · 按 ESC 退出',
+    audioRecipe: '地域专属 AI 音景配方',
+    favoritesTitle: '我收藏的胜景',
+    mixerTitle: '自然音效混音台',
+    presetsTitle: '快速氛围预设',
+    channelRain: '雨落屋檐',
+    channelOcean: '潮汐海浪',
+    channelWind: '高山清风',
+    channelBirds: '林间鸟鸣',
+    channelCampfire: '温暖篝火',
+    channelBell: '禅音钟磬',
+    presetRainyTown: '烟雨江南',
+    presetIslandOcean: '暖阳海岛',
+    presetSnowZen: '雪山禅思',
+    presetForestCamp: '林间露营',
+    close: '关闭',
+    homeTitle: '复位地图视角',
+    mixerTitleAttr: '打开自然音效混音台',
+    favoritesTitleAttr: '打开我的收藏',
+    switchViewTitle: '切换 3D 地球 / 2D 平面地图',
+    wanderTitle: '随机漫游到一处美景',
+    autoTourTitle: '开启桌面巡航壁纸模式',
+    resetTitle: '复位全景视角',
+    playPause: '播放 / 暂停',
+    favoriteSpot: '收藏此美景',
+    shareSpot: '复制视听分享链接',
+    zenMode: '纯净壁纸模式 (Z)',
+    fullscreen: '全屏沉浸 (F)',
+    exitPlayer: '返回世界地图 (Esc)',
+    previousSpot: '上一胜景 (←)',
+    nextSpot: '下一胜景 (→)',
+    mute: '静音切换',
+    volume: '调节音量',
+    openMixer: '调节自然背景音',
+    emptyFavorites: '暂无收藏胜景',
+    emptyFavoritesHint: '探索时点击心形按钮，即可收藏喜爱的美景',
+    removeFavorite: '取消收藏',
+    noResults: '未找到匹配景点',
+    explore: '探索',
+    soundscape: 'AI 境音氛围',
+    popupAction: '点击进入视听沉浸 ➔',
+    tooltipAction: '点击开启沉浸视听 ➔',
+    photo: '壁纸 {number}',
+    daylight: '日间',
+    twilight: '晨昏',
+    night: '夜间',
+    selectedCategory: '已筛选：{name}',
+    switched2d: '已切换至 2D 平面世界地图',
+    switched3d: '已切换至 3D 实时地球',
+    viewReset: '地球视角已重置',
+    roamTo: '漫游至：{name}',
+    autoTourOn: '自动巡航模式已开启',
+    autoTourOff: '自动巡航已关闭',
+    zenOn: '专注壁纸模式已开启',
+    fullscreenOn: '已进入全屏沉浸',
+    muted: '已静音',
+    unmuted: '已恢复音量',
+    favoriteAdded: '已收藏「{name}」',
+    favoriteRemoved: '已从收藏夹移除',
+    shareCopied: '已复制《{name}》视听分享链接',
+    shareFallback: '链接：{url}',
+    presetApplied: '已应用预设：{name}',
+    loadingSpot: '正在载入《{name}》专属视听…',
+    regionalMode: '地域调式',
+    localInstruments: '地方原声乐器 · 自然环境音',
+    scaleLabel: '调式',
+    instrumentsLabel: '乐器',
+    tempoLabel: '节奏'
+  },
+  en: {
+    documentTitle: 'GeoMelody - Immersive 3D Soundscape Map',
+    documentDescription: 'Explore remarkable places on a 3D globe with location-inspired music and natural ambience.',
+    brandName: 'GeoMelody',
+    categoryNav: 'Scenery categories',
+    regionNav: 'Quick navigation for the seven continents',
+    publish: 'Publish',
+    communityTitleAttr: 'Publish a soundscape or join the conversation',
+    communityTitle: 'Community Studio',
+    publishSoundscape: 'Publish',
+    commentsInteraction: 'Comments',
+    publishIntroTitle: 'Place a sound somewhere in the world',
+    publishIntroText: 'Choose a city, add music and a background image, and the post will appear at that map location.',
+    chooseLocation: 'Location',
+    workTitle: 'Soundscape title',
+    workTitlePlaceholder: 'Example: Morning in a Beijing hutong',
+    creatorName: 'Creator name',
+    creatorPlaceholder: 'Your display name',
+    soundscapeDescription: 'Sound and scene description',
+    descriptionPlaceholder: 'Describe the sound, time, and story of this place…',
+    backgroundImage: 'Background image',
+    musicFile: 'Music file',
+    noFileSelected: 'No file selected',
+    prototypeUploadNote: 'Local prototype: the publishing flow, map placement, and interactions are available now. Original files can persist after object storage is connected.',
+    publishNow: 'Publish to map',
+    like: 'Like',
+    comments: 'Comments',
+    commentPlaceholder: 'Write what you heard or imagined…',
+    sendComment: 'Post comment',
+    allComments: 'All comments',
+    commentsUnit: '',
+    hottestComments: 'Top',
+    latestComments: 'Latest',
+    reply: 'Reply',
+    replyTo: 'Reply to @{name}:',
+    noComments: 'No comments yet. Start the conversation.',
+    pinnedComment: 'Top comment',
+    anonymousTraveler: 'Anonymous traveler',
+    commentAdded: '💬 Comment posted',
+    deleteComment: 'Delete',
+    publishedSuccess: '✦ “{name}” is now on the map',
+    userUpload: 'User upload',
+    demoMusic: 'Demo track',
+    regionFocused: '◎ Now viewing: {name}',
+    searchPlaceholder: 'Search places, cities, or tags…',
+    mixer: 'Sound Mixer',
+    favorites: 'Favorites',
+    settings: 'Settings',
+    settingsTitle: 'Preferences',
+    settingsMapSection: 'Map Base Skin',
+    settingMapSkin: 'Base Map Skin Style',
+    settingMapSkinDesc: 'Choose official MapTiler vector skin style (Default: Streets Dark)',
+    skinStreetsDark: 'Streets Dark (Recommended Default)',
+    skinDatavizDark: 'Minimal Dark (Dataviz Dark)',
+    skinBackdropDark: 'Backdrop Dark',
+    skinDatavizLight: 'Minimal Light',
+    skinSatellite: 'Satellite Imagery',
+    settingsGlobeSection: 'Globe & Visuals',
+    settingShowStars: 'Celestial Starfield',
+    settingShowStarsDesc: 'Render 3D stars around the globe in space',
+    settingShowHalo: '3D Atmosphere Halo',
+    settingShowHaloDesc: 'Render subtle glowing atmosphere halo',
+    settingAutoSpin: 'Auto-rotate when idle',
+    settingAutoSpinDesc: 'Keep the globe slowly rotating when idle',
+    settingAutoPlay: 'Auto-play Music',
+    settingAutoPlayDesc: 'Automatically start music when a spot is clicked',
+    resetDefaults: 'Reset Defaults',
+    settingsSaved: 'Settings updated',
+    settingsReset: 'Defaults restored',
+    languageTitle: '切换为中文',
+    switchLightTheme: 'Switch to light mode',
+    switchDarkTheme: 'Switch to dark mode',
+    view3d: '3D Globe',
+    view2d: '2D Map',
+    wander: 'Surprise Me',
+    autoTour: 'Auto Cruise',
+    touring: 'Cruising…',
+    reset: 'Reset',
+    zenHint: 'Move the pointer to reveal controls · ESC to exit',
+    audioRecipe: 'Location-inspired AI soundscape',
+    favoritesTitle: 'Favorite Places',
+    mixerTitle: 'Ambient Sound Mixer',
+    presetsTitle: 'Quick ambience presets',
+    channelRain: 'Rooftop Rain',
+    channelOcean: 'Ocean Waves',
+    channelWind: 'Mountain Wind',
+    channelBirds: 'Forest Birdsong',
+    channelCampfire: 'Warm Campfire',
+    channelBell: 'Zen Chimes',
+    presetRainyTown: 'Rainy Town',
+    presetIslandOcean: 'Sunny Island',
+    presetSnowZen: 'Alpine Zen',
+    presetForestCamp: 'Forest Camp',
+    close: 'Close',
+    homeTitle: 'Reset map view',
+    mixerTitleAttr: 'Open ambient sound mixer',
+    favoritesTitleAttr: 'Open favorites',
+    switchViewTitle: 'Switch between 3D globe and 2D map',
+    wanderTitle: 'Travel to a random place',
+    autoTourTitle: 'Start automatic wallpaper tour',
+    resetTitle: 'Reset the world view',
+    playPause: 'Play / Pause',
+    favoriteSpot: 'Favorite this place',
+    shareSpot: 'Copy share link',
+    zenMode: 'Zen wallpaper mode (Z)',
+    fullscreen: 'Fullscreen (F)',
+    exitPlayer: 'Return to the world map (Esc)',
+    previousSpot: 'Previous place (←)',
+    nextSpot: 'Next place (→)',
+    mute: 'Mute / Unmute',
+    volume: 'Adjust volume',
+    openMixer: 'Adjust natural ambience',
+    emptyFavorites: 'No favorite places yet',
+    emptyFavoritesHint: 'Tap the heart while exploring to save a place here',
+    removeFavorite: 'Remove favorite',
+    noResults: 'No matching places found',
+    explore: 'Explore',
+    soundscape: 'AI Soundscape',
+    popupAction: 'Enter the immersive experience ➔',
+    tooltipAction: 'Open immersive soundscape ➔',
+    photo: 'Photo {number}',
+    daylight: 'Daylight',
+    twilight: 'Twilight',
+    night: 'Night',
+    selectedCategory: 'Filter: {name}',
+    switched2d: 'Switched to the 2D world map',
+    switched3d: 'Switched to the live 3D globe',
+    viewReset: 'World view reset',
+    roamTo: 'Traveling to {name}',
+    autoTourOn: 'Auto Cruise is on',
+    autoTourOff: 'Auto Cruise is off',
+    zenOn: 'Zen wallpaper mode is on',
+    fullscreenOn: 'Fullscreen mode enabled',
+    muted: 'Muted',
+    unmuted: 'Sound restored',
+    favoriteAdded: 'Added “{name}” to favorites',
+    favoriteRemoved: 'Removed from favorites',
+    shareCopied: 'Share link for “{name}” copied',
+    shareFallback: 'Link: {url}',
+    presetApplied: 'Applied preset: {name}',
+    loadingSpot: 'Loading “{name}”…',
+    regionalMode: 'Regional Mode',
+    localInstruments: 'Acoustic instruments & nature recordings',
+    scaleLabel: 'Scale',
+    instrumentsLabel: 'Instruments',
+    tempoLabel: 'Tempo'
+  }
+};
+
+export function getInitialLanguage() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === LANGUAGES.ZH || saved === LANGUAGES.EN) return saved;
+  } catch {}
+  return LANGUAGES.ZH; // Always default to Chinese (zh)
+}
+
+export function persistLanguage(lang) {
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch {}
+}
+
+export function t(key, lang = LANGUAGES.ZH, params = {}) {
+  let template = MESSAGES[lang]?.[key] || MESSAGES.zh[key] || key;
+  Object.keys(params).forEach(param => {
+    template = template.replaceAll(`{${param}}`, params[param]);
+  });
+  return template;
+}
+
+export function applyTranslations(root = document, lang = LANGUAGES.ZH) {
+  document.title = t('documentTitle', lang);
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', t('documentDescription', lang));
+
+  root.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n, lang);
+  });
+  root.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.setAttribute('title', t(el.dataset.i18nTitle, lang));
+  });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder, lang));
+  });
+  root.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAria, lang));
+  });
+}
+
+export function getSpotName(spot, lang = LANGUAGES.ZH) {
+  if (!spot) return '';
+  return lang === LANGUAGES.EN ? (spot.enName || spot.name) : spot.name;
+}
+
+export function getSpotLocation(spot, lang = LANGUAGES.ZH) {
+  if (!spot) return '';
+  return lang === LANGUAGES.EN ? (spot.enLocation || spot.location) : spot.location;
+}
+
+export function getSpotDescription(spot, lang = LANGUAGES.ZH) {
+  if (!spot) return '';
+  return lang === LANGUAGES.EN ? (spot.enDescription || spot.description) : spot.description;
+}
+
+export function getSpotSecondaryName(spot, lang = LANGUAGES.ZH) {
+  if (!spot) return '';
+  return lang === LANGUAGES.EN ? spot.name : (spot.enName || spot.country || '');
+}
+
+export function getSunLabel(status, lang = LANGUAGES.ZH) {
+  if (status === 'day') return lang === LANGUAGES.EN ? 'Daylight' : '日间';
+  if (status === 'twilight') return lang === LANGUAGES.EN ? 'Twilight' : '晨昏';
+  return lang === LANGUAGES.EN ? 'Night' : '夜间';
+}
+
+export function getCategoryName(category, lang = LANGUAGES.ZH) {
+  if (!category) return '';
+  return lang === LANGUAGES.EN ? (category.enName || category.name) : category.name;
+}

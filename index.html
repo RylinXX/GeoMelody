@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>境音地图 GeoMelody - 3D沉浸式全球视听治愈体验</title>
+  <meta name="description" content="境音地图（GeoMelody）是一款3D地理可视化沉浸式云旅游Web产品。旋转3D地球探索全球美景，沉浸式观看实景美景、聆听地域专属AI纯音乐与自然音效。">
+  <meta name="keywords" content="境音地图, GeoMelody, 3D地球, 云旅游, 白噪音, 地理可视化, AI音乐, 治愈, 专注, 冥想, 放松, 助眠">
+  <link rel="icon" type="image/jpeg" href="/logo-128.jpg">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('geomelody-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.dataset.theme = savedTheme;
+        document.documentElement.style.colorScheme = savedTheme;
+      }
+    } catch { /* The app applies its default theme when storage is unavailable. */ }
+  </script>
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/map.css">
+  <link rel="stylesheet" href="./src/styles/player.css">
+  <link rel="stylesheet" href="./src/styles/mixer.css">
+  <link rel="stylesheet" href="./src/styles/community.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ==================== Top Navigation Bar ==================== -->
+    <header class="top-nav" id="top-nav">
+      <!-- Brand Logo with User-Provided GeoMelody Artwork -->
+      <button type="button" class="nav-brand" id="btn-brand-home" title="复位地图视角" data-i18n-title="homeTitle">
+        <img src="/logo-128.jpg" alt="GeoMelody Logo" class="brand-logo-img" width="34" height="34" decoding="async" fetchpriority="high">
+        <div class="brand-title">
+          <span class="brand-name" data-i18n="brandName">境音地图</span>
+          <span class="brand-sub">GeoMelody · 3D Soundscape</span>
+        </div>
+      </button>
+
+      <!-- Hemisphere & Region Camera Presets -->
+      <nav class="category-filter-container region-navigation" id="region-navigation" aria-label="七大洲快捷切换" data-i18n-aria="regionNav"></nav>
+
+      <!-- Right Utility Actions -->
+      <div class="nav-actions">
+        <!-- Search Input -->
+        <div class="search-box-wrapper">
+          <svg class="search-icon-pos" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" id="spot-search-input" class="search-input" placeholder="搜索景点 / 城市 / 标签…" data-i18n-placeholder="searchPlaceholder" autocomplete="off">
+          <div class="search-results-dropdown" id="search-dropdown"></div>
+        </div>
+
+        <button class="nav-btn community-nav-btn" id="btn-toggle-community" title="发布音景或参与评论" data-i18n-title="communityTitleAttr" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>
+          </svg>
+          <span class="nav-btn-label" data-i18n="publish">投稿</span>
+        </button>
+
+        <!-- Ambient Mixer Drawer Toggle -->
+        <button class="nav-btn" id="btn-toggle-mixer" title="自然音效混音台" data-i18n-title="mixerTitleAttr" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/>
+          </svg>
+          <span class="nav-btn-label" data-i18n="mixer">自然混音</span>
+        </button>
+
+        <!-- Favorites Drawer Toggle -->
+        <button class="nav-btn" id="btn-toggle-favorites" title="我的收藏" data-i18n-title="favoritesTitleAttr" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="nav-btn-label" data-i18n="favorites">收藏</span>
+          <span class="fav-badge" id="fav-count-badge">0</span>
+        </button>
+
+        <!-- Settings Drawer Toggle -->
+        <button class="nav-btn" id="btn-toggle-settings" title="偏好设置" data-i18n-title="settingsTitleAttr" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span class="nav-btn-label" data-i18n="settings">设置</span>
+        </button>
+
+        <button class="nav-btn theme-toggle" id="btn-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
+          <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+
+        <button class="nav-btn language-toggle" id="btn-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="中文 / English">
+          <span class="language-option is-active" data-language-option="zh">中</span>
+          <span class="language-divider">/</span>
+          <span class="language-option" data-language-option="en">EN</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== MapTiler Vector Globe / Flat Map ==================== -->
+    <div id="globe-container"></div>
+    <div class="globe-tooltip-card" id="globe-tooltip"></div>
+
+    <!-- ==================== Floating Bottom Dock ==================== -->
+    <div class="floating-map-dock">
+      <!-- 3D / 2D View Mode Switcher -->
+      <button class="dock-btn highlight" id="dock-btn-toggle-view-mode" title="切换 3D 地球 / 2D 平面地图" data-i18n-title="switchViewTitle" aria-pressed="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+        </svg>
+        <span id="view-mode-btn-text">3D 地球</span>
+      </button>
+
+      <div class="dock-divider"></div>
+
+      <!-- Random Wander -->
+      <button class="dock-btn primary" id="dock-btn-wander" title="随机漫游到任意美景" data-i18n-title="wanderTitle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span data-i18n="wander">随机漫游</span>
+      </button>
+
+      <!-- Auto Cruise -->
+      <button class="dock-btn" id="dock-btn-auto-tour" title="开启桌面巡航壁纸模式" data-i18n-title="autoTourTitle" aria-pressed="false">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+        </svg>
+        <span id="auto-tour-btn-text">自动巡航</span>
+      </button>
+
+      <!-- Reset View -->
+      <button class="dock-btn" id="dock-btn-reset-view" title="复位全景视角" data-i18n-title="resetTitle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h18"/><path d="M12 3v18"/>
+        </svg>
+        <span data-i18n="reset">复位</span>
+      </button>
+    </div>
+
+    <!-- ==================== Mini Audio Island ==================== -->
+    <div class="mini-audio-island" id="mini-audio-island">
+      <img id="mini-audio-thumb" src="" alt="Album" class="mini-audio-cover">
+      <div class="mini-audio-info">
+        <span id="mini-audio-name" class="mini-audio-title">西湖烟雨</span>
+        <span id="mini-audio-desc" class="mini-audio-style">五声羽调 · 古筝笛韵</span>
+      </div>
+      <div class="sound-bars-indicator">
+        <div class="sound-bar"></div>
+        <div class="sound-bar"></div>
+        <div class="sound-bar"></div>
+        <div class="sound-bar"></div>
+      </div>
+      <button class="mini-audio-btn" id="mini-play-toggle-btn" title="播放/暂停" data-i18n-title="playPause" aria-pressed="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+      </button>
+    </div>
+
+    <!-- ==================== Immersive Scenery Audiovisual Player Overlay ==================== -->
+    <section class="immersive-player-overlay" id="immersive-player" aria-label="全屏视听沉浸播放器">
+      <div class="player-background-canvas" id="player-bg-canvas"></div>
+      <div class="scenery-gradient-overlay"></div>
+      <div class="scenery-bottom-gradient"></div>
+
+      <!-- Scenery Photo Dots (Right) -->
+      <div class="scenery-photo-dots" id="player-photo-dots"></div>
+
+      <!-- Interactive UI Layer -->
+      <div class="player-ui-layer" id="player-ui-layer">
+        <div class="zen-mode-hint" data-i18n="zenHint">晃动鼠标显示控制 · 按 ESC 退出</div>
+
+        <!-- Top Header Info Area -->
+        <div class="player-top-header">
+          <div class="player-spot-meta">
+            <div class="spot-pill-tags">
+              <span class="spot-category-pill" id="player-category-badge">🏮 江南古镇</span>
+              <span class="spot-coordinates-pill" id="player-coords-badge">30.74°N, 120.48°E · 浙江桐乡</span>
+            </div>
+            <h1 class="player-spot-title" id="player-spot-title">乌镇水乡</h1>
+            <h2 class="player-spot-en-title" id="player-spot-en-title">Wuzhen Water Town</h2>
+          </div>
+
+          <!-- Top Right Controls -->
+          <div class="player-top-actions">
+            <!-- Favorite Toggle -->
+            <button class="player-action-btn" id="player-fav-btn" title="收藏此美景" data-i18n-title="favoriteSpot" aria-pressed="false">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+
+            <!-- Share Button -->
+            <button class="player-action-btn" id="player-share-btn" title="复制视听分享链接" data-i18n-title="shareSpot">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>
+              </svg>
+            </button>
+
+            <!-- Zen Wallpaper Mode Toggle -->
+            <button class="player-action-btn" id="player-zen-btn" title="纯净壁纸模式 (Z)" data-i18n-title="zenMode" aria-pressed="false">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+
+            <!-- Fullscreen Toggle -->
+            <button class="player-action-btn" id="player-fullscreen-btn" title="全屏沉浸 (F)" data-i18n-title="fullscreen" aria-pressed="false">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/>
+              </svg>
+            </button>
+
+            <button class="player-action-btn player-theme-btn" id="player-theme-toggle" title="切换为浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false"></button>
+
+            <!-- Language Toggle (kept available inside immersive mode) -->
+            <button class="player-action-btn player-language-btn" id="player-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="中文 / English">
+              <span id="player-language-label">EN</span>
+            </button>
+
+            <!-- Close / Return to Globe/Map -->
+            <button class="player-action-btn" id="player-close-btn" title="返回世界地图 (Esc)" data-i18n-title="exitPlayer">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Story & AI Formula Card -->
+        <div class="player-bottom-content">
+          <div class="player-story-card">
+            <p class="story-quote" id="player-story-quote">“青石板巷，摇橹船桨划破一池春水。白墙黛瓦掩映在江南烟雨之中，廊棚之下，听雨落乌篷，时光在此慢了下来。”</p>
+            <div class="audio-recipe-box">
+              <div class="audio-recipe-title">
+                <span data-i18n="audioRecipe">🎵 地域专属 AI 音景配方</span>
+                <div class="live-audio-visualizer" id="player-visualizer"></div>
+              </div>
+              <div class="audio-recipe-formula" id="player-audio-formula">五声羽调 · 古筝 · 竹笛 · 细雨滴檐 · 68 BPM</div>
+              <div class="demo-track-credit" id="player-track-credit"></div>
+            </div>
+            <div class="player-community-actions">
+              <button class="player-community-btn" id="player-like-btn" type="button" aria-pressed="false">
+                <span aria-hidden="true">♡</span><span data-i18n="like">点赞</span><strong data-spot-like-count>0</strong>
+              </button>
+              <button class="player-community-btn" id="player-comments-btn" type="button">
+                <span aria-hidden="true">💬</span><span data-i18n="comments">评论</span><strong data-spot-comment-count>0</strong>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Center Audiovisual Control Dock -->
+        <div class="player-control-island">
+          <button class="player-secondary-btn" id="player-btn-prev" title="上一胜景 (←)" data-i18n-title="previousSpot">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>
+            </svg>
+          </button>
+
+          <button class="player-main-play-btn" id="player-play-btn" title="播放 / 暂停 (Space)" data-i18n-title="playPause" aria-pressed="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+            </svg>
+          </button>
+
+          <button class="player-secondary-btn" id="player-btn-next" title="下一胜景 (→)" data-i18n-title="nextSpot">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>
+            </svg>
+          </button>
+
+          <!-- Volume Control -->
+          <div class="dock-volume-group">
+            <button class="player-secondary-btn" id="player-btn-mute" title="静音切换" data-i18n-title="mute" aria-pressed="false">
+              <svg id="volume-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+            <input type="range" min="0" max="1" step="0.02" value="0.8" class="dock-volume-slider" id="player-volume-slider" title="调节音量" data-i18n-title="volume">
+          </div>
+
+          <button class="player-secondary-btn" id="player-btn-open-mixer" title="调节自然背景音" data-i18n-title="openMixer">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Favorites Slide-over Drawer ==================== -->
+    <div class="drawer-backdrop" id="fav-drawer-backdrop"></div>
+    <aside class="drawer-panel" id="fav-drawer" aria-label="收藏夹" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" color="#fb7185"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <span data-i18n="favoritesTitle">我收藏的胜景</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-fav-drawer" title="关闭" data-i18n-title="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="drawer-body" id="fav-list-container"></div>
+    </aside>
+
+    <!-- ==================== Natural Ambient Soundboard Mixer Drawer ==================== -->
+    <div class="drawer-backdrop" id="mixer-drawer-backdrop"></div>
+    <aside class="drawer-panel" id="mixer-drawer" aria-label="自然音效混音面板" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/></svg>
+          <span data-i18n="mixerTitle">自然音效混音台</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-mixer-drawer" title="关闭" data-i18n-title="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="drawer-body">
+        <div class="mixer-channel-list">
+          <!-- 1. 雨落屋檐 Rain -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🌧️</span>
+                <span class="channel-name" data-i18n="channelRain">雨落屋檐</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-rain">40%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.4" class="channel-slider" id="slider-rain" data-channel="rain">
+            </div>
+          </div>
+
+          <!-- 2. 潮汐海浪 Ocean Waves -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🌊</span>
+                <span class="channel-name" data-i18n="channelOcean">潮汐海浪</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-ocean">50%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.5" class="channel-slider" id="slider-ocean" data-channel="ocean">
+            </div>
+          </div>
+
+          <!-- 3. 荒野清风 Wind -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🍃</span>
+                <span class="channel-name" data-i18n="channelWind">高山清风</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-wind">30%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-wind" data-channel="wind">
+            </div>
+          </div>
+
+          <!-- 4. 灵鸟啼鸣 Birdsong -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🐦</span>
+                <span class="channel-name" data-i18n="channelBirds">林间鸟鸣</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-birds">30%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-birds" data-channel="birds">
+            </div>
+          </div>
+
+          <!-- 5. 温暖篝火 Campfire -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🔥</span>
+                <span class="channel-name" data-i18n="channelCampfire">温暖篝火</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-campfire">30%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-campfire" data-channel="campfire">
+            </div>
+          </div>
+
+          <!-- 6. 禅音古钟 Zen Bells -->
+          <div class="mixer-channel-card">
+            <div class="channel-card-header">
+              <div class="channel-card-identity">
+                <span class="channel-icon-avatar">🔔</span>
+                <span class="channel-name" data-i18n="channelBell">禅音钟磬</span>
+              </div>
+              <span class="channel-vol-display" id="vol-text-bell">30%</span>
+            </div>
+            <div class="channel-slider-row">
+              <input type="range" min="0" max="1" step="0.02" value="0.3" class="channel-slider" id="slider-bell" data-channel="bell">
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Scene Presets -->
+        <div class="mixer-presets-section">
+          <span class="presets-title" data-i18n="presetsTitle">⚡ 快速氛围预设</span>
+          <div class="presets-grid">
+            <button class="preset-chip" id="preset-rainy-town" data-i18n="presetRainyTown">🌧️ 烟雨江南</button>
+            <button class="preset-chip" id="preset-island-ocean" data-i18n="presetIslandOcean">🏝️ 暖阳海岛</button>
+            <button class="preset-chip" id="preset-snow-zen" data-i18n="presetSnowZen">🏔️ 雪山禅思</button>
+            <button class="preset-chip" id="preset-forest-camp" data-i18n="presetForestCamp">🌲 林间露营</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== Community Upload & Comments Drawer ==================== -->
+    <div class="drawer-backdrop" id="community-drawer-backdrop"></div>
+    <aside class="drawer-panel community-drawer" id="community-drawer" aria-label="社区共创" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+          <span data-i18n="communityTitle">社区共创</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-community-drawer" title="关闭" data-i18n-title="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="community-tabs" role="tablist">
+        <button class="community-tab active" type="button" data-community-tab="publish" role="tab" aria-selected="true" data-i18n="publishSoundscape">发布音景</button>
+        <button class="community-tab" type="button" data-community-tab="comments" role="tab" aria-selected="false" data-i18n="commentsInteraction">评论互动</button>
+      </div>
+
+      <div class="drawer-body community-drawer-body">
+        <section class="community-panel active" data-community-panel="publish">
+          <div class="community-intro">
+            <span class="community-intro-icon">✦</span>
+            <div><strong data-i18n="publishIntroTitle">把一段声音放到世界上</strong><p data-i18n="publishIntroText">选择城市，上传音乐和背景图，发布后会立刻出现在地图对应位置。</p></div>
+          </div>
+
+          <form class="community-form" id="community-publish-form">
+            <label class="community-field">
+              <span data-i18n="chooseLocation">选择发布位置</span>
+              <select id="community-location-select" name="location" required></select>
+            </label>
+            <label class="community-field">
+              <span data-i18n="workTitle">音景标题</span>
+              <input name="title" type="text" maxlength="42" required data-i18n-placeholder="workTitlePlaceholder" placeholder="例如：北京胡同的清晨">
+            </label>
+            <label class="community-field">
+              <span data-i18n="creatorName">创作者昵称</span>
+              <input name="author" type="text" maxlength="24" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
+            </label>
+            <label class="community-field">
+              <span data-i18n="soundscapeDescription">声音与场景介绍</span>
+              <textarea name="description" rows="4" maxlength="280" required data-i18n-placeholder="descriptionPlaceholder" placeholder="说说这里的声音、时间和故事…"></textarea>
+            </label>
+
+            <div class="community-upload-grid">
+              <label class="community-upload-card">
+                <input id="community-cover-input" name="cover" type="file" accept="image/*">
+                <span class="upload-card-icon">▧</span>
+                <strong data-i18n="backgroundImage">背景图片</strong>
+                <small id="community-cover-file-name" data-i18n="noFileSelected">未选择文件</small>
+              </label>
+              <label class="community-upload-card">
+                <input id="community-audio-input" name="audio" type="file" accept="audio/*">
+                <span class="upload-card-icon">♫</span>
+                <strong data-i18n="musicFile">音乐文件</strong>
+                <small id="community-audio-file-name" data-i18n="noFileSelected">未选择文件</small>
+              </label>
+            </div>
+            <p class="community-prototype-note" data-i18n="prototypeUploadNote">当前为本地演示：发布流程、地图落点和互动数据可体验；正式版本接入对象存储后即可持久保存原始文件。</p>
+            <button class="community-submit-btn" type="submit"><span>＋</span><span data-i18n="publishNow">发布到地图</span></button>
+          </form>
+        </section>
+
+        <section class="community-panel" data-community-panel="comments">
+          <article class="community-active-spot">
+            <img id="community-active-spot-image" src="" alt="" loading="lazy" decoding="async" fetchpriority="low">
+            <div><strong id="community-active-spot-name">当前地点</strong><span id="community-active-spot-location"></span></div>
+            <button id="community-spot-like-btn" class="community-spot-like" type="button" aria-pressed="false"><span>♡</span><strong data-spot-like-count>0</strong></button>
+          </article>
+
+          <form class="community-comment-form" id="community-comment-form">
+            <input name="author" maxlength="24" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
+            <textarea name="comment" rows="3" maxlength="220" required data-i18n-placeholder="commentPlaceholder" placeholder="写下你听到的、想到的…"></textarea>
+            <button type="submit" data-i18n="sendComment">发表评论</button>
+          </form>
+
+          <div class="community-comments-heading">
+            <div><strong data-i18n="allComments">全部评论</strong><span><span data-spot-comment-count>0</span> <span data-i18n="commentsUnit">条</span></span></div>
+            <div class="comment-sort-controls" aria-label="评论排序">
+              <button class="active" type="button" data-comment-sort="hot" aria-pressed="true" data-i18n="hottestComments">最热</button>
+              <button type="button" data-comment-sort="latest" aria-pressed="false" data-i18n="latestComments">最新</button>
+            </div>
+          </div>
+          <div class="community-comments-list" id="community-comments-list"></div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- ==================== Preferences & Map Settings Drawer ==================== -->
+    <div class="drawer-backdrop" id="settings-drawer-backdrop"></div>
+    <aside class="drawer-panel settings-drawer" id="settings-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="settings-drawer-title">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <h2 class="drawer-title" id="settings-drawer-title" data-i18n="settingsTitle">偏好设置</h2>
+          <span class="drawer-subtitle">GeoMelody Preferences</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-settings-drawer" title="关闭设置" data-i18n-title="close" aria-label="关闭">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="drawer-body settings-drawer-body">
+        <!-- Section: Map Skin -->
+        <div class="settings-section">
+          <h3 class="settings-section-title" data-i18n="settingsMapSection">地图底图皮肤</h3>
+          
+          <!-- Map Skin Selector -->
+          <div class="setting-item setting-item-vertical">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="settingMapSkin">底图风格选择</span>
+              <span class="setting-desc" data-i18n="settingMapSkinDesc">切换 MapTiler 官方底层渲染皮肤，默认经典深色街道</span>
+            </div>
+            <select class="setting-select" id="setting-select-mapskin">
+              <option value="streets-dark" selected data-i18n="skinStreetsDark">经典深色街道 (Streets Dark · 默认推荐)</option>
+              <option value="dataviz-dark" data-i18n="skinDatavizDark">极简暗黑灰 (Dataviz Dark)</option>
+              <option value="backdrop-dark" data-i18n="skinBackdropDark">深邃纯黑底图 (Backdrop Dark)</option>
+              <option value="dataviz-light" data-i18n="skinDatavizLight">极简明亮浅色 (Dataviz Light)</option>
+              <option value="satellite" data-i18n="skinSatellite">真实遥感卫星 (Satellite)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section: Globe & Visuals -->
+        <div class="settings-section">
+          <h3 class="settings-section-title" data-i18n="settingsGlobeSection">地球仪与视效</h3>
+          
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="settingShowStars">深空点点星宿背景</span>
+              <span class="setting-desc" data-i18n="settingShowStarsDesc">在地球仪外太空渲染 3D 闪烁星辰</span>
+            </div>
+            <label class="switch-control" for="setting-toggle-stars">
+              <input type="checkbox" id="setting-toggle-stars" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="settingShowHalo">3D 大气层微光晕</span>
+              <span class="setting-desc" data-i18n="settingShowHaloDesc">在 3D 地球外围渲染微弱的大气光晕（默认关闭以保持纯净）</span>
+            </div>
+            <label class="switch-control" for="setting-toggle-halo">
+              <input type="checkbox" id="setting-toggle-halo">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="settingAutoSpin">闲置时自动慢速自转</span>
+              <span class="setting-desc" data-i18n="settingAutoSpinDesc">无交互操作时地球仪保持缓慢自转</span>
+            </div>
+            <label class="switch-control" for="setting-toggle-autospin">
+              <input type="checkbox" id="setting-toggle-autospin" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="settingAutoPlay">选中景点自动播放音乐</span>
+              <span class="setting-desc" data-i18n="settingAutoPlayDesc">点击点位时立即自动开启专属 AI 音景</span>
+            </div>
+            <label class="switch-control" for="setting-toggle-autoplay">
+              <input type="checkbox" id="setting-toggle-autoplay" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Reset Defaults Button -->
+        <div class="settings-footer-actions">
+          <button type="button" class="btn-reset-settings" id="btn-reset-settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+            <span data-i18n="resetDefaults">恢复默认设置</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== Toast Notifications ==================== -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

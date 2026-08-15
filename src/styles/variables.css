@@ -1,0 +1,79 @@
+:root {
+  /* Color Palette - Deep Atmospheric Dark */
+  --bg-primary: #090c10;
+  --bg-secondary: #111620;
+  --bg-tertiary: #182030;
+  --bg-card: rgba(18, 24, 36, 0.78);
+  --bg-card-hover: rgba(28, 38, 56, 0.9);
+  --bg-glass: rgba(13, 17, 26, 0.75);
+  --bg-glass-heavy: rgba(9, 12, 16, 0.88);
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.16);
+  --border-focus: rgba(56, 189, 248, 0.5);
+
+  /* Typography Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  /* Accent Colors */
+  --accent-teal: #10b981;
+  --accent-cyan: #38bdf8;
+  --accent-purple: #a78bfa;
+  --accent-amber: #fbbf24;
+  --accent-rose: #fb7185;
+  --accent-emerald: #34d399;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 25px rgba(56, 189, 248, 0.25);
+
+  /* Layout & Spacing */
+  --header-height: 68px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-normal: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root[data-theme="light"] {
+  /* Cool daylight palette keeps the map atmospheric instead of paper-white. */
+  --bg-primary: #e6eef2;
+  --bg-secondary: #f2f6f8;
+  --bg-tertiary: #d8e4e9;
+  --bg-card: rgba(247, 250, 252, 0.84);
+  --bg-card-hover: rgba(255, 255, 255, 0.96);
+  --bg-glass: rgba(244, 249, 251, 0.76);
+  --bg-glass-heavy: rgba(247, 250, 252, 0.9);
+
+  --border-subtle: rgba(25, 57, 72, 0.1);
+  --border-medium: rgba(25, 57, 72, 0.2);
+  --border-focus: rgba(2, 132, 199, 0.5);
+
+  --text-primary: #17303d;
+  --text-secondary: #4e6875;
+  --text-muted: #718995;
+  --text-inverse: #f8fafc;
+
+  --accent-teal: #059669;
+  --accent-cyan: #0284c7;
+  --accent-purple: #7c3aed;
+  --accent-amber: #d97706;
+  --accent-rose: #e11d48;
+  --accent-emerald: #059669;
+
+  --shadow-sm: 0 2px 8px rgba(29, 58, 72, 0.1);
+  --shadow-md: 0 8px 24px rgba(29, 58, 72, 0.14);
+  --shadow-lg: 0 16px 40px rgba(29, 58, 72, 0.2);
+  --shadow-glow: 0 0 25px rgba(2, 132, 199, 0.18);
+}

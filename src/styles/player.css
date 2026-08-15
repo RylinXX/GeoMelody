@@ -1,0 +1,528 @@
+/* Immersive Audiovisual Scenery Player Styling */
+
+.immersive-player-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1500;
+  background-color: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.immersive-player-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Keep the invisible player from intercepting map and header controls. */
+.immersive-player-overlay:not(.active) * {
+  pointer-events: none !important;
+}
+
+/* ==================== Scenery Image Slider & Ken Burns Effect ==================== */
+.player-background-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.scenery-slide-img {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+  transform: scale(1);
+}
+
+.scenery-slide-img.visible {
+  opacity: 1;
+  animation: kenBurnsZoom 20s ease-out infinite alternate;
+}
+
+@keyframes kenBurnsZoom {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+}
+
+/* Scenery Vignette Overlays */
+.scenery-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(9, 12, 16, 0.65) 70%, rgba(9, 12, 16, 0.9) 100%);
+  pointer-events: none;
+}
+
+.scenery-bottom-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(9, 12, 16, 0) 0%, rgba(9, 12, 16, 0.85) 60%, rgba(9, 12, 16, 0.98) 100%);
+  pointer-events: none;
+}
+
+/* ==================== Player Floating Controls & UI Layer ==================== */
+.player-ui-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px;
+  z-index: 10;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.player-ui-layer > * {
+  pointer-events: auto;
+}
+
+/* Zen Mode: Auto-hide UI on idle or Zen Toggle */
+.player-ui-layer.ui-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Top Header Info Area --- */
+.player-top-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.player-spot-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spot-pill-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.spot-category-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-cyan);
+}
+
+.spot-coordinates-pill {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.player-spot-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  line-height: 1.12;
+  max-width: min(720px, 66vw);
+}
+
+.player-spot-en-title {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  line-height: 1.35;
+}
+
+/* Top Right Action Cluster */
+.player-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.player-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--trans-fast);
+}
+
+.player-action-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+  transform: scale(1.08);
+}
+
+.player-action-btn.active {
+  color: var(--accent-rose);
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.player-action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.player-language-btn {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-cyan);
+}
+
+.player-theme-btn {
+  color: var(--accent-amber);
+}
+
+/* --- Center Right: Photo Gallery Switcher Dot Indicators --- */
+.scenery-photo-dots {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.scenery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.scenery-dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: scale(1.3);
+}
+
+.scenery-dot.active {
+  height: 24px;
+  border-radius: 6px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+/* --- Bottom Left: Poetic Story & AI Audio Formula Card --- */
+.player-bottom-content {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.player-story-card {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 0;
+}
+
+.story-quote {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-style: italic;
+  text-wrap: pretty;
+}
+
+:root[data-theme="light"] .player-spot-en-title {
+  color: rgba(241, 245, 249, 0.82);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="light"] .spot-category-pill,
+:root[data-theme="light"] .spot-coordinates-pill {
+  background: rgba(15, 35, 47, 0.64);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+:root[data-theme="light"] .spot-coordinates-pill {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+:root[data-theme="light"] .story-quote {
+  color: #203b49;
+}
+
+:root[data-theme="light"] .player-control-island {
+  box-shadow: 0 20px 50px rgba(24, 53, 67, 0.28);
+}
+
+:root[data-theme="light"] .player-secondary-btn:hover {
+  background: rgba(18, 64, 84, 0.08);
+}
+
+:root[data-theme="light"] .dock-volume-slider,
+:root[data-theme="light"] .channel-slider {
+  background: rgba(25, 57, 72, 0.18);
+}
+
+.audio-recipe-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.audio-recipe-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.audio-recipe-formula {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  line-height: 1.55;
+}
+
+.formula-separator {
+  color: var(--text-muted);
+}
+
+/* Live Frequency Visualizer Bars */
+.live-audio-visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.viz-bar {
+  width: 2.5px;
+  background: var(--accent-cyan);
+  border-radius: 1px;
+  height: 2px;
+  transition: height 0.08s ease;
+}
+
+/* --- Bottom Center: Audiovisual Control Dock --- */
+.player-control-island {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-medium);
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+.player-main-play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  transition: all var(--trans-fast);
+}
+
+.player-main-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.6);
+}
+
+.player-main-play-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.player-secondary-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--trans-fast);
+}
+
+.player-secondary-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.1);
+}
+
+.player-secondary-btn.active,
+.player-action-btn.active[aria-pressed="true"]:not(#player-fav-btn) {
+  color: var(--accent-cyan);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.player-secondary-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Volume Slider in Dock */
+.dock-volume-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dock-volume-slider {
+  width: 80px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  cursor: pointer;
+}
+
+.dock-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.dock-volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+
+/* Zen Mode Toast Overlay / Hint */
+.zen-mode-hint {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.player-ui-layer.ui-hidden .zen-mode-hint {
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .player-ui-layer {
+    padding: 16px;
+  }
+  .player-spot-title {
+    font-size: 22px;
+    max-width: calc(100vw - 120px);
+  }
+  .player-top-actions { gap: 6px; }
+  .player-action-btn { width: 38px; height: 38px; }
+  .player-story-card {
+    max-width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 70px;
+  }
+  .story-quote {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .player-control-island {
+    bottom: 16px;
+    padding: 6px 14px;
+    gap: 8px;
+  }
+  .dock-volume-group {
+    display: none;
+  }
+  .scenery-photo-dots {
+    right: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .player-top-header { gap: 12px; }
+  .player-top-actions { display: grid; grid-template-columns: repeat(3, 38px); }
+  .player-spot-title { max-width: calc(100vw - 170px); }
+  .spot-coordinates-pill { max-width: calc(100vw - 180px); line-height: 1.5; }
+  .audio-recipe-title { align-items: flex-start; gap: 12px; }
+  .player-story-card { margin-bottom: 62px; }
+}
