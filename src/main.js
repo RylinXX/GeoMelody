@@ -1,6 +1,7 @@
 import { SCENIC_SPOTS } from './data/spots.js';
 import { CATEGORY_MAP } from './data/categories.js';
 import { MAP_REGIONS, getRegionName } from './data/regions.js';
+import { DEMO_TRACKS_LIST, getDemoTrack } from './data/demoTracks.js';
 import { GlobeManager } from './map/globeManager.js';
 import { PlayerManager } from './player/playerManager.js';
 import { CommunityManager } from './community/communityManager.js';
@@ -167,9 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function getMatches(query) {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];
-    return SCENIC_SPOTS.filter(spot => [
-      spot.name, spot.enName, spot.location, spot.country, ...(spot.tags || [])
-    ].some(value => value?.toLowerCase().includes(normalizedQuery))).slice(0, 6);
+    return SCENIC_SPOTS.filter(spot => {
+      const track = getDemoTrack(spot);
+      return [
+        spot.name,
+        spot.enName,
+        spot.location,
+        spot.enLocation,
+        spot.country,
+        spot.category,
+        track?.title,
+        track?.enTitle,
+        track?.creator,
+        ...(spot.tags || [])
+      ].some(value => value?.toLowerCase().includes(normalizedQuery));
+    }).slice(0, 8);
   }
 
   function selectSearchSpot(spot) {
@@ -180,29 +193,130 @@ document.addEventListener('DOMContentLoaded', () => {
     globeManager.setSearchQuery('');
   }
 
+  function renderSearchRecommendations() {
+    if (!searchDropdown) return;
+    const isZh = currentLanguage !== LANGUAGES.EN;
+
+    const hotSpots = [
+      { id: 'westlake_5a', name: '杭州西湖', enName: 'West Lake' },
+      { id: 'forbidden_city', name: '北京故宫', enName: 'Forbidden City' },
+      { id: 'everest', name: '珠穆朗玛峰', enName: 'Mt. Everest' },
+      { id: 'mount_tai', name: '泰山', enName: 'Mount Tai' },
+      { id: 'guilin_5a', name: '桂林漓江', enName: 'Li River' },
+      { id: 'paris', name: '巴黎铁塔', enName: 'Eiffel Tower' },
+      { id: 'santorini', name: '圣托里尼', enName: 'Santorini' }
+    ];
+
+    const hotTags = [
+      { tag: '5A景区', label: isZh ? '5A 级胜景' : '5A Scenic' },
+      { tag: '世界遗产', label: isZh ? '世界遗产' : 'World Heritage' },
+      { tag: '古镇', label: isZh ? '江南古镇' : 'Water Towns' },
+      { tag: '雪山', label: isZh ? '雪山高原' : 'Snow Mountains' },
+      { tag: '海岛', label: isZh ? '海岛沙滩' : 'Islands' },
+      { tag: '治愈', label: isZh ? '治愈助眠' : 'Healing' }
+    ];
+
+    searchDropdown.innerHTML = `
+      <div class="search-dropdown-section">
+        <div class="search-section-header">${isZh ? '🔥 热门胜景推荐' : '🔥 Popular Spots'}</div>
+        <div class="search-tag-group">
+          ${hotSpots.map(s => `
+            <button class="search-tag-chip" type="button" data-action="spot" data-id="${s.id}">
+              ${isZh ? s.name : s.enName}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="search-dropdown-section">
+        <div class="search-section-header">${isZh ? '🎵 热门曲目探索' : '🎵 Featured Tracks'}</div>
+        <div class="search-track-list">
+          ${DEMO_TRACKS_LIST.slice(0, 4).map(track => `
+            <button class="search-track-item" type="button" data-action="track" data-track-id="${track.id}">
+              <span class="search-track-title">${isZh ? track.title : (track.enTitle || track.title)}</span>
+              <span class="search-track-artist">${track.creator}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="search-dropdown-section">
+        <div class="search-section-header">${isZh ? '🏷️ 热门城市与标签' : '🏷️ Trending Tags'}</div>
+        <div class="search-tag-group">
+          ${hotTags.map(t => `
+            <button class="search-tag-chip" type="button" data-action="tag" data-tag="${t.tag}">
+              # ${t.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    searchDropdown.classList.add('visible');
+
+    searchDropdown.querySelectorAll('[data-action="spot"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const spot = SCENIC_SPOTS.find(s => s.id === btn.dataset.id);
+        if (spot) selectSearchSpot(spot);
+      });
+    });
+
+    searchDropdown.querySelectorAll('[data-action="track"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackId = btn.dataset.trackId;
+        const matchingSpot = SCENIC_SPOTS.find(s => getDemoTrack(s).id === trackId) || SCENIC_SPOTS[0];
+        selectSearchSpot(matchingSpot);
+      });
+    });
+
+    searchDropdown.querySelectorAll('[data-action="tag"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = btn.dataset.tag;
+        if (searchInput) {
+          searchInput.value = tag;
+          renderSearchResults(tag);
+          globeManager.setSearchQuery(tag);
+        }
+      });
+    });
+  }
+
   function renderSearchResults(query) {
     if (!searchDropdown) return;
-    const matches = getMatches(query);
-    if (!query.trim()) {
-      searchDropdown.classList.remove('visible');
+    const cleanQuery = query?.trim() || '';
+    if (!cleanQuery) {
+      renderSearchRecommendations();
       return;
     }
+
+    const matches = getMatches(cleanQuery);
     if (!matches.length) {
       searchDropdown.innerHTML = `<div class="search-empty-state">${t('noResults', currentLanguage)}</div>`;
       searchDropdown.classList.add('visible');
       return;
     }
-    searchDropdown.innerHTML = matches.map(spot => {
-      const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage), enName: t('explore', currentLanguage) };
-      return `
-        <button class="search-result-item" type="button" data-id="${spot.id}">
-          <span class="search-result-info">
-            <span class="search-result-name">${getSpotName(spot, currentLanguage)}</span>
-            <span class="search-result-loc">${getSpotLocation(spot, currentLanguage)}</span>
-          </span>
-          <span class="search-result-cat">${getCategoryName(category, currentLanguage)}</span>
-        </button>`;
-    }).join('');
+
+    searchDropdown.innerHTML = `
+      <div class="search-dropdown-section">
+        <div class="search-section-header">${currentLanguage !== LANGUAGES.EN ? `匹配到 ${matches.length} 个胜景` : `Found ${matches.length} spots`}</div>
+        ${matches.map(spot => {
+          const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage), enName: t('explore', currentLanguage) };
+          const track = getDemoTrack(spot);
+          return `
+            <button class="search-result-item" type="button" data-id="${spot.id}">
+              <span class="search-result-info">
+                <span class="search-result-name">${getSpotName(spot, currentLanguage)}</span>
+                <span class="search-result-loc">${getSpotLocation(spot, currentLanguage)} · ♫ ${track?.title || ''}</span>
+              </span>
+              <span class="search-result-cat">${getCategoryName(category, currentLanguage)}</span>
+            </button>`;
+        }).join('')}
+      </div>
+    `;
+
     searchDropdown.classList.add('visible');
     searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
       item.addEventListener('click', () => selectSearchSpot(SCENIC_SPOTS.find(spot => spot.id === item.dataset.id)));
@@ -461,9 +575,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   searchInput?.addEventListener('input', event => renderSearchResults(event.target.value));
-  searchInput?.addEventListener('focus', event => {
-    if (event.target.value) renderSearchResults(event.target.value);
-  });
+  searchInput?.addEventListener('focus', () => renderSearchResults(searchInput.value));
+  searchInput?.addEventListener('click', () => renderSearchResults(searchInput.value));
   searchInput?.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
       selectSearchSpot(getMatches(searchInput.value)[0]);
