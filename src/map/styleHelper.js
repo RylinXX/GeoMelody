@@ -12,7 +12,6 @@ const FALLBACK_STYLES = {
   'streets-dark': 'https://tiles.openfreemap.org/styles/dark',
   'dataviz-dark': 'https://tiles.openfreemap.org/styles/dark',
   'backdrop-dark': 'https://tiles.openfreemap.org/styles/dark',
-  'dataviz-light': 'https://tiles.openfreemap.org/styles/positron',
   'satellite': 'https://tiles.openfreemap.org/styles/dark'
 };
 
@@ -50,11 +49,9 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
     const targetTextField = isChinese ? CHINESE_TEXT_FIELD : ENGLISH_TEXT_FIELD;
 
     // 1. Ensure background color is deep dark from millisecond 0
-    if (skin !== 'dataviz-light') {
-      const bgLayer = styleJson.layers?.find(l => l.type === 'background');
-      if (bgLayer) {
-        bgLayer.paint = { ...(bgLayer.paint || {}), 'background-color': '#02060c' };
-      }
+    const bgLayer = styleJson.layers?.find(l => l.type === 'background');
+    if (bgLayer) {
+      bgLayer.paint = { ...(bgLayer.paint || {}), 'background-color': '#02060c' };
     }
 
     // 2. Pre-configure text-fields with Chinese/English priority on all label layers

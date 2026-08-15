@@ -226,7 +226,8 @@
         <!-- Bottom Row: Left Story Card + Right Floating Comments Modal Card -->
         <div class="player-bottom-layout">
           <!-- Bottom Left: Poetic Story & AI Audio Info Card -->
-          <div class="player-story-card">
+          <div class="player-story-card" id="player-story-card">
+            <button type="button" class="mobile-sheet-close" id="btn-close-story-sheet" aria-label="收起意境">✕</button>
             <p class="story-quote" id="player-story-quote">“青石板巷，摇橹船桨划破一池春水。白墙黛瓦掩映在江南烟雨之中，廊棚之下，听雨落乌篷，时光在此慢了下来。”</p>
             <div class="audio-recipe-box">
               <div class="audio-recipe-title">
@@ -240,6 +241,7 @@
 
           <!-- Bottom Right: Floating Live Comments & Likes Modal Card -->
           <aside class="player-floating-comments" id="player-floating-comments" aria-label="胜景评论与互动">
+            <button type="button" class="mobile-sheet-close" id="btn-close-comments-sheet" aria-label="收起评论">✕</button>
             <div class="player-comments-header">
               <div class="player-comments-title">
                 <span class="player-comments-icon">💬</span>
@@ -279,6 +281,19 @@
               </div>
             </form>
           </aside>
+        </div>
+
+        <!-- Mobile Floating Toggle Pills Bar (Visible on mobile screens <= 768px) -->
+        <div class="player-mobile-pills-bar" id="player-mobile-pills-bar">
+          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-story">
+            <span>📖</span>
+            <span data-i18n="storyTab">意境描述</span>
+          </button>
+          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-comments">
+            <span>💬</span>
+            <span data-i18n="commentsTab">胜景寄语</span>
+            <span class="mobile-pill-badge" id="mobile-comments-badge">0</span>
+          </button>
         </div>
 
         <!-- Bottom Center Audiovisual Control Dock -->

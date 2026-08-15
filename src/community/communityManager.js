@@ -468,6 +468,8 @@ export class CommunityManager {
 
     const playerCommentsBadge = document.getElementById('player-comments-count-badge');
     if (playerCommentsBadge) playerCommentsBadge.textContent = String(comments.length);
+    const mobileCommentsBadge = document.getElementById('mobile-comments-badge');
+    if (mobileCommentsBadge) mobileCommentsBadge.textContent = String(comments.length);
 
     [document.getElementById('player-like-btn'), document.getElementById('community-spot-like-btn')].forEach(button => {
       button?.classList.toggle('active', likeState.liked);

@@ -12,21 +12,11 @@
   background: #02060c !important;
 }
 
-:root[data-theme="light"] #globe-container,
-:root[data-theme="light"] #globe-container .maplibregl-canvas-container,
-:root[data-theme="light"] #globe-container .maplibregl-map {
-  background: #dce8ed !important;
-}
-
 #globe-container .maplibregl-canvas {
   outline: none;
   background: #02060c !important;
   opacity: 0;
   transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-:root[data-theme="light"] #globe-container .maplibregl-canvas {
-  background: #dce8ed !important;
 }
 
 #globe-container[data-map-ready="true"] .maplibregl-canvas {

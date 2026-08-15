@@ -862,19 +862,6 @@ button, input {
   font-size: 14px;
 }
 
-:root[data-theme="light"] .category-chip:hover,
-:root[data-theme="light"] .search-result-item:hover,
-:root[data-theme="light"] .dock-btn:hover,
-:root[data-theme="light"] .drawer-close-btn:hover,
-:root[data-theme="light"] .fav-item-card:hover {
-  background: rgba(18, 64, 84, 0.07);
-}
-
-:root[data-theme="light"] .search-result-cat,
-:root[data-theme="light"] .fav-item-card {
-  background: rgba(18, 64, 84, 0.045);
-}
-
 /* ==================== Toast Notifications ==================== */
 .toast-container {
   position: absolute;

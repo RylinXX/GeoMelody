@@ -59,12 +59,58 @@ export class PlayerManager {
   bindEvents() {
     if (this.overlay) {
       this.overlay.addEventListener('mousemove', () => this.handleUserActivity());
-      this.overlay.addEventListener('click', () => {
+      this.overlay.addEventListener('click', (e) => {
         if (this.uiLayer.classList.contains('ui-hidden')) {
           this.revealUI();
         }
+        if (window.innerWidth <= 768) {
+          if (!e.target.closest('#player-story-card') && !e.target.closest('#player-floating-comments') && !e.target.closest('#player-mobile-pills-bar')) {
+            storyCard?.classList.remove('mobile-open');
+            commentsCard?.classList.remove('mobile-open');
+            toggleStoryBtn?.classList.remove('active');
+            toggleCommentsBtn?.classList.remove('active');
+          }
+        }
       });
     }
+
+    // Mobile Drawer Toggle Pills
+    const storyCard = document.getElementById('player-story-card');
+    const commentsCard = document.getElementById('player-floating-comments');
+    const toggleStoryBtn = document.getElementById('btn-mobile-toggle-story');
+    const toggleCommentsBtn = document.getElementById('btn-mobile-toggle-comments');
+    const closeStoryBtn = document.getElementById('btn-close-story-sheet');
+    const closeCommentsBtn = document.getElementById('btn-close-comments-sheet');
+
+    toggleStoryBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = storyCard?.classList.contains('mobile-open');
+      commentsCard?.classList.remove('mobile-open');
+      toggleCommentsBtn?.classList.remove('active');
+      storyCard?.classList.toggle('mobile-open', !isOpen);
+      toggleStoryBtn?.classList.toggle('active', !isOpen);
+    });
+
+    toggleCommentsBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = commentsCard?.classList.contains('mobile-open');
+      storyCard?.classList.remove('mobile-open');
+      toggleStoryBtn?.classList.remove('active');
+      commentsCard?.classList.toggle('mobile-open', !isOpen);
+      toggleCommentsBtn?.classList.toggle('active', !isOpen);
+    });
+
+    closeStoryBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      storyCard?.classList.remove('mobile-open');
+      toggleStoryBtn?.classList.remove('active');
+    });
+
+    closeCommentsBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      commentsCard?.classList.remove('mobile-open');
+      toggleCommentsBtn?.classList.remove('active');
+    });
 
     window.addEventListener('keydown', (e) => {
       if (!this.currentSpot || !this.overlay.classList.contains('active')) return;
