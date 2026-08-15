@@ -7,6 +7,8 @@ import {
 } from '@maptiler/sdk';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { CATEGORY_MAP } from '../data/categories.js';
+import { getDemoTrack } from '../data/demoTracks.js';
+import { getSpotName } from '../utils/i18n.js';
 import { DEFAULT_SETTINGS } from '../utils/storage.js';
 import { fetchAndLocalizeStyle } from './styleHelper.js';
 
@@ -23,6 +25,18 @@ const INITIAL_CAMERA = {
   bearing: 0,
   pitch: 0
 };
+
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 function escapeHtml(value = '') {
   return String(value)
@@ -797,6 +811,7 @@ export class GlobeManager {
 
   hideAirplane() {
     this.isAirplaneActive = false;
+    this.hideFlybyCard();
     const overlay = document.getElementById('globe-center-flight-overlay');
     if (overlay) {
       overlay.classList.add('hidden');
@@ -812,6 +827,79 @@ export class GlobeManager {
   stopRoamingMode() {
     this.isRoaming = false;
     this.hideAirplane();
+  }
+
+  checkFlyoverSpots(center) {
+    if (!this.isAirplaneActive || !this.spots.length) {
+      this.hideFlybyCard();
+      return;
+    }
+
+    const cLng = normalizeLongitude(center.lng);
+    const cLat = center.lat;
+
+    // If currently displaying a spot, check if it has moved out of range (> 850km)
+    if (this.currentFlybySpot) {
+      const dist = calculateDistanceKm(cLat, cLng, this.currentFlybySpot.lat, this.currentFlybySpot.lng);
+      if (dist < 850) {
+        // Keep showing current spot while cruising above this region
+        return;
+      } else {
+        // Drifting away from current spot -> clear
+        this.currentFlybySpot = null;
+        this.hideFlybyCard();
+      }
+    }
+
+    // Find all spots within flyby detection range (within 600km)
+    const nearbySpots = [];
+    for (const spot of this.spots) {
+      const dist = calculateDistanceKm(cLat, cLng, spot.lat, spot.lng);
+      if (dist < 600) {
+        nearbySpots.push({ spot, dist });
+      }
+    }
+
+    if (nearbySpots.length > 0) {
+      // If multiple spots are nearby in this region, pick one randomly so the screen is clean!
+      const chosen = nearbySpots[Math.floor(Math.random() * nearbySpots.length)].spot;
+      this.currentFlybySpot = chosen;
+      this.showFlybyCard(chosen);
+    } else {
+      this.hideFlybyCard();
+    }
+  }
+
+  showFlybyCard(spot) {
+    const card = document.getElementById('center-flyby-card');
+    const badge = document.getElementById('center-flight-badge');
+    if (!card || !spot) return;
+
+    const coverImg = document.getElementById('flyby-cover-img');
+    const nameEl = document.getElementById('flyby-spot-name');
+    const trackEl = document.getElementById('flyby-track-title');
+
+    if (coverImg) coverImg.src = spot.photos?.[0] || '';
+    if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
+    if (trackEl) {
+      const track = getDemoTrack(spot);
+      trackEl.textContent = track ? `${track.title} — ${track.creator}` : (spot.audioRecipe?.scale || '胜景专属乐曲');
+    }
+
+    if (badge) badge.style.display = 'none';
+    card.style.display = 'flex';
+    card.onclick = (e) => {
+      e.stopPropagation();
+      this.onSpotSelect?.(spot);
+    };
+  }
+
+  hideFlybyCard() {
+    this.currentFlybySpot = null;
+    const card = document.getElementById('center-flyby-card');
+    const badge = document.getElementById('center-flight-badge');
+    if (card) card.style.display = 'none';
+    if (badge && this.isAirplaneActive) badge.style.display = 'inline-flex';
   }
 
   startAutoRotation() {
@@ -830,11 +918,13 @@ export class GlobeManager {
         return;
       }
 
-      // Standby / Roaming: Show center airplane HUD and rotate Earth smoothly underneath
+      // Standby / Roaming: Show center airplane HUD and rotate Earth gently (cinematic panoramic pace)
       this.showAirplane();
       const center = this.map.getCenter();
-      // Keep exact latitude (whether in South or North hemisphere) and rotate eastwards
-      this.map.setCenter([normalizeLongitude(center.lng + 0.022), center.lat]);
+      // Gentle flyover pace: 0.011 (smooth and calming)
+      const nextLng = normalizeLongitude(center.lng + 0.011);
+      this.map.setCenter([nextLng, center.lat]);
+      this.checkFlyoverSpots({ lng: nextLng, lat: center.lat });
     }, 50);
   }
 

@@ -114,9 +114,32 @@
           </svg>
           <div class="center-airplane-afterburner"></div>
         </div>
-        <div class="center-flight-badge">
+
+        <div class="center-flight-badge" id="center-flight-badge">
           <span class="flight-pulse-dot"></span>
           <span class="flight-text" data-i18n="flightRoaming">环球漫游飞行中</span>
+        </div>
+
+        <!-- Dynamic Flyover Music Discovery Card (appears when approaching nearby spots) -->
+        <div class="center-flyby-card" id="center-flyby-card" style="display: none;" role="button" title="点击进入此胜景视听">
+          <div class="flyby-thumb-wrap">
+            <img class="flyby-cover-img" id="flyby-cover-img" src="" alt="胜景封面">
+            <span class="flyby-live-pulse"></span>
+          </div>
+          <div class="flyby-info">
+            <div class="flyby-header">
+              <span class="flyby-tag">✈️ 飞越美景</span>
+              <span class="flyby-spot-name" id="flyby-spot-name">北京故宫</span>
+            </div>
+            <div class="flyby-track-row">
+              <span class="flyby-music-icon">♫</span>
+              <span class="flyby-track-title" id="flyby-track-title">半岛铁盒 · 周杰伦</span>
+            </div>
+          </div>
+          <button type="button" class="flyby-play-btn" id="btn-flyby-play" title="开启视听">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>听这首</span>
+          </button>
         </div>
       </div>
     </div>

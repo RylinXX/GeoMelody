@@ -749,6 +749,140 @@ button, input {
   50% { transform: scale(1.6); opacity: 0.4; }
 }
 
+/* ==================== Center Flyover Music Discovery Card ==================== */
+.center-flyby-card {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 99px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  max-width: min(340px, calc(100vw - 32px));
+  animation: flybySlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--trans-fast), box-shadow var(--trans-fast), border-color var(--trans-fast);
+}
+
+.center-flyby-card:hover {
+  transform: scale(1.04);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.9), 0 0 32px rgba(56, 189, 248, 0.4);
+}
+
+@keyframes flybySlideUp {
+  0% { transform: translateY(12px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.flyby-thumb-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.flyby-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flyby-live-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid #38bdf8;
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+.flyby-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.flyby-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.flyby-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.flyby-spot-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+
+.flyby-track-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.flyby-music-icon {
+  color: var(--accent-cyan);
+  font-size: 11px;
+  animation: musicIconBeat 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes musicIconBeat {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+.flyby-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  border: none;
+  border-radius: 99px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
+  transition: all var(--trans-fast);
+  flex-shrink: 0;
+}
+
+.flyby-play-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.6);
+}
+
 /* ==================== Mini Audio Bar (NetEase Style Floating Audio Bar) ==================== */
 .mini-audio-island {
   position: fixed;
