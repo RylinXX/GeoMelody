@@ -648,7 +648,7 @@ export class GlobeManager {
     if (!this.map || (mode !== '3d' && mode !== '2d')) return;
     this.viewMode = mode;
     this.hideTooltip();
-    this.pauseRotation(2400);
+    this.pauseRotation(1500);
     if (mode === '3d') {
       this.map.setProjection('globe', { persist: true });
       this.updateSpaceAppearance();
@@ -661,6 +661,9 @@ export class GlobeManager {
       this.map.setProjection('mercator', { persist: true });
       this.map.easeTo({ pitch: 0, bearing: 0, duration: 700, essential: true });
       this.applyLayerFilters();
+    }
+    if (this.isRoaming) {
+      this.showAirplane();
     }
     requestAnimationFrame(() => this.map?.resize());
   }
@@ -842,12 +845,12 @@ export class GlobeManager {
 
     const zoom = this.map?.getZoom() ?? 2.2;
     // Scale detection range based on zoom level:
-    // At zoom 2.2 (global): ~600km enter, ~850km exit
-    // At zoom 7 (provinces): ~60km enter, ~90km exit
-    // At zoom 11 (cities/districts): ~8km enter, ~12km exit
+    // At zoom 2.2 (global): ~500km enter, ~750km exit
+    // At zoom 7 (provinces): ~50km enter, ~80km exit
+    // At zoom 11 (cities/districts): ~6km enter, ~10km exit
     const zoomScale = Math.pow(2, Math.min(0, 2.2 - zoom));
-    const enterRadiusKm = Math.max(6, 600 * zoomScale);
-    const exitRadiusKm = Math.max(10, 850 * zoomScale);
+    const enterRadiusKm = Math.max(5, 500 * zoomScale);
+    const exitRadiusKm = Math.max(8, 750 * zoomScale);
 
     // If currently displaying a spot, check if it has moved out of range
     if (this.currentFlybySpot) {
@@ -927,38 +930,53 @@ export class GlobeManager {
 
   startAutoRotation() {
     if (this.rotationTimer) return;
+    let lastTickTime = performance.now();
+
     this.rotationTimer = window.setInterval(() => {
-      if (!this.map || this.viewMode !== '3d' || Date.now() < this.rotationPausedUntil) {
-        if (!this.isRoaming && this.isAirplaneActive) {
-          this.hideAirplane();
-        }
-        return;
-      }
-      if (!this.styleReady || this.map.isMoving() || !this.mapSettings.autoSpin) {
+      const now = performance.now();
+      const dt = Math.min(0.1, Math.max(0.001, (now - lastTickTime) / 1000));
+      lastTickTime = now;
+
+      if (!this.map) return;
+
+      const isPaused = Date.now() < this.rotationPausedUntil;
+      // Roaming mode flies in BOTH 3D globe and 2D flat mode!
+      // Standby auto-spin runs when autoSpin is enabled.
+      if (isPaused || (!this.isRoaming && !this.mapSettings.autoSpin)) {
         if (!this.isRoaming && this.isAirplaneActive) {
           this.hideAirplane();
         }
         return;
       }
 
-      // Standby / Roaming: Show center airplane HUD and rotate Earth at zoom-adaptive speed
+      if (!this.styleReady || this.map.isMoving()) {
+        return;
+      }
+
+      // Standby / Roaming: Show center airplane HUD across both 2D and 3D mode
       this.showAirplane();
       const center = this.map.getCenter();
       const zoom = this.map.getZoom();
 
-      // Dynamically scale stepLng inversely with 2^zoom:
-      // At global zoom (2.2): step = 0.011 deg/tick
-      // At provincial zoom (6.0): step = 0.0008 deg/tick
-      // At city/district zoom (11.0): step = 0.000025 deg/tick
-      // At street zoom (15.0): step = 0.0000015 deg/tick
-      // Screen ground-velocity remains perfectly smooth, serene, and steady across all zoom levels!
-      const zoomFactor = Math.pow(2, Math.min(0, 2.2 - zoom));
-      const stepLng = Math.max(0.000001, 0.011 * zoomFactor);
+      // Precision Screen-Pixel Velocity Model:
+      // Controls the physical linear speed of ground movement across the user's screen.
+      // - Mobile: ~18.5 CSS pixels/second (calm, visible, smooth, never sluggish)
+      // - Desktop: ~20.0 CSS pixels/second (tranquil, cinematic, never too fast)
+      const isMobile = window.innerWidth <= 768;
+      const targetPixelSpeed = isMobile ? 18.5 : 20.0;
+
+      // In MapLibre projection:
+      // At zoom Z and latitude lat, the circumference parallel in pixels is 512 * 2^Z * cos(lat).
+      // So 1 pixel = 360 / (512 * 2^Z * cos(lat)) degrees.
+      const latRad = center.lat * Math.PI / 180;
+      const cosLat = Math.max(0.25, Math.cos(latRad));
+      const degPerPixel = 360.0 / (512.0 * Math.pow(2, zoom) * cosLat);
+      const stepLng = targetPixelSpeed * degPerPixel * dt;
 
       const nextLng = normalizeLongitude(center.lng + stepLng);
       this.map.setCenter([nextLng, center.lat]);
       this.checkFlyoverSpots({ lng: nextLng, lat: center.lat });
-    }, 50);
+    }, 33);
   }
 
   setUserLocation({ lng, lat, accuracy }) {
