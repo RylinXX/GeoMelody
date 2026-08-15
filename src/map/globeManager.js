@@ -182,7 +182,7 @@ export class GlobeManager {
     const style = this.map.getStyle();
     if (!style || !Array.isArray(style.layers)) return;
 
-    const { showHillshade, showCities, showCountries, showBorders } = this.mapSettings;
+    const { showHillshade = false, showCities = true, showCountries = true, showBorders = true } = this.mapSettings;
 
     style.layers.forEach(layer => {
       const id = layer.id.toLowerCase();
@@ -217,9 +217,9 @@ export class GlobeManager {
         id.includes('admin_level_3') ||
         id.includes('poi');
 
-      if (isCityOrState) {
+      if (isCityOrState && showCities === false) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', showCities ? 'visible' : 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
         } catch (_) {}
       }
 
@@ -231,9 +231,9 @@ export class GlobeManager {
         id.includes('label_country') ||
         id.includes('country_label');
 
-      if (isCountry) {
+      if (isCountry && showCountries === false) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', showCountries ? 'visible' : 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
         } catch (_) {}
       }
 
@@ -243,9 +243,9 @@ export class GlobeManager {
         id.includes('admin_level_2') ||
         id.includes('admin0');
 
-      if (isCountryBorder) {
+      if (isCountryBorder && showBorders === false) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', showBorders ? 'visible' : 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
         } catch (_) {}
       }
     });

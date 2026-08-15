@@ -13,7 +13,7 @@
       const rawSettings = localStorage.getItem('geomelody_settings');
       if (rawSettings) {
         const parsed = JSON.parse(rawSettings);
-        if (parsed.mapSkin === 'dataviz-light') {
+        if (parsed.mapSkin !== 'streets-dark' && parsed.mapSkin !== 'satellite') {
           parsed.mapSkin = 'streets-dark';
           localStorage.setItem('geomelody_settings', JSON.stringify(parsed));
         }
@@ -580,9 +580,7 @@
               <span class="setting-desc" data-i18n="settingMapSkinDesc">切换 MapTiler 官方底层渲染皮肤，默认经典深色街道</span>
             </div>
             <select class="setting-select" id="setting-select-mapskin">
-              <option value="streets-dark" selected data-i18n="skinStreetsDark">经典深色街道 (Streets Dark · 默认推荐)</option>
-              <option value="dataviz-dark" data-i18n="skinDatavizDark">极简暗黑灰 (Dataviz Dark)</option>
-              <option value="backdrop-dark" data-i18n="skinBackdropDark">深邃纯黑底图 (Backdrop Dark)</option>
+              <option value="streets-dark" selected data-i18n="skinStreetsDark">经典深色街道 (Streets Dark · 推荐)</option>
               <option value="satellite" data-i18n="skinSatellite">真实遥感卫星 (Satellite)</option>
             </select>
           </div>
