@@ -113,6 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showSpotPreviewCard(spot) {
     if (!spot || !spotPreviewCard) return;
+
+    // If tapping the already open preview spot again, directly enter full player!
+    if (previewSpotTarget && previewSpotTarget.id === spot.id && spotPreviewCard.classList.contains('visible')) {
+      hideSpotPreviewCard();
+      playerManager.openSpot(spot, true);
+      return;
+    }
+
     previewSpotTarget = spot;
     globeManager.flyToSpot(spot, 6.2);
 
@@ -148,9 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
     previewSpotTarget = null;
   }
 
-  btnCloseSpotPreview?.addEventListener('click', hideSpotPreviewCard);
+  btnCloseSpotPreview?.addEventListener('click', event => {
+    event.stopPropagation();
+    hideSpotPreviewCard();
+  });
 
-  btnSpotPreviewEnter?.addEventListener('click', () => {
+  spotPreviewCard?.addEventListener('click', event => {
+    if (event.target.closest('#btn-close-spot-preview')) return;
     if (previewSpotTarget) {
       const target = previewSpotTarget;
       hideSpotPreviewCard();
