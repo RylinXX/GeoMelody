@@ -26,17 +26,17 @@ class SoundEngine {
     this.musicTimers = [];
     this.ambientGenerators = {};
 
-    // Volume states (0.0 to 1.0)
+    // Volume states (0.0 to 1.0) - Ambient default 0 so pure music plays without background noise
     this.volumes = {
-      master: 0.8,
-      music: 0.75,
-      ambient: 0.6,
-      rain: 0.4,
-      ocean: 0.5,
-      wind: 0.3,
-      birds: 0.3,
-      campfire: 0.3,
-      bell: 0.3
+      master: 0.85,
+      music: 0.85,
+      ambient: 0.0,
+      rain: 0.0,
+      ocean: 0.0,
+      wind: 0.0,
+      birds: 0.0,
+      campfire: 0.0,
+      bell: 0.0
     };
 
     this.listeners = new Set();
@@ -154,9 +154,8 @@ class SoundEngine {
     const startedReferenceTrack = await this.playReferenceTrack(track);
     if (!startedReferenceTrack) this.startMusicStyle(style);
 
-    // Auto-enable primary natural sound for this scenic spot with a balanced volume
-    const primarySound = spot.audioRecipe?.naturalSound || 'wind';
-    this.applyScenicSoundscape(primarySound);
+    // Pure music mode: keep ambient generators muted by default unless manually adjusted in the mixer
+    this.muteAllAmbient();
 
     this.notify('playStateChange', { isPlaying: true, spot, style });
   }
@@ -219,21 +218,16 @@ class SoundEngine {
       this.currentTrack = track;
       this.notify('trackChange', { track, spot: this.currentSpot });
       return true;
-    } catch (_) {
-      this.referenceAudio.removeAttribute('src');
-      this.referenceAudio.load();
+    } catch (error) {
+      console.warn('[GeoMelody Audio] Direct reference playback deferred to synthesis fallback.', error);
       this.currentTrack = null;
       return false;
     }
   }
 
-  applyScenicSoundscape(primaryType) {
-    // Gracefully fade in recommended scenic sound
-    Object.keys(this.ambientGenerators).forEach(key => {
-      if (key === primaryType) {
-        this.setAmbientChannelVolume(key, Math.max(0.35, this.volumes[key] || 0.4));
-      }
-    });
+  applyScenicSoundscape() {
+    // Default ambient background noise is disabled as per user specification.
+    this.muteAllAmbient();
   }
 
   muteAllAmbient() {
