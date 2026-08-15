@@ -39,6 +39,10 @@ function writeJson(key, value) {
   }
 }
 
+export function seedLikeCount(spotId = '') {
+  return [...String(spotId)].reduce((sum, char) => (sum * 33 + char.charCodeAt(0)) % 10000, 5381) % 4200 + 480;
+}
+
 export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin)
   getSettings() {
@@ -174,16 +178,32 @@ export const storage = {
 
   getSpotLike(spotId, seedCount = 0) {
     const likes = readJson(STORAGE_KEYS.SPOT_LIKES, {});
-    return likes[spotId] || { count: seedCount, liked: false };
+    const seed = seedCount || seedLikeCount(spotId);
+    return likes[spotId] || { count: seed, liked: false };
   },
 
   toggleSpotLike(spotId, seedCount = 0) {
     const likes = readJson(STORAGE_KEYS.SPOT_LIKES, {});
-    const current = likes[spotId] || { count: seedCount, liked: false };
+    const seed = seedCount || seedLikeCount(spotId);
+    const current = likes[spotId] || { count: seed, liked: false };
     current.liked = !current.liked;
     current.count = Math.max(0, Number(current.count || 0) + (current.liked ? 1 : -1));
     likes[spotId] = current;
     writeJson(STORAGE_KEYS.SPOT_LIKES, likes);
     return current;
+  },
+
+  getLeaderboardSpots(spots = []) {
+    return [...spots]
+      .map(spot => {
+        const seed = seedLikeCount(spot.id);
+        const likeState = this.getSpotLike(spot.id, seed);
+        return {
+          spot,
+          likes: likeState.count,
+          liked: likeState.liked
+        };
+      })
+      .sort((a, b) => b.likes - a.likes);
   }
 };

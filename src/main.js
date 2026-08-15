@@ -84,6 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const favListContainer = document.getElementById('fav-list-container');
   const favToggleBtn = document.getElementById('btn-toggle-favorites');
 
+  // Leaderboard Drawer Elements
+  const leaderboardDrawer = document.getElementById('leaderboard-drawer');
+  const leaderboardBackdrop = document.getElementById('leaderboard-drawer-backdrop');
+  const leaderboardToggleBtn = document.getElementById('btn-toggle-leaderboard');
+  const closeLeaderboardBtn = document.getElementById('btn-close-leaderboard');
+  const leaderboardListContainer = document.getElementById('leaderboard-list-container');
+  const navLanguageLabel = document.getElementById('nav-language-label');
+
   // Settings Drawer Elements
   const settingsDrawer = document.getElementById('settings-drawer');
   const settingsBackdrop = document.getElementById('settings-drawer-backdrop');
@@ -134,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onBeforeOpen: () => {
       toggleFavDrawer(false);
       toggleSettingsDrawer(false);
+      toggleLeaderboardDrawer(false);
     },
     onPublish: spot => {
       globeManager.renderLightDotMarkers();
@@ -421,6 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextState) {
       communityManager.close();
       toggleSettingsDrawer(false);
+      toggleLeaderboardDrawer(false);
       renderFavoritesList();
     }
     favDrawer?.classList.toggle('open', nextState);
@@ -428,6 +438,81 @@ document.addEventListener('DOMContentLoaded', () => {
     favToggleBtn?.setAttribute('aria-expanded', String(nextState));
     favDrawer?.setAttribute('aria-hidden', String(!nextState));
   }
+
+  // ==================== Hot Leaderboard Drawer Management ====================
+  function renderLeaderboard() {
+    if (!leaderboardListContainer) return;
+    const ranked = storage.getLeaderboardSpots(SCENIC_SPOTS);
+
+    if (!ranked.length) {
+      leaderboardListContainer.innerHTML = `<div class="empty-state"><span>暂无排行榜数据</span></div>`;
+      return;
+    }
+
+    leaderboardListContainer.innerHTML = ranked.map((item, index) => {
+      const { spot, likes } = item;
+      const rank = index + 1;
+      const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : ''));
+      const rankIcon = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `${rank}`));
+      const spotName = getSpotName(spot, currentLanguage);
+      const spotLocation = getSpotLocation(spot, currentLanguage);
+      const track = getDemoTrack(spot);
+      const photo = spot.photos?.[0] || '/textures/earth_day.jpg';
+
+      return `
+        <div class="leaderboard-card ${rankClass}" data-spot-id="${spot.id}" role="button" tabindex="0">
+          <div class="leaderboard-rank-badge">${rankIcon}</div>
+          <img class="leaderboard-thumb" src="${photo}" alt="${spotName}" loading="lazy" />
+          <div class="leaderboard-info">
+            <div class="leaderboard-spot-title">${spotName}</div>
+            <div class="leaderboard-track-name">♫ ${track.title} · ${track.creator}</div>
+            <div class="leaderboard-meta-row">
+              <span>${spotLocation}</span>
+              <span class="leaderboard-likes-count">♥ ${likes.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    leaderboardListContainer.querySelectorAll('.leaderboard-card').forEach(card => {
+      const openCard = () => {
+        const spotId = card.dataset.spotId;
+        const target = SCENIC_SPOTS.find(s => s.id === spotId);
+        if (target) {
+          toggleLeaderboardDrawer(false);
+          globeManager.flyToSpot(target);
+          playerManager.openSpot(target, true);
+          showToast(`◎ 已切换至《${getSpotName(target, currentLanguage)}》`);
+        }
+      };
+      card.addEventListener('click', openCard);
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openCard();
+        }
+      });
+    });
+  }
+
+  function toggleLeaderboardDrawer(open) {
+    const nextState = open ?? !leaderboardDrawer?.classList.contains('open');
+    if (nextState) {
+      communityManager.close();
+      toggleFavDrawer(false);
+      toggleSettingsDrawer(false);
+      renderLeaderboard();
+    }
+    leaderboardDrawer?.classList.toggle('open', nextState);
+    leaderboardBackdrop?.classList.toggle('open', nextState);
+    leaderboardToggleBtn?.setAttribute('aria-expanded', String(nextState));
+    leaderboardDrawer?.setAttribute('aria-hidden', String(!nextState));
+  }
+
+  leaderboardToggleBtn?.addEventListener('click', () => toggleLeaderboardDrawer());
+  closeLeaderboardBtn?.addEventListener('click', () => toggleLeaderboardDrawer(false));
+  leaderboardBackdrop?.addEventListener('click', () => toggleLeaderboardDrawer(false));
 
   // ==================== Settings Drawer Management ====================
   function syncSettingsInputs() {
@@ -444,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextState) {
       communityManager.close();
       toggleFavDrawer(false);
+      toggleLeaderboardDrawer(false);
       syncSettingsInputs();
     }
     settingsDrawer?.classList.toggle('open', nextState);
@@ -485,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
     communityManager.setLanguage(currentLanguage);
     renderRegionNavigation();
     renderFavoritesList();
+    if (leaderboardDrawer?.classList.contains('open')) renderLeaderboard();
     if (searchInput?.value) renderSearchResults(searchInput.value);
     if (playerManager.currentSpot) updateMiniAudioIsland(playerManager.currentSpot, soundEngine.isPlaying);
     viewModeText.textContent = viewMode === '3d' ? t('view3d', currentLanguage) : t('view2d', currentLanguage);
@@ -493,9 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? t('touring', currentLanguage)
         : t('autoTour', currentLanguage);
     }
-    languageBtn?.querySelectorAll('[data-language-option]').forEach(el => {
-      el.classList.toggle('is-active', el.dataset.languageOption === currentLanguage);
-    });
+    if (navLanguageLabel) navLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
     if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
   }
 

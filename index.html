@@ -52,6 +52,14 @@
           <div class="search-results-dropdown" id="search-dropdown"></div>
         </div>
 
+        <!-- Hot Leaderboard Toggle -->
+        <button class="nav-btn leaderboard-nav-btn" id="btn-toggle-leaderboard" title="最受欢迎胜景音乐排行榜" data-i18n-title="leaderboardTitleAttr" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+          </svg>
+          <span class="nav-btn-label" data-i18n="leaderboard">热榜</span>
+        </button>
+
         <button class="nav-btn community-nav-btn" id="btn-toggle-community" title="发布音景或参与评论" data-i18n-title="communityTitleAttr" aria-expanded="false">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>
@@ -84,10 +92,9 @@
           </svg>
         </button>
 
-        <button class="nav-btn language-toggle" id="btn-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="中文 / English">
-          <span class="language-option is-active" data-language-option="zh">中</span>
-          <span class="language-divider">/</span>
-          <span class="language-option" data-language-option="en">EN</span>
+        <!-- Compact State-Only Language Toggle -->
+        <button class="nav-btn language-toggle-compact" id="btn-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="切换语言">
+          <span id="nav-language-label" class="nav-language-label">中</span>
         </button>
       </div>
     </header>
@@ -351,6 +358,24 @@
         </div>
       </div>
     </section>
+
+    <!-- ==================== Hot Leaderboard Drawer ==================== -->
+    <div class="drawer-backdrop" id="leaderboard-drawer-backdrop"></div>
+    <aside class="drawer-panel leaderboard-drawer" id="leaderboard-drawer" aria-label="热门榜单" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <div class="drawer-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            <span data-i18n="leaderboardTitle">🔥 热门胜景音乐榜</span>
+          </div>
+          <span class="drawer-subtitle" data-i18n="leaderboardSubtitle">全球听众点赞与心动收藏实时排行</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-leaderboard" title="关闭" data-i18n-title="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="drawer-body leaderboard-drawer-body" id="leaderboard-list-container"></div>
+    </aside>
 
     <!-- ==================== Favorites Slide-over Drawer ==================== -->
     <div class="drawer-backdrop" id="fav-drawer-backdrop"></div>
