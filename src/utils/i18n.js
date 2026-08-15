@@ -7,9 +7,9 @@ export const LANGUAGES = {
 
 const MESSAGES = {
   zh: {
-    documentTitle: '境音地图 GeoMelody - 3D 沉浸式全球视听体验',
+    documentTitle: '地球旋律 GeoMelody - 3D 沉浸式全球视听体验',
     documentDescription: '旋转 3D 地球探索全球美景，在地域专属音乐与自然声中沉浸旅行。',
-    brandName: '境音地图',
+    brandName: '地球旋律',
     categoryNav: '风景分类筛选',
     regionNav: '七大洲快捷切换',
     publish: '投稿',
