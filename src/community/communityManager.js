@@ -3,17 +3,23 @@ import { LANGUAGES, getSpotLocation, getSpotName, t } from '../utils/i18n.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 
 const LOCATION_PRESETS = [
-  { id: 'beijing', name: '中国 · 北京', enName: 'China · Beijing', country: '中国', lat: 39.9042, lng: 116.4074 },
-  { id: 'shanghai', name: '中国 · 上海', enName: 'China · Shanghai', country: '中国', lat: 31.2304, lng: 121.4737 },
-  { id: 'chengdu', name: '中国 · 成都', enName: 'China · Chengdu', country: '中国', lat: 30.5728, lng: 104.0668 },
-  { id: 'tokyo', name: '日本 · 东京', enName: 'Japan · Tokyo', country: '日本', lat: 35.6762, lng: 139.6503 },
-  { id: 'paris', name: '法国 · 巴黎', enName: 'France · Paris', country: '法国', lat: 48.8566, lng: 2.3522 },
-  { id: 'london', name: '英国 · 伦敦', enName: 'United Kingdom · London', country: '英国', lat: 51.5072, lng: -0.1276 },
-  { id: 'rome', name: '意大利 · 罗马', enName: 'Italy · Rome', country: '意大利', lat: 41.9028, lng: 12.4964 },
-  { id: 'new-york', name: '美国 · 纽约', enName: 'United States · New York', country: '美国', lat: 40.7128, lng: -74.006 },
-  { id: 'los-angeles', name: '美国 · 洛杉矶', enName: 'United States · Los Angeles', country: '美国', lat: 34.0522, lng: -118.2437 },
-  { id: 'rio', name: '巴西 · 里约热内卢', enName: 'Brazil · Rio de Janeiro', country: '巴西', lat: -22.9068, lng: -43.1729 },
-  { id: 'sydney', name: '澳大利亚 · 悉尼', enName: 'Australia · Sydney', country: '澳大利亚', lat: -33.8688, lng: 151.2093 }
+  { id: 'hangzhou', name: '中国 · 杭州西湖', enName: 'China · Hangzhou West Lake', country: '中国', lat: 30.2428, lng: 120.1504 },
+  { id: 'beijing', name: '中国 · 北京故宫', enName: 'China · Beijing Forbidden City', country: '中国', lat: 39.9163, lng: 116.3971 },
+  { id: 'shanghai', name: '中国 · 上海外滩', enName: 'China · Shanghai The Bund', country: '中国', lat: 31.2402, lng: 121.4905 },
+  { id: 'suzhou', name: '中国 · 苏州平江路', enName: 'China · Suzhou Pingjiang Road', country: '中国', lat: 31.3142, lng: 120.6309 },
+  { id: 'wuzhen', name: '中国 · 乌镇水乡', enName: 'China · Wuzhen Water Town', country: '中国', lat: 30.7447, lng: 120.4842 },
+  { id: 'chengdu', name: '中国 · 成都锦里', enName: 'China · Chengdu Jinli', country: '中国', lat: 30.6486, lng: 104.0494 },
+  { id: 'dali', name: '中国 · 大理洱海', enName: 'China · Dali Erhai Lake', country: '中国', lat: 25.7100, lng: 100.2600 },
+  { id: 'dunhuang', name: '中国 · 敦煌莫高窟', enName: 'China · Dunhuang Mogao Caves', country: '中国', lat: 40.0360, lng: 94.8020 },
+  { id: 'lhasa', name: '中国 · 西藏布达拉宫', enName: 'China · Tibet Potala Palace', country: '中国', lat: 29.6578, lng: 91.1172 },
+  { id: 'tokyo', name: '日本 · 东京浅草', enName: 'Japan · Tokyo Asakusa', country: '日本', lat: 35.7148, lng: 139.7967 },
+  { id: 'kyoto', name: '日本 · 京都岚山', enName: 'Japan · Kyoto Arashiyama', country: '日本', lat: 35.0116, lng: 135.6778 },
+  { id: 'paris', name: '法国 · 巴黎塞纳河畔', enName: 'France · Paris Seine River', country: '法国', lat: 48.8566, lng: 2.3522 },
+  { id: 'london', name: '英国 · 伦敦泰晤士河', enName: 'United Kingdom · London Thames', country: '英国', lat: 51.5072, lng: -0.1276 },
+  { id: 'santorini', name: '希腊 · 圣托里尼爱琴海', enName: 'Greece · Santorini Aegean Sea', country: '希腊', lat: 36.3932, lng: 25.4615 },
+  { id: 'reykjavik', name: '冰岛 · 雷克雅未克极光', enName: 'Iceland · Reykjavik Aurora', country: '冰岛', lat: 64.1466, lng: -21.9426 },
+  { id: 'new-york', name: '美国 · 纽约中央公园', enName: 'United States · New York Central Park', country: '美国', lat: 40.7851, lng: -73.9683 },
+  { id: 'sydney', name: '澳大利亚 · 悉尼歌剧院', enName: 'Australia · Sydney Opera House', country: '澳大利亚', lat: -33.8568, lng: 151.2153 }
 ];
 
 const FALLBACK_COVER = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=85';
@@ -200,6 +206,9 @@ export class CommunityManager {
     this.playerCommentForm = document.getElementById('player-comment-form');
     this.playerCommentsList = document.getElementById('player-comments-list');
 
+    this.locationMode = 'current';
+    this.currentLocationCoords = null;
+
     this.renderLocationOptions();
     this.bindEvents();
     this.setActiveSpot(this.activeSpot);
@@ -209,6 +218,17 @@ export class CommunityManager {
     this.toggleButton?.addEventListener('click', () => this.toggle('publish'));
     this.backdrop?.addEventListener('click', () => this.close());
     document.getElementById('btn-close-community-drawer')?.addEventListener('click', () => this.close());
+
+    // Location Mode Pills in Publish Form
+    document.getElementById('publish-loc-mode-pills')?.addEventListener('click', event => {
+      const button = event.target.closest('.loc-mode-pill');
+      if (!button) return;
+      this.setLocationMode(button.dataset.locMode);
+    });
+
+    document.getElementById('btn-refresh-publish-loc')?.addEventListener('click', () => {
+      this.fetchCurrentLocation(true);
+    });
 
     document.querySelectorAll('[data-community-tab]').forEach(button => {
       button.addEventListener('click', () => this.selectTab(button.dataset.communityTab));
@@ -288,6 +308,74 @@ export class CommunityManager {
     });
   }
 
+  setLocationMode(mode = 'current') {
+    this.locationMode = mode;
+    document.querySelectorAll('.loc-mode-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.locMode === mode);
+    });
+    const panels = {
+      current: document.getElementById('loc-panel-current'),
+      preset: document.getElementById('loc-panel-preset'),
+      custom: document.getElementById('loc-panel-custom')
+    };
+    Object.keys(panels).forEach(key => {
+      if (panels[key]) panels[key].style.display = key === mode ? 'flex' : 'none';
+    });
+    if (mode === 'current') {
+      this.fetchCurrentLocation();
+    }
+  }
+
+  fetchCurrentLocation(force = false) {
+    const display = document.getElementById('current-loc-display');
+    const dot = document.getElementById('current-loc-dot');
+    const latInput = document.getElementById('pub-current-lat');
+    const lngInput = document.getElementById('pub-current-lng');
+
+    if (!force && this.currentLocationCoords) {
+      if (display) display.textContent = `📍 ${this.currentLocationCoords.lat.toFixed(4)}°N, ${this.currentLocationCoords.lng.toFixed(4)}°E (已精确定位)`;
+      if (dot) dot.className = 'current-loc-indicator success';
+      if (latInput) latInput.value = this.currentLocationCoords.lat;
+      if (lngInput) lngInput.value = this.currentLocationCoords.lng;
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      if (display) display.textContent = '浏览器不支持定位 (使用默认: 30.24°N, 120.15°E)';
+      if (dot) dot.className = 'current-loc-indicator error';
+      if (latInput) latInput.value = 30.2428;
+      if (lngInput) lngInput.value = 120.1504;
+      return;
+    }
+
+    if (display) display.textContent = '正在获取当前实时定位…';
+    if (dot) dot.className = 'current-loc-indicator';
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        this.currentLocationCoords = { lat, lng };
+        if (display) display.textContent = `📍 ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E (已精确定位)`;
+        if (dot) dot.className = 'current-loc-indicator success';
+        if (latInput) latInput.value = lat;
+        if (lngInput) lngInput.value = lng;
+      },
+      err => {
+        console.warn('[Publish Location Geolocation]', err);
+        // Sensible fallback
+        const fallbackLat = 30.2428;
+        const fallbackLng = 120.1504;
+        this.currentLocationCoords = { lat: fallbackLat, lng: fallbackLng };
+        if (display) display.textContent = '定位未开启 (将使用默认: 30.24°N, 120.15°E)';
+        if (dot) dot.className = 'current-loc-indicator error';
+        if (latInput) latInput.value = fallbackLat;
+        if (lngInput) lngInput.value = fallbackLng;
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
   updateFileLabel(elementId, file) {
     const element = document.getElementById(elementId);
     if (element) element.textContent = file?.name || t('noFileSelected', this.getLanguage());
@@ -310,6 +398,9 @@ export class CommunityManager {
     this.drawer?.setAttribute('aria-hidden', 'false');
     this.toggleButton?.classList.add('active');
     this.toggleButton?.setAttribute('aria-expanded', 'true');
+    if (tab === 'publish' && this.locationMode === 'current') {
+      this.fetchCurrentLocation();
+    }
   }
 
   close() {
@@ -537,17 +628,50 @@ export class CommunityManager {
     if (!this.form) return;
     const formData = new FormData(this.form);
     const title = String(formData.get('title') || '').trim();
-    const author = String(formData.get('author') || '').trim() || t('anonymousTraveler', this.getLanguage());
+    const author = String(formData.get('author') || '').trim() || (this.getLanguage() === LANGUAGES.EN ? 'Traveler' : '旅人');
     const description = String(formData.get('description') || '').trim();
-    const location = LOCATION_PRESETS.find(item => item.id === formData.get('location')) || LOCATION_PRESETS[0];
+    const category = String(formData.get('category') || 'waterTown');
     const coverFile = formData.get('cover');
     const audioFile = formData.get('audio');
     if (!title || !description) return;
 
+    let lat = 30.2428;
+    let lng = 120.1504;
+    let locationName = '中国 · 杭州西湖';
+    let country = '中国';
+
+    if (this.locationMode === 'current') {
+      lat = parseFloat(formData.get('currentLat')) || this.currentLocationCoords?.lat || 30.2428;
+      lng = parseFloat(formData.get('currentLng')) || this.currentLocationCoords?.lng || 120.1504;
+      locationName = `当前坐标 · ${lng.toFixed(2)}°E, ${lat.toFixed(2)}°N`;
+      country = '当前位置';
+    } else if (this.locationMode === 'preset') {
+      const presetId = formData.get('locationPreset');
+      const preset = LOCATION_PRESETS.find(item => item.id === presetId) || LOCATION_PRESETS[0];
+      lat = preset.lat;
+      lng = preset.lng;
+      locationName = preset.name;
+      country = preset.country;
+    } else if (this.locationMode === 'custom') {
+      const customName = String(formData.get('customLocationName') || '').trim();
+      locationName = customName || '自定义地点';
+      const customCoordsStr = String(formData.get('customCoords') || '').trim();
+      if (customCoordsStr) {
+        const parts = customCoordsStr.split(/[,，\s]+/).map(Number);
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          lng = parts[0];
+          lat = parts[1];
+        }
+      } else if (this.currentLocationCoords) {
+        lat = this.currentLocationCoords.lat;
+        lng = this.currentLocationCoords.lng;
+      }
+    }
+
     let coverDataUrl = null;
     let coverUrl = FALLBACK_COVER;
     if (coverFile instanceof File && coverFile.size > 0) {
-      if (coverFile.size <= 1.4 * 1024 * 1024) coverDataUrl = await fileToDataUrl(coverFile);
+      if (coverFile.size <= 2 * 1024 * 1024) coverDataUrl = await fileToDataUrl(coverFile);
       coverUrl = coverDataUrl || URL.createObjectURL(coverFile);
     }
 
@@ -568,36 +692,39 @@ export class CommunityManager {
       id,
       name: title,
       enName: title,
-      location: location.name,
-      country: location.country,
-      category: 'city',
-      lat: location.lat,
-      lng: location.lng,
+      location: locationName,
+      country: country,
+      category: category,
+      lat,
+      lng,
       description,
-      tags: ['用户共创', 'Community'],
+      tags: ['用户投稿', 'Community', category],
       photos: [coverUrl],
       author,
       isCommunity: true,
       audioTrack,
       audioRecipe: {
-        style: 'city_lofi',
+        style: 'regional_acoustic',
         bpm: 72,
-        scale: '社区共创音景',
-        instruments: audioTrack ? audioTrack.title : '开放授权示例音乐 · 自然环境音',
+        scale: '用户自选专属音景',
+        instruments: audioTrack ? audioTrack.title : '经典原声音乐 · 专属意境',
         naturalSound: 'wind'
       }
     };
 
+    // Save to local storage for persistent retention across sessions
     storage.saveCommunityPost({
       ...spot,
       photos: [coverDataUrl || FALLBACK_COVER],
       audioTrack: null,
       storedAudioName: audioFile instanceof File ? audioFile.name : ''
     });
+
     this.spots.unshift(spot);
     this.form.reset();
     this.updateFileLabel('community-cover-file-name');
     this.updateFileLabel('community-audio-file-name');
+    this.setLocationMode('current');
     this.onPublish?.(spot);
     this.setActiveSpot(spot);
     this.open('comments', spot);

@@ -371,17 +371,66 @@
             <div class="form-step-section">
               <div class="step-label-row">
                 <span class="step-num">01</span>
-                <span class="step-name">胜景名称与地理位置</span>
+                <span class="step-name">胜景名称与发布位置</span>
               </div>
-              <div class="form-fields-grid">
+              
+              <label class="step-input-group">
+                <span class="input-label">音景标题 <strong class="req">*</strong></span>
+                <input name="title" type="text" maxlength="42" required class="modern-input" data-i18n-placeholder="workTitlePlaceholder" placeholder="例如：西湖断桥初雪 / 窗外的晚风">
+              </label>
+
+              <div class="location-mode-selector">
+                <span class="input-label">位置确定方式 <strong class="req">*</strong></span>
+                <div class="location-mode-pills" id="publish-loc-mode-pills">
+                  <button type="button" class="loc-mode-pill active" data-loc-mode="current">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>📍 我的当前位置</span>
+                  </button>
+                  <button type="button" class="loc-mode-pill" data-loc-mode="preset">
+                    <span>🏙️ 预设名胜城市</span>
+                  </button>
+                  <button type="button" class="loc-mode-pill" data-loc-mode="custom">
+                    <span>✍️ 自定义位置</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Location Mode Panel 1: Current Realtime Geolocation -->
+              <div class="location-sub-panel active" id="loc-panel-current">
+                <div class="current-loc-status-box">
+                  <div class="current-loc-info">
+                    <span class="current-loc-indicator" id="current-loc-dot"></span>
+                    <span class="current-loc-text" id="current-loc-display">正在获取当前实时定位…</span>
+                  </div>
+                  <button type="button" class="refresh-loc-btn" id="btn-refresh-publish-loc" title="重新获取定位">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    <span>重新定位</span>
+                  </button>
+                </div>
+                <input type="hidden" name="currentLat" id="pub-current-lat">
+                <input type="hidden" name="currentLng" id="pub-current-lng">
+              </div>
+
+              <!-- Location Mode Panel 2: Preset Cities -->
+              <div class="location-sub-panel" id="loc-panel-preset" style="display: none;">
                 <label class="step-input-group">
-                  <span class="input-label">音景标题 <strong class="req">*</strong></span>
-                  <input name="title" type="text" maxlength="42" required class="modern-input" data-i18n-placeholder="workTitlePlaceholder" placeholder="例如：西湖断桥初雪">
+                  <span class="input-label" data-i18n="chooseLocation">选择预设城市 / 胜景</span>
+                  <select id="community-location-select" name="locationPreset" class="modern-select"></select>
                 </label>
-                <label class="step-input-group">
-                  <span class="input-label" data-i18n="chooseLocation">所在城市 / 地点 <strong class="req">*</strong></span>
-                  <select id="community-location-select" name="location" class="modern-select" required></select>
-                </label>
+              </div>
+
+              <!-- Location Mode Panel 3: Custom Input -->
+              <div class="location-sub-panel" id="loc-panel-custom" style="display: none;">
+                <div class="form-fields-grid">
+                  <label class="step-input-group">
+                    <span class="input-label">自定义地点 / 城市名称 <strong class="req">*</strong></span>
+                    <input name="customLocationName" id="pub-custom-name" type="text" maxlength="36" class="modern-input" placeholder="例如：杭州市西湖区 / 大理洱海">
+                  </label>
+                  <label class="step-input-group">
+                    <span class="input-label">自定义经纬度坐标 (经度, 纬度)</span>
+                    <input name="customCoords" id="pub-custom-coords" type="text" maxlength="32" class="modern-input" placeholder="例如：120.15, 30.28 (选填)">
+                  </label>
+                </div>
               </div>
             </div>
 
