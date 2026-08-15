@@ -8,6 +8,7 @@ import { CommunityManager } from './community/communityManager.js';
 import { soundEngine } from './audio/soundEngine.js';
 import { storage, DEFAULT_SETTINGS } from './utils/storage.js';
 import { shareUtil } from './utils/share.js';
+import { shareCardManager } from './utils/shareCard.js';
 import { CosmicStarfield } from './utils/cosmicStars.js';
 import {
   LANGUAGES,
@@ -143,6 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
       globeManager.renderLightDotMarkers();
       playerManager.openSpot(spot, true);
     }
+  });
+
+  shareCardManager.init({
+    showToast,
+    getLanguage: () => currentLanguage
   });
 
   function renderRegionNavigation() {
