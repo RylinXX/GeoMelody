@@ -15,9 +15,6 @@ const SPOT_HIT_LAYER_ID = 'geomelody-spot-hit';
 const SPOT_GLOW_LAYER_ID = 'geomelody-spot-glow';
 const SPOT_HALO_LAYER_ID = 'geomelody-spot-halo';
 const SPOT_CORE_LAYER_ID = 'geomelody-spot-core';
-const AIRPLANE_CONTRAIL_SOURCE_ID = 'geomelody-airplane-contrail';
-const AIRPLANE_CONTRAIL_LAYER_ID = 'geomelody-airplane-contrail-line';
-const AIRPLANE_CONTRAIL_GLOW_LAYER_ID = 'geomelody-airplane-contrail-glow';
 const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY?.trim();
 
 const INITIAL_CAMERA = {
@@ -784,209 +781,32 @@ export class GlobeManager {
     }
   }
 
-  calculateBearing(lng1, lat1, lng2, lat2) {
-    const y = Math.sin((lng2 - lng1) * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180);
-    const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
-              Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos((lng2 - lng1) * Math.PI / 180);
-    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
-  }
-
-  generateFlightOrbit() {
-    const originLng = this.userLocation?.lng ?? 120.15;
-    const originLat = this.userLocation?.lat ?? 30.25;
-
-    // Generate round-the-world orbital waypoints starting from user location
-    const rawWaypoints = [
-      [originLng, originLat],
-      [originLng + 24, originLat + 4],
-      [originLng + 55, originLat - 6],
-      [originLng + 105, originLat - 10],
-      [originLng + 155, originLat + 8],
-      [originLng + 205, originLat + 14],
-      [originLng + 255, originLat + 6],
-      [originLng + 305, originLat - 5],
-      [originLng + 360, originLat]
-    ];
-
-    // Interpolate 1200 smooth geodesic trajectory coordinates
-    const interpolated = [];
-    const stepsPerSegment = 150;
-
-    for (let i = 0; i < rawWaypoints.length - 1; i++) {
-      const p1 = rawWaypoints[i];
-      const p2 = rawWaypoints[i + 1];
-      for (let s = 0; s < stepsPerSegment; s++) {
-        const t = s / stepsPerSegment;
-        const mu = (1 - Math.cos(t * Math.PI)) / 2;
-        const lng = p1[0] * (1 - mu) + p2[0] * mu;
-        const lat = p1[1] * (1 - mu) + p2[1] * mu;
-        interpolated.push([normalizeLongitude(lng), lat]);
-      }
-    }
-    this.flightOrbitCoords = interpolated;
-  }
-
-  initContrailLayer() {
-    if (!this.map || this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID)) return;
-    try {
-      this.map.addSource(AIRPLANE_CONTRAIL_SOURCE_ID, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: { type: 'LineString', coordinates: [] }
-        }
-      });
-
-      this.map.addLayer({
-        id: AIRPLANE_CONTRAIL_GLOW_LAYER_ID,
-        type: 'line',
-        source: AIRPLANE_CONTRAIL_SOURCE_ID,
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round'
-        },
-        paint: {
-          'line-color': '#38bdf8',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4, 6, 8],
-          'line-opacity': 0.6,
-          'line-blur': 2
-        }
-      });
-
-      this.map.addLayer({
-        id: AIRPLANE_CONTRAIL_LAYER_ID,
-        type: 'line',
-        source: AIRPLANE_CONTRAIL_SOURCE_ID,
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round'
-        },
-        paint: {
-          'line-color': '#ffffff',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 3],
-          'line-opacity': 0.85
-        }
-      });
-    } catch (e) {
-      console.warn('[Contrail layer init]', e);
-    }
-  }
-
-  initAirplaneMarker() {
-    if (this.airplaneMarker || !this.map) return;
-    this.generateFlightOrbit();
-    this.initContrailLayer();
-
-    const el = document.createElement('div');
-    el.className = 'globe-airplane-container hidden';
-    el.id = 'globe-airplane-marker';
-    el.title = this.currentLanguage === 'en' ? '✈️ Orbiting Earth' : '✈️ 环球漫游飞行中';
-    el.innerHTML = `
-      <div class="airplane-body-wrapper" id="airplane-body-wrapper">
-        <svg class="airplane-svg" viewBox="0 0 24 24">
-          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-        </svg>
-        <div class="airplane-afterburner"></div>
-      </div>
-      <div class="airplane-flight-tooltip">${this.currentLanguage === 'en' ? '✈️ Orbiting World' : '✈️ 环球漫游中'}</div>
-    `;
-
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.followAirplane();
-    });
-
-    const startPos = this.flightOrbitCoords[0] || [120.15, 30.25];
-    this.airplaneMarker = new Marker({ element: el })
-      .setLngLat(startPos)
-      .addTo(this.map);
-  }
-
   showAirplane() {
     this.isAirplaneActive = true;
-    this.initAirplaneMarker();
-    this.initContrailLayer();
-    const el = this.airplaneMarker?.getElement();
-    if (el) {
-      el.classList.remove('hidden');
+    const overlay = document.getElementById('globe-center-flight-overlay');
+    if (overlay) {
+      overlay.classList.remove('hidden');
+      overlay.setAttribute('aria-hidden', 'false');
     }
   }
 
   hideAirplane() {
     this.isAirplaneActive = false;
-    const el = this.airplaneMarker?.getElement();
-    if (el) {
-      el.classList.add('hidden');
-    }
-    this.contrailTrail = [];
-    if (this.map?.getSource(AIRPLANE_CONTRAIL_SOURCE_ID)) {
-      this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID).setData({
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [] }
-      });
+    const overlay = document.getElementById('globe-center-flight-overlay');
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden', 'true');
     }
   }
 
   startRoamingMode() {
     this.isRoaming = true;
     this.showAirplane();
-    this.stepAirplaneFlight(true);
   }
 
   stopRoamingMode() {
     this.isRoaming = false;
     this.hideAirplane();
-  }
-
-  stepAirplaneFlight(forceUpdate = false) {
-    if (!this.airplaneMarker || !this.flightOrbitCoords.length || !this.isAirplaneActive) return;
-
-    if (!forceUpdate) {
-      this.airplaneProgress = (this.airplaneProgress + 0.0006) % 1.0;
-    }
-
-    const totalPoints = this.flightOrbitCoords.length;
-    const currentIndex = Math.floor(this.airplaneProgress * (totalPoints - 1));
-    const nextIndex = (currentIndex + 4) % totalPoints;
-
-    const currentCoord = this.flightOrbitCoords[currentIndex];
-    const nextCoord = this.flightOrbitCoords[nextIndex];
-
-    if (currentCoord && nextCoord) {
-      this.airplaneMarker.setLngLat(currentCoord);
-      const bearing = this.calculateBearing(currentCoord[0], currentCoord[1], nextCoord[0], nextCoord[1]);
-      const bodyWrapper = this.airplaneMarker.getElement()?.querySelector('.airplane-body-wrapper');
-      if (bodyWrapper) {
-        bodyWrapper.style.transform = `rotate(${bearing}deg)`;
-      }
-
-      // Add point to contrail trail (keep last ~2 seconds / points within 2000ms)
-      const now = Date.now();
-      this.contrailTrail.push({ coord: currentCoord, time: now });
-      this.contrailTrail = this.contrailTrail.filter(pt => now - pt.time <= 2000);
-
-      if (this.map?.getSource(AIRPLANE_CONTRAIL_SOURCE_ID) && this.contrailTrail.length > 1) {
-        this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID).setData({
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: this.contrailTrail.map(pt => pt.coord)
-          }
-        });
-      }
-    }
-  }
-
-  followAirplane() {
-    if (!this.airplaneMarker || !this.map) return;
-    this.pauseRotation(8000);
-    const lngLat = this.airplaneMarker.getLngLat();
-    this.map.flyTo({
-      center: [lngLat.lng, lngLat.lat],
-      zoom: this.viewMode === '3d' ? 5.5 : 7.0,
-      duration: 1500,
-      essential: true
-    });
   }
 
   startAutoRotation() {
@@ -1005,19 +825,17 @@ export class GlobeManager {
         return;
       }
 
-      // Enter idle rotation -> show and step airplane!
+      // Standby / Roaming: Show center airplane HUD and rotate Earth smoothly underneath
       this.showAirplane();
       const center = this.map.getCenter();
-      this.map.setCenter([normalizeLongitude(center.lng + 0.018), center.lat]);
-      this.stepAirplaneFlight();
-    }, 60);
+      // Keep exact latitude (whether in South or North hemisphere) and rotate eastwards
+      this.map.setCenter([normalizeLongitude(center.lng + 0.022), center.lat]);
+    }, 50);
   }
 
   setUserLocation({ lng, lat, accuracy }) {
     if (!this.map || typeof lng !== 'number' || typeof lat !== 'number') return;
     this.userLocation = { lng, lat, accuracy };
-    this.airplaneProgress = 0.0; // Reset starting position to user's location
-    this.generateFlightOrbit();
 
     if (!this.userMarker) {
       const el = document.createElement('div');
@@ -1042,11 +860,7 @@ export class GlobeManager {
       if (badge) badge.textContent = this.currentLanguage === 'en' ? 'My Location' : '我的位置';
     }
 
-    if (this.airplaneMarker) {
-      this.airplaneMarker.setLngLat([lng, lat]);
-    }
     this.hideAirplane();
-
     this.flyToUserLocation();
   }
 

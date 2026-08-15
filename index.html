@@ -105,6 +105,22 @@
     <div id="globe-container"></div>
     <div class="globe-tooltip-card" id="globe-tooltip"></div>
 
+    <!-- Center Screen Standby / Roaming Airplane HUD Overlay -->
+    <div class="globe-center-flight-overlay hidden" id="globe-center-flight-overlay" aria-hidden="true">
+      <div class="center-airplane-rig">
+        <div class="center-airplane-body">
+          <svg class="center-airplane-svg" viewBox="0 0 24 24">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+          </svg>
+          <div class="center-airplane-afterburner"></div>
+        </div>
+        <div class="center-flight-badge">
+          <span class="flight-pulse-dot"></span>
+          <span class="flight-text" data-i18n="flightRoaming">环球漫游飞行中</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ==================== Floating Bottom Dock ==================== -->
     <div class="floating-map-dock">
       <!-- 3D / 2D View Mode Switcher -->
