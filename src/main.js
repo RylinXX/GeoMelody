@@ -349,12 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerIsOpen = document.getElementById('immersive-player')?.classList.contains('active');
     if (!playerIsOpen && isPlaying) {
       miniIsland.classList.add('visible');
+      const track = getDemoTrack(spot);
       miniThumb.src = spot.photos[0];
       miniThumb.alt = getSpotName(spot, currentLanguage);
-      miniName.textContent = getSpotName(spot, currentLanguage);
-      miniDesc.textContent = currentLanguage === LANGUAGES.EN
-        ? t('soundscape', currentLanguage)
-        : (spot.audioRecipe?.scale || t('soundscape', currentLanguage));
+      miniName.textContent = track ? `${track.title} · ${track.creator}` : getSpotName(spot, currentLanguage);
+      miniDesc.textContent = `${getSpotName(spot, currentLanguage)} · ${getSpotLocation(spot, currentLanguage)}`;
     } else {
       miniIsland.classList.remove('visible');
     }
@@ -772,13 +771,33 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   miniIsland?.addEventListener('click', event => {
-    if (!event.target.closest('#mini-play-toggle-btn') && playerManager.currentSpot) {
-      playerManager.openSpot(playerManager.currentSpot, false);
+    if (event.target.closest('#mini-close-btn')) {
+      event.stopPropagation();
+      soundEngine.pause();
+      miniIsland.classList.remove('visible');
+      return;
+    }
+    if (event.target.closest('#mini-play-toggle-btn')) {
+      event.stopPropagation();
+      playerManager.togglePlay();
+      return;
+    }
+    if (playerManager.currentSpot) {
+      playerManager.openSpot(playerManager.currentSpot, true);
     }
   });
-  miniPlayBtn?.addEventListener('click', event => {
+
+  document.getElementById('mini-expand-btn')?.addEventListener('click', event => {
     event.stopPropagation();
-    playerManager.togglePlay();
+    if (playerManager.currentSpot) {
+      playerManager.openSpot(playerManager.currentSpot, true);
+    }
+  });
+
+  document.getElementById('mini-close-btn')?.addEventListener('click', event => {
+    event.stopPropagation();
+    soundEngine.pause();
+    miniIsland?.classList.remove('visible');
   });
   soundEngine.subscribe((event, data) => {
     if (event === 'playStateChange') {

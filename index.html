@@ -154,22 +154,37 @@
       </button>
     </div>
 
-    <!-- ==================== Mini Audio Island ==================== -->
-    <div class="mini-audio-island" id="mini-audio-island">
-      <img id="mini-audio-thumb" src="" alt="Album" class="mini-audio-cover">
-      <div class="mini-audio-info">
-        <span id="mini-audio-name" class="mini-audio-title">西湖烟雨</span>
-        <span id="mini-audio-desc" class="mini-audio-style">五声羽调 · 古筝笛韵</span>
+    <!-- ==================== Mini Audio Island (NetEase Style Floating Audio Bar) ==================== -->
+    <div class="mini-audio-island" id="mini-audio-island" role="region" aria-label="正在播放">
+      <!-- Clickable Track Section (Opens full player) -->
+      <div class="mini-track-clickable" id="mini-track-clickable" title="点击展开全屏视听" role="button" tabindex="0">
+        <img id="mini-audio-thumb" src="" alt="Album" class="mini-audio-cover">
+        <div class="mini-audio-info">
+          <span id="mini-audio-name" class="mini-audio-title">半岛铁盒</span>
+          <span id="mini-audio-desc" class="mini-audio-style">周杰伦 · 厦门鼓浪屿</span>
+        </div>
       </div>
-      <div class="sound-bars-indicator">
+
+      <!-- Wave visualizer bars -->
+      <div class="sound-bars-indicator" id="mini-sound-bars">
         <div class="sound-bar"></div>
         <div class="sound-bar"></div>
         <div class="sound-bar"></div>
         <div class="sound-bar"></div>
       </div>
-      <button class="mini-audio-btn" id="mini-play-toggle-btn" title="播放/暂停" data-i18n-title="playPause" aria-pressed="false">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-      </button>
+
+      <!-- Action Buttons -->
+      <div class="mini-audio-actions">
+        <button class="mini-audio-btn main-play" id="mini-play-toggle-btn" title="播放 / 暂停" data-i18n-title="playPause" aria-pressed="false">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button class="mini-audio-btn expand-btn" id="mini-expand-btn" title="展开全屏播放器" data-i18n-title="explore">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+        </button>
+        <button class="mini-audio-btn close-btn" id="mini-close-btn" title="关闭播放" data-i18n-title="close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
 
     <!-- ==================== Immersive Scenery Audiovisual Player Overlay ==================== -->
