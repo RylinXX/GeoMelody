@@ -43,7 +43,9 @@ export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
-    return { ...DEFAULT_SETTINGS, ...saved };
+    const validSkins = ['streets-dark', 'dataviz-dark', 'satellite', 'backdrop-dark'];
+    const skin = validSkins.includes(saved.mapSkin) ? saved.mapSkin : 'streets-dark';
+    return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin };
   },
 
   saveSettings(settings) {

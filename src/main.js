@@ -49,9 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   try {
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (storedTheme === 'light' || storedTheme === 'dark') currentTheme = storedTheme;
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      currentTheme = storedTheme;
+    } else {
+      currentTheme = 'dark';
+      localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+    }
   } catch {
-    // Storage can be unavailable in privacy-restricted browser contexts.
+    currentTheme = 'dark';
   }
 
   storage.getCommunityPosts().forEach(post => {
