@@ -1,6 +1,7 @@
 import { storage } from '../utils/storage.js';
 import { LANGUAGES, getSpotLocation, getSpotName, t } from '../utils/i18n.js';
 import { getDemoTrack } from '../data/demoTracks.js';
+import { HOT_COMMENTS_DATABASE } from '../data/hotComments.js';
 
 const LOCATION_PRESETS = [
   { id: 'hangzhou', name: '中国 · 杭州西湖', enName: 'China · Hangzhou West Lake', country: '中国', lat: 30.2428, lng: 120.1504 },
@@ -165,10 +166,13 @@ const COMMENT_COLLECTIONS = {
 
 function createSeedComments(spot) {
   const track = getDemoTrack(spot);
-  const collection = COMMENT_COLLECTIONS[track.id] || COMMENT_COLLECTIONS.community;
-  return collection.map((comment, index) => ({
+  const hotList = HOT_COMMENTS_DATABASE[track.id] || COMMENT_COLLECTIONS[track.id] || COMMENT_COLLECTIONS.peaceful;
+  const backupList = COMMENT_COLLECTIONS.community;
+  const fullCollection = [...hotList, ...backupList];
+
+  return fullCollection.map((comment, index) => ({
     ...comment,
-    id: `${spot.id}-${track.id}-editorial-${index + 1}`,
+    id: `${spot.id}-${track.id}-hot-${index + 1}`,
     text: comment.text.replaceAll('{place}', spot.name),
     enText: comment.enText.replaceAll('{placeEn}', spot.enName || spot.name),
     liked: false,

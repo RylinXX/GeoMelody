@@ -2293,7 +2293,9 @@ export const SCENIC_SPOTS = [
     tags: ['世界自然遗产', '大棱镜彩泉', '老忠实间歇泉', '世界首个国家公园', '地热奇观'],
     photos: [
       'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1920&q=85'
     ],
     audioRecipe: {
       style: 'forest_zen',
@@ -2302,6 +2304,484 @@ export const SCENIC_SPOTS = [
       instruments: '民谣吉他 · 班卓琴轻拨 · 间歇泉蒸汽声',
       naturalSound: 'wind',
       prompt: '黄石公园广袤荒野乐章，原声民谣吉他与清风，七彩温泉，天地壮阔'
+    }
+  },
+  // ==================== 8. 经典国家5A/4A景区 (National 5A/4A Scenic Wonders) ====================
+  {
+    id: 'gugong',
+    name: '北京故宫博物院 · 紫禁城',
+    enName: 'Beijing Forbidden City',
+    location: '中国 · 北京市东城区',
+    country: '中国',
+    category: 'town',
+    lat: 39.9163,
+    lng: 116.3971,
+    description: '六百年明清皇家宫殿建筑群，红墙金瓦，重檐飞拱。角楼倒映在护城河的碧波之中，见证着东方文明的皇皇大雅与岁月沉淀。',
+    tags: ['国家5A级景区', '世界文化遗产', '紫禁城', '故宫角楼', '明清宫殿'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1513415564515-763d91423bdd?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1599818817208-16386b86cfbe?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'guzheng_rain',
+      bpm: 65,
+      scale: '宫廷五声商调 · 盛世华章',
+      instruments: '编钟 · 古筝 · 洞箫 · 护城河微波',
+      naturalSound: 'bell',
+      prompt: '故宫红墙金瓦古典中国风纯音、古筝与编钟、恢弘悠扬、历史沉淀'
+    }
+  },
+  {
+    id: 'yiheyuan',
+    name: '北京颐和园 · 万寿山与昆明湖',
+    enName: 'Beijing Summer Palace',
+    location: '中国 · 北京市海淀区',
+    country: '中国',
+    category: 'lake',
+    lat: 39.9998,
+    lng: 116.2755,
+    description: '中国古典皇家园林之巅峰。佛香阁耸立万寿山之巅，十七孔桥金光穿洞，十七道光芒映射在昆明湖波光浩渺之中。',
+    tags: ['国家5A级景区', '世界文化遗产', '皇家园林', '十七孔桥', '万寿山'],
+    photos: [
+      'https://images.unsplash.com/photo-1513415564515-763d91423bdd?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 68,
+      scale: '五声羽调 · 昆明烟波',
+      instruments: '琵琶 · 竹笛 · 湖水拍岸 · 远山清风',
+      naturalSound: 'wind',
+      prompt: '颐和园昆明湖中国风古典音乐、竹笛与琵琶、皇家园林意境、水波荡漾'
+    }
+  },
+  {
+    id: 'badaling',
+    name: '八达岭长城 · 万里长城',
+    enName: 'Badaling Great Wall',
+    location: '中国 · 北京市延庆区',
+    country: '中国',
+    category: 'mountain',
+    lat: 40.3582,
+    lng: 116.0150,
+    description: '不到长城非好汉。宛若巨龙盘踞在崇山峻岭之上，敌楼矗立，烽燧遥望。雄关漫道真如铁，见证了中华民族两千年的雄浑气魄。',
+    tags: ['国家5A级景区', '世界七大奇迹', '万里长城', '八达岭', '雄关漫道'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 72,
+      scale: '大国古风调 · 雄浑磅礴',
+      instruments: '中国大鼓 · 战马嘶鸣泛音 · 苍茫长风',
+      naturalSound: 'wind',
+      prompt: '长城万里壮丽古风纯音、大鼓与弦乐、苍茫群山、雄浑大气'
+    }
+  },
+  {
+    id: 'westlake',
+    name: '杭州西湖 · 断桥残雪与苏堤春晓',
+    enName: 'Hangzhou West Lake',
+    location: '中国 · 浙江杭州',
+    country: '中国',
+    category: 'lake',
+    lat: 30.2428,
+    lng: 120.1504,
+    description: '欲把西湖比西子，淡妆浓抹总相宜。断桥残雪、雷峰夕照、三潭印月，湖山掩映之中，流淌着千百年来最浪漫动人的江南诗篇。',
+    tags: ['国家5A级景区', '世界文化遗产', '断桥残雪', '西湖十景', '雷峰夕照'],
+    photos: [
+      'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1513415564515-763d91423bdd?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'guzheng_rain',
+      bpm: 66,
+      scale: '五声清羽调 · 钱塘韵',
+      instruments: '古筝 · 洞箫 · 细雨湖波 · 晚钟微鸣',
+      naturalSound: 'rain',
+      prompt: '西湖断桥江南烟雨中国风、古筝独奏、轻柔舒缓、微风水波、静心治愈'
+    }
+  },
+  {
+    id: 'huangshan',
+    name: '安徽黄山 · 迎客松与云海奇观',
+    enName: 'Mount Huangshan',
+    location: '中国 · 安徽黄山',
+    country: '中国',
+    category: 'mountain',
+    lat: 30.1319,
+    lng: 118.1694,
+    description: '五岳归来不看山，黄山归来不看岳。奇松、怪石、云海、温泉、冬雪五绝冠绝天下，破石而出的迎客松傲立悬崖，风骨绝伦。',
+    tags: ['国家5A级景区', '世界文化与自然双遗产', '迎客松', '黄山云海', '天下第一奇山'],
+    photos: [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 64,
+      scale: '五声角调 · 云海仙境',
+      instruments: '古琴 · 竖琴泛音 · 崇山松风',
+      naturalSound: 'wind',
+      prompt: '黄山云海仙侠意境纯乐、古琴独奏、松风阵阵、空灵超拔、东方美学'
+    }
+  },
+  {
+    id: 'taishan',
+    name: '山东泰山 · 封禅极顶与日出东方',
+    enName: 'Mount Tai',
+    location: '中国 · 山东泰安',
+    country: '中国',
+    category: 'mountain',
+    lat: 36.2550,
+    lng: 117.1060,
+    description: '五岳之首，天下第一山。登泰山而小天下，十八盘陡峭入云，玉皇顶云海日出染红万重山峰，承载着中华民族的精神图腾。',
+    tags: ['国家5A级景区', '世界文化与自然双遗产', '五岳独尊', '十八盘', '泰山日出'],
+    photos: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 70,
+      scale: '齐鲁大岳调 · 岱宗气象',
+      instruments: '大鼓泛音 · 编磬 · 朝阳长风',
+      naturalSound: 'wind',
+      prompt: '泰山极顶日出壮阔乐章、东方古风、日出云海、恢弘沉稳'
+    }
+  },
+  {
+    id: 'gulangyu',
+    name: '厦门鼓浪屿 · 日光岩与琴岛海韵',
+    enName: 'Gulangyu Island',
+    location: '中国 · 福建厦门',
+    country: '中国',
+    category: 'island',
+    lat: 24.4485,
+    lng: 118.0674,
+    description: '海上花园，音乐之岛。日光岩顶俯瞰万国建筑红瓦绿树，菽庄花园听海浪拍击礁石，转角小巷里传来悠扬的钢琴与海风声。',
+    tags: ['国家5A级景区', '世界文化遗产', '钢琴之岛', '日光岩', '万国建筑'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_wave',
+      bpm: 72,
+      scale: '海滨大调 · 琴岛浪漫',
+      instruments: '钢琴 · 尤克里里 · 碧浪拍岸 · 海鸥啼鸣',
+      naturalSound: 'ocean',
+      prompt: '鼓浪屿海岛钢琴曲，海浪拍岸，海风拂面，轻快治愈，夏日浪漫'
+    }
+  },
+  {
+    id: 'guilin',
+    name: '桂林漓江 · 象鼻山与二十元人民币胜景',
+    enName: 'Guilin Li River & Elephant Trunk Hill',
+    location: '中国 · 广西桂林',
+    country: '中国',
+    category: 'lake',
+    lat: 25.2685,
+    lng: 110.2980,
+    description: '桂林山水甲天下，阳朔堪称甲桂林。水绕青山山绕水，烟雨漓江之上，竹筏轻泛，渔舟唱晚，宛若行进在百里水墨画卷之中。',
+    tags: ['国家5A级景区', '世界自然遗产', '象鼻山', '二十元背景图', '漓江竹筏'],
+    photos: [
+      'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'guzheng_rain',
+      bpm: 66,
+      scale: '五声羽调 · 漓江水韵',
+      instruments: '竹笛 · 芦笙 · 渔舟橹声 · 漓江清波',
+      naturalSound: 'rain',
+      prompt: '桂林山水漓江竹筏水墨古风纯乐、竹笛与古筝、烟雨江南、水波荡漾'
+    }
+  },
+  {
+    id: 'wudang',
+    name: '湖北武当山 · 天柱峰绝顶金殿',
+    enName: 'Mount Wudang Golden Summit',
+    location: '中国 · 湖北十堰',
+    country: '中国',
+    category: 'mountain',
+    lat: 32.4000,
+    lng: 111.0000,
+    description: '亘古无双胜境，天下第一仙山。道教圣地与太极故里，天柱峰顶铜铸鎏金大殿屹立六百年不坏，云海浩瀚，松风悠扬。',
+    tags: ['国家5A级景区', '世界文化遗产', '道教圣地', '太极发源地', '金顶云海'],
+    photos: [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 60,
+      scale: '道家五声微音 · 太极清虚',
+      instruments: '古琴 · 埙 · 道观晨钟 · 仙山长风',
+      naturalSound: 'bell',
+      prompt: '武当山太极道家仙韵纯乐、古琴独奏、晨钟暮鼓、空灵脱俗、静修养心'
+    }
+  },
+  {
+    id: 'chaka',
+    name: '青海茶卡盐湖 · 天空之镜',
+    enName: 'Chaka Salt Lake',
+    location: '中国 · 青海海西',
+    country: '中国',
+    category: 'lake',
+    lat: 36.6961,
+    lng: 99.0760,
+    description: '中国的天空之镜。赤脚漫步在纯白如雪的盐晶湖面，水天一色，白云与雪山倒映在脚下，仿佛行走在天地间的纯净幻境。',
+    tags: ['国家5A级景区', '天空之镜', '盐湖小火车', '水天一色', '大美青海'],
+    photos: [
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 64,
+      scale: '天空之镜调 · 432Hz',
+      instruments: '清透钢琴 · 氛围合成器 · 高原微风',
+      naturalSound: 'wind',
+      prompt: '茶卡盐湖天空之镜纯净钢琴曲、水天一色、空灵透彻、极简治愈'
+    }
+  },
+  {
+    id: 'sayram',
+    name: '新疆赛里木湖 · 大西洋最后一滴眼泪',
+    enName: 'Sayram Lake',
+    location: '中国 · 新疆博尔塔拉',
+    country: '中国',
+    category: 'lake',
+    lat: 44.6000,
+    lng: 81.1667,
+    description: '大西洋暖湿气流最后眷顾的高山明珠。湛蓝如宝石的湖水拍击着草甸，远处天山雪峰傲立，初夏时节漫山野花盛放，宛若人间净土。',
+    tags: ['国家5A级景区', '大西洋最后一滴眼泪', '高山冷水湖', '果子沟大桥', '天山明珠'],
+    photos: [
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 68,
+      scale: '西域风雅调 · 纯蓝之境',
+      instruments: '冬不拉 · 木吉他 · 湖浪拍岸 · 高原清风',
+      naturalSound: 'ocean',
+      prompt: '赛里木湖湛蓝湖水抒情乐章、冬不拉与木吉他、辽阔大美新疆、纯净安详'
+    }
+  },
+  {
+    id: 'kanas',
+    name: '新疆喀纳斯 · 神的花园与月亮湾',
+    enName: 'Kanas Lake & Moon Bay',
+    location: '中国 · 新疆阿勒泰',
+    country: '中国',
+    category: 'forest',
+    lat: 48.7180,
+    lng: 87.0380,
+    description: '阿尔泰山深处的人间仙境。月亮湾如一弯翡翠镶嵌在金色白桦林中，晨雾蒸腾，图瓦人木屋炊烟袅袅，宛若童话世界。',
+    tags: ['国家5A级景区', '国家地质公园', '月亮湾', '白哈巴村', '秋日童话'],
+    photos: [
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 65,
+      scale: '阿尔泰图瓦调 · 晨雾林海',
+      instruments: '苏尔管 · 马头琴 · 喀纳斯水流声',
+      naturalSound: 'wind',
+      prompt: '喀纳斯秋日森林纯乐、苏尔管与马头琴、图瓦村落、晨雾弥漫、治愈悠扬'
+    }
+  },
+  {
+    id: 'zhangye',
+    name: '甘肃张掖七彩丹霞 · 上帝打翻的调色盘',
+    enName: 'Zhangye Rainbow Danxia',
+    location: '中国 · 甘肃张掖',
+    country: '中国',
+    category: 'desert',
+    lat: 38.9750,
+    lng: 100.1417,
+    description: '大自然最浓墨重彩的奇迹。红、黄、橙、绿、白各色岩层在夕阳照耀下层峦叠嶂，如锦绣彩绸披覆在祁连山麓之间。',
+    tags: ['国家5A级景区', '世界地质公园', '七彩丹霞', '丝绸之路', '丹霞奇观'],
+    photos: [
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_oasis',
+      bpm: 72,
+      scale: '丝路古调 · 七彩壮美',
+      instruments: '琵琶轮指 · 箫 · 戈壁热风',
+      naturalSound: 'wind',
+      prompt: '张掖七彩丹霞丝路古风纯乐、琵琶与大漠长风、壮丽晚霞、色彩斑斓'
+    }
+  },
+  {
+    id: 'potala',
+    name: '西藏拉萨布达拉宫 · 雪域圣殿',
+    enName: 'Lhasa Potala Palace',
+    location: '中国 · 西藏拉萨',
+    country: '中国',
+    category: 'mountain',
+    lat: 29.6578,
+    lng: 91.1172,
+    description: '世界上海拔最高的古代宫堡建筑群。红白相间的宫殿巍峨耸立在红山之巅，金顶在雪域高原阳光下熠熠生辉，经筒转动，信仰永恒。',
+    tags: ['国家5A级景区', '世界文化遗产', '雪域圣殿', '拉萨地标', '布达拉宫金顶'],
+    photos: [
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 60,
+      scale: '藏地圣乐调 · 432Hz',
+      instruments: '铜钦法号 · 诵经泛音 · 藏族弦子 · 高原长风',
+      naturalSound: 'bell',
+      prompt: '布达拉宫雪域神圣纯音乐、藏族弦子与铜钦、庄严静谧、洗涤心灵'
+    }
+  },
+  {
+    id: 'pudacuo',
+    name: '香格里拉普达措国家公园 · 碧塔海与属都湖',
+    enName: 'Shangri-La Pudacuo National Park',
+    location: '中国 · 云南迪庆',
+    country: '中国',
+    category: 'forest',
+    lat: 27.8285,
+    lng: 99.9880,
+    description: '大陆首个国家公园。原始高山针叶林环抱着如镜湖泊，杜鹃花海与水草草甸相映生辉，黑颈鹤与野鸭自在游弋，心中永恒的香格里拉。',
+    tags: ['国家5A级景区', '国家公园', '碧塔海', '属都湖', '香格里拉秘境'],
+    photos: [
+      'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'forest_zen',
+      bpm: 65,
+      scale: '高原森林调 · 纯净生灵',
+      instruments: '木吉他 · 藏笛 · 鸟鸣幽谷 · 湖水涟漪',
+      naturalSound: 'birds',
+      prompt: '香格里拉普达措高山森林纯音、木吉他与清脆鸟鸣、原始森林、纯净治愈'
+    }
+  },
+  {
+    id: 'wuzhizhou',
+    name: '三亚蜈支洲岛 · 中国马尔代夫',
+    enName: 'Wuzhizhou Island Sanya',
+    location: '中国 · 海南三亚',
+    country: '中国',
+    category: 'island',
+    lat: 18.3150,
+    lng: 109.7600,
+    description: '中国第一潜水胜地。海水清澈透明达27米，情人桥远眺碧海蓝天，热带珊瑚礁鱼群嬉戏穿梭，椰影婆娑，海风沉醉。',
+    tags: ['国家5A级景区', '海岛度假', '潜水胜地', '情人桥', '热带风情'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_wave',
+      bpm: 76,
+      scale: '热带海岛大调 · 阳光假期',
+      instruments: '尤克里里 · 钢鼓 · 蔚蓝浪花',
+      naturalSound: 'ocean',
+      prompt: '三亚蜈支洲岛热带阳光海浪音乐、尤克里里与海浪声、清爽快乐、度假放松'
+    }
+  },
+  {
+    id: 'qiandaohu',
+    name: '浙江千岛湖 · 碧水千岛奇观',
+    enName: 'Qiandao Lake Thousand Island',
+    location: '中国 · 浙江杭州淳安',
+    country: '中国',
+    category: 'lake',
+    lat: 29.6060,
+    lng: 119.0430,
+    description: '天下第一秀水。1078座翠绿岛屿宛若珍珠散落在碧波万顷的湖面之上，水质清洌见底，游船划破平静水面，画中游历。',
+    tags: ['国家5A级景区', '天下第一秀水', '千岛奇观', '梅峰揽胜', '山水画廊'],
+    photos: [
+      'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'lake_zen',
+      bpm: 68,
+      scale: '江南秀水调 · 432Hz',
+      instruments: '古筝 · 竹笛 · 碧波微澜',
+      naturalSound: 'rain',
+      prompt: '千岛湖碧波千岛中国风轻音乐、竹笛与古筝、水清秀美、心旷神怡'
+    }
+  },
+  {
+    id: 'zhuozhengyuan',
+    name: '苏州拙政园 · 江南古典园林之母',
+    enName: 'Humble Administrator’s Garden Suzhou',
+    location: '中国 · 江苏苏州',
+    country: '中国',
+    category: 'town',
+    lat: 31.3250,
+    lng: 120.6270,
+    description: '中国四大名园之首。借景有方，咫尺之内再造乾坤。远香堂倚荷听风，三十六鸳鸯馆倒影浮光，吴侬软语在回廊水榭间低回流转。',
+    tags: ['国家5A级景区', '世界文化遗产', '四大名园', '拙政园', '东方园林美学'],
+    photos: [
+      'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'guzheng_rain',
+      bpm: 65,
+      scale: '苏派昆曲调 · 雅致留白',
+      instruments: '昆笛 · 琵琶 · 假山飞瀑滴水',
+      naturalSound: 'rain',
+      prompt: '苏州园林古典雅乐纯音、昆笛与琵琶、亭台楼阁、江南雅致、回味悠长'
+    }
+  },
+  {
+    id: 'fuzimiao',
+    name: '南京夫子庙 · 秦淮河风光带',
+    enName: 'Nanjing Qinhuai River & Confucius Temple',
+    location: '中国 · 江苏南京',
+    country: '中国',
+    category: 'city',
+    lat: 32.0200,
+    lng: 118.7880,
+    description: '六朝金粉地，十里秦淮河。画舫凌波穿过文德桥，大成殿孔庙庄严，两岸雕梁画栋灯火辉煌，诉说着金陵千年文脉与六朝繁华。',
+    tags: ['国家5A级景区', '十里秦淮', '夫子庙', '六朝古都', '夜游画舫'],
+    photos: [
+      'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'city_night',
+      bpm: 72,
+      scale: '金陵华灯调 · 诗意夜色',
+      instruments: '二胡 · 琵琶 · 秦淮河水声',
+      naturalSound: 'rain',
+      prompt: '南京十里秦淮夜色国风纯乐、二胡与琵琶、画舫灯影、六朝烟雨、繁华与温婉'
     }
   }
 ];
