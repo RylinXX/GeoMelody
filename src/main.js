@@ -791,16 +791,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   autoTourBtn?.addEventListener('click', () => {
-    const isActive = playerManager.toggleAutoTour();
-    autoTourBtn.classList.toggle('primary', isActive);
-    autoTourBtn.setAttribute('aria-pressed', String(isActive));
+    const isRoaming = globeManager.toggleRoamingMode();
+    autoTourBtn.classList.toggle('primary', isRoaming);
+    autoTourBtn.setAttribute('aria-pressed', String(isRoaming));
     if (autoTourText) {
-      autoTourText.textContent = isActive ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
-    }
-    if (isActive) {
-      globeManager.startRoamingMode();
-    } else {
-      globeManager.stopRoamingMode();
+      autoTourText.textContent = isRoaming ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
     }
   });
 

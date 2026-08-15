@@ -819,13 +819,28 @@ export class GlobeManager {
     }
   }
 
+  toggleRoamingMode() {
+    if (this.isRoaming) {
+      this.stopRoamingMode();
+      return false;
+    } else {
+      this.startRoamingMode();
+      return true;
+    }
+  }
+
   startRoamingMode() {
     this.isRoaming = true;
+    this.rotationPausedUntil = 0;
     this.showAirplane();
+    if (!this.rotationTimer) {
+      this.startAutoRotation();
+    }
   }
 
   stopRoamingMode() {
     this.isRoaming = false;
+    this.pauseRotation(5000);
     this.hideAirplane();
   }
 
