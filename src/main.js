@@ -824,7 +824,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    showToast(t('locating', currentLanguage));
     locateBtn.classList.add('loading');
 
     navigator.geolocation.getCurrentPosition(
@@ -835,27 +834,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const accuracy = position.coords.accuracy;
 
         globeManager.setUserLocation({ lng, lat, accuracy });
-
-        // Find nearest scenic spot
-        let closestSpot = null;
-        let minDistance = Infinity;
-
-        SCENIC_SPOTS.forEach(spot => {
-          const dist = calculateDistanceKm(lat, lng, spot.lat, spot.lng);
-          if (dist < minDistance) {
-            minDistance = dist;
-            closestSpot = spot;
-          }
-        });
-
-        if (closestSpot && minDistance < 12000) {
-          showToast(t('locateSuccess', currentLanguage, {
-            name: getSpotName(closestSpot, currentLanguage),
-            distance: minDistance
-          }));
-        } else {
-          showToast(t('locateSuccessSimple', currentLanguage));
-        }
       },
       error => {
         locateBtn.classList.remove('loading');
