@@ -111,19 +111,18 @@ export class GlobeManager {
   }
 
   async getResolvedStyle(skin = 'streets-dark') {
+    const targetSkin = skin === 'dataviz-light' ? 'streets-dark' : skin;
     if (!this.usingMapTilerCloud) {
-      return await fetchAndLocalizeStyle(skin, this.currentLanguage, false);
+      return await fetchAndLocalizeStyle(targetSkin, this.currentLanguage, false);
     }
 
-    switch (skin) {
+    switch (targetSkin) {
       case 'streets-dark':
         return MapStyle.STREETS.DARK;
       case 'dataviz-dark':
         return MapStyle.DATAVIZ.DARK;
       case 'backdrop-dark':
         return MapStyle.BACKDROP.DARK;
-      case 'dataviz-light':
-        return MapStyle.DATAVIZ.LIGHT;
       case 'satellite':
         return MapStyle.SATELLITE;
       default:
@@ -556,11 +555,10 @@ export class GlobeManager {
     }
   }
 
-  setTheme(theme) {
-    if (theme !== 'light' && theme !== 'dark') return;
-    this.currentTheme = theme;
-    const skin = theme === 'light' ? 'dataviz-light' : 'streets-dark';
-    this.applyMapSettings({ mapSkin: skin });
+  setTheme(theme = 'dark') {
+    this.currentTheme = 'dark';
+    const skin = this.mapSettings.mapSkin || 'streets-dark';
+    this.applyMapSettings({ mapSkin: skin === 'dataviz-light' ? 'streets-dark' : skin });
   }
 
   flyToSpot(spot, zoom) {

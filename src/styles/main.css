@@ -1116,7 +1116,25 @@ button, input {
   .top-nav { padding-inline: 12px; }
   .brand-sub { display: none; }
   .nav-btn-label { display: none; }
-  .nav-btn { width: 38px; padding: 0; }
+  .nav-btn { width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .fav-nav-btn {
+    position: relative;
+  }
+  .fav-nav-btn .fav-count-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 15px;
+    height: 15px;
+    line-height: 15px;
+    padding: 0 3px;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 99px;
+    background: #fb7185;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(251, 113, 133, 0.6);
+  }
   .language-toggle { width: 62px; padding-inline: 8px; }
   .search-input { width: 140px; }
   .search-input:focus { width: 180px; }
@@ -1135,10 +1153,11 @@ button, input {
   .brand-logo-img { width: 32px; height: 32px; }
   .nav-actions { gap: 6px; }
   .search-box-wrapper { display: none; }
-  .language-toggle { width: 58px; }
-  .floating-map-dock { width: max-content; max-width: calc(100vw - 24px); }
-  .dock-btn { padding-inline: 11px; }
-  .drawer-header, .drawer-body { padding-left: 18px; padding-right: 18px; }
+  .language-toggle { width: 56px; }
+  .floating-map-dock { width: max-content; max-width: calc(100vw - 20px); gap: 4px; padding: 6px 8px; }
+  .dock-btn { padding: 6px 9px; }
+  .dock-btn span { display: none; }
+  .drawer-header, .drawer-body { padding-left: 16px; padding-right: 16px; }
 }
 
 /* ==================== Settings Drawer Styling ==================== */

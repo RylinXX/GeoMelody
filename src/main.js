@@ -498,19 +498,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
   }
 
-  function applyTheme(nextTheme = currentTheme) {
-    currentTheme = nextTheme;
+  function applyTheme(nextTheme = 'dark') {
+    currentTheme = 'dark';
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+      localStorage.setItem(THEME_STORAGE_KEY, 'dark');
     } catch {}
-    document.documentElement.dataset.theme = currentTheme;
-    document.documentElement.style.colorScheme = currentTheme;
-    globeManager.setTheme(currentTheme);
-    const themeTitle = t(currentTheme === 'dark' ? 'switchLightTheme' : 'switchDarkTheme', currentLanguage);
+    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.style.colorScheme = 'dark';
+    globeManager.setTheme('dark');
+    const themeTitle = '经典深色暗夜';
     [themeBtn, playerThemeBtn].forEach(btn => {
       if (!btn) return;
-      btn.classList.toggle('is-light', currentTheme === 'light');
-      btn.setAttribute('aria-pressed', String(currentTheme === 'light'));
+      btn.classList.remove('is-light');
+      btn.setAttribute('aria-pressed', 'false');
       btn.setAttribute('title', themeTitle);
       btn.setAttribute('aria-label', themeTitle);
     });
@@ -521,7 +521,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleTheme() {
-    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    applyTheme('dark');
+    showToast(currentLanguage === LANGUAGES.EN ? 'Classic Dark Theme active' : '已保持经典暗夜主题');
   }
 
   languageBtn?.addEventListener('click', toggleLanguage);

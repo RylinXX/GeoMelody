@@ -270,15 +270,17 @@
             <!-- Quick Interactive Comment Form -->
             <form class="player-comment-quick-form" id="player-comment-form">
               <div class="comment-author-row">
-                <span class="comment-avatar-preview" id="player-user-avatar">🏮</span>
+                <span class="comment-avatar-preview" id="player-user-avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
                 <input type="text" id="player-comment-author-input" class="comment-author-input" maxlength="16" placeholder="你的昵称" data-i18n-placeholder="creatorPlaceholder">
               </div>
               <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下你的聆听感受、旅行记忆与寄语…" data-i18n-placeholder="commentPlaceholder"></textarea>
               <div class="comment-quick-tags" id="player-quick-tags">
-                <button type="button" class="quick-tag-chip" data-tag="极度舒适">✨ 极度舒适</button>
-                <button type="button" class="quick-tag-chip" data-tag="治愈身心">🌿 治愈身心</button>
-                <button type="button" class="quick-tag-chip" data-tag="循环播放">🎧 循环播放</button>
-                <button type="button" class="quick-tag-chip" data-tag="想去打卡">📸 想去打卡</button>
+                <button type="button" class="quick-tag-chip" data-tag="极度舒适">极度舒适</button>
+                <button type="button" class="quick-tag-chip" data-tag="治愈身心">治愈身心</button>
+                <button type="button" class="quick-tag-chip" data-tag="循环播放">循环播放</button>
+                <button type="button" class="quick-tag-chip" data-tag="想去打卡">想去打卡</button>
               </div>
               <div class="comment-form-actions">
                 <button type="submit" class="comment-submit-btn">

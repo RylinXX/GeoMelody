@@ -452,7 +452,7 @@ export class CommunityManager {
     if (nameElement) nameElement.textContent = name;
     if (locationElement) locationElement.textContent = `${location} · ♫ ${getDemoTrack(spot).title}`;
     this.renderEngagement();
-    if (this.activeTab === 'comments') this.renderComments();
+    this.renderComments();
   }
 
   renderEngagement() {
@@ -566,7 +566,7 @@ export class CommunityManager {
             <div class="player-comment-card">
               <div class="comment-card-header">
                 <div class="comment-author-info">
-                  <span class="comment-avatar">🏮</span>
+                  <span class="comment-avatar" style="--avatar-hue:${avatarHue(author)}">${escapeHtml(author).slice(0, 1).toUpperCase()}</span>
                   <span class="comment-author-name">${escapeHtml(author)}</span>
                   <span class="comment-time">${date}</span>
                 </div>

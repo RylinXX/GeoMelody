@@ -796,8 +796,8 @@
   .player-bottom-layout {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    margin-bottom: 76px;
+    gap: 10px;
+    margin-bottom: 74px;
   }
   .player-story-card {
     width: 100%;
@@ -807,42 +807,149 @@
   .player-floating-comments {
     width: 100%;
     max-width: 100%;
-    max-height: 240px;
+    max-height: 220px;
     padding: 12px 14px;
   }
 }
 
 @media (max-width: 768px) {
   .player-ui-layer {
-    padding: 16px;
+    padding: 14px;
+  }
+  .player-top-header {
+    gap: 8px;
+  }
+  .player-meta-group {
+    max-width: calc(100vw - 140px);
+    gap: 4px;
   }
   .player-spot-title {
-    font-size: 22px;
-    max-width: calc(100vw - 120px);
+    font-size: 20px;
   }
-  .player-top-actions { gap: 6px; }
-  .player-action-btn { width: 38px; height: 38px; }
+  .player-spot-en-title {
+    font-size: 11px;
+  }
+  .spot-coordinates-pill {
+    font-size: 10.5px;
+    padding: 2px 8px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .player-top-actions {
+    gap: 4px;
+  }
+  .player-action-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .player-bottom-layout {
+    margin-bottom: 68px;
+    gap: 8px;
+  }
+  .player-story-card {
+    padding: 10px 14px;
+    gap: 8px;
+  }
   .story-quote {
     font-size: 12px;
     line-height: 1.5;
   }
+  .audio-recipe-box {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+  .player-floating-comments {
+    padding: 10px 12px;
+    max-height: 200px;
+    gap: 8px;
+  }
+  .player-comments-stream {
+    max-height: 90px;
+    gap: 6px;
+  }
+  .player-comment-card {
+    padding: 6px 8px;
+  }
+  .comment-textarea {
+    font-size: 11.5px;
+    padding: 6px 8px;
+  }
+  .quick-tag-chip {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
   .player-control-island {
-    bottom: 14px;
-    padding: 6px 14px;
+    bottom: 12px;
+    padding: 5px 12px;
     gap: 8px;
   }
   .dock-volume-group {
     display: none;
   }
   .scenery-photo-dots {
-    right: 12px;
+    right: 8px;
+    gap: 6px;
+  }
+  .scenery-dot {
+    width: 6px;
+    height: 6px;
+  }
+  .scenery-dot.active {
+    height: 18px;
   }
 }
 
 @media (max-width: 560px) {
-  .player-top-header { gap: 12px; }
-  .player-top-actions { display: grid; grid-template-columns: repeat(3, 38px); }
-  .player-spot-title { max-width: calc(100vw - 170px); }
-  .spot-coordinates-pill { max-width: calc(100vw - 180px); line-height: 1.5; }
-  .audio-recipe-title { align-items: flex-start; gap: 12px; }
+  .player-ui-layer {
+    padding: 10px;
+  }
+  .player-top-header {
+    align-items: flex-start;
+  }
+  .player-meta-group {
+    max-width: calc(100vw - 120px);
+  }
+  .player-spot-title {
+    font-size: 17px;
+  }
+  .player-top-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .player-action-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .player-story-card {
+    max-height: 110px;
+    overflow-y: auto;
+  }
+  .player-floating-comments {
+    max-height: 180px;
+  }
+  .player-comments-stream {
+    max-height: 75px;
+  }
+  .player-control-island {
+    bottom: 8px;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+  .player-main-play-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .player-main-play-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+  .player-secondary-btn {
+    padding: 5px;
+  }
+  .player-secondary-btn svg {
+    width: 16px;
+    height: 16px;
+  }
 }
