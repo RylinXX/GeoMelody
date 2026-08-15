@@ -402,8 +402,8 @@ export class GlobeManager {
           source: SPOT_SOURCE_ID,
           paint: {
             'circle-color': '#ffffff',
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 22, 6, 30, 12, 38],
-            'circle-opacity': 0.0001,
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 36, 6, 48, 12, 60],
+            'circle-opacity': 0.01,
             'circle-pitch-alignment': 'viewport'
           }
         });
@@ -466,7 +466,7 @@ export class GlobeManager {
 
     const interactiveLayers = [SPOT_HIT_LAYER_ID, SPOT_CORE_LAYER_ID, SPOT_HALO_LAYER_ID, SPOT_GLOW_LAYER_ID];
 
-    const findSpotAtPoint = (point, buffer = 36) => {
+    const findSpotAtPoint = (point, buffer = 52) => {
       if (!point || typeof point.x !== 'number') return null;
 
       // 1. Layer feature query (most accurate on rendered canvas)
@@ -491,9 +491,20 @@ export class GlobeManager {
       // 2. Direct screen projection check
       let closestSpot = null;
       let minDistance = buffer * buffer;
+      const center = this.map.getCenter();
+      const lat1 = center.lat * Math.PI / 180;
+      const lon1 = center.lng * Math.PI / 180;
 
       for (const spot of this.spots) {
         if (this.currentCategory !== 'all' && spot.category !== this.currentCategory) continue;
+
+        // In 3D globe mode, ensure spot is on the front side of the earth facing camera
+        if (this.viewMode === '3d') {
+          const lat2 = spot.lat * Math.PI / 180;
+          const lon2 = spot.lng * Math.PI / 180;
+          const cosAngle = Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+          if (cosAngle <= 0.05) continue;
+        }
 
         try {
           const spotPoint = this.map.project([spot.lng, spot.lat]);
@@ -511,7 +522,7 @@ export class GlobeManager {
     };
 
     this.map.on('mousemove', event => {
-      const spot = findSpotAtPoint(event.point, 22);
+      const spot = findSpotAtPoint(event.point, 24);
       if (spot) {
         this.map.getCanvas().style.cursor = 'pointer';
         this.showTooltip(spot, event.point);
@@ -551,7 +562,7 @@ export class GlobeManager {
 
     // Map General Click / Tap (Desktop & Mobile)
     this.map.on('click', (event) => {
-      const spot = findSpotAtPoint(event.point, 38);
+      const spot = findSpotAtPoint(event.point, 52);
       if (spot) {
         selectSpot(spot);
       } else {
@@ -561,31 +572,31 @@ export class GlobeManager {
       }
     });
 
-    // Mobile Container Touch Tap Handling
-    const container = this.map.getContainer();
+    // Mobile Canvas Touch Tap Handling
+    const canvas = this.map.getCanvas();
     let touchStartPt = null;
     let touchStartT = 0;
 
-    container?.addEventListener('touchstart', (e) => {
+    canvas?.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         touchStartPt = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         touchStartT = Date.now();
       }
     }, { passive: true });
 
-    container?.addEventListener('touchend', (e) => {
+    canvas?.addEventListener('touchend', (e) => {
       if (touchStartPt && e.changedTouches.length === 1) {
         const dx = e.changedTouches[0].clientX - touchStartPt.x;
         const dy = e.changedTouches[0].clientY - touchStartPt.y;
         const dt = Date.now() - touchStartT;
-        // Clean tap within 450ms and moved < 16px
-        if (Math.hypot(dx, dy) < 16 && dt < 450) {
-          const rect = container.getBoundingClientRect();
+        // Clean tap within 450ms and moved < 18px
+        if (Math.hypot(dx, dy) < 18 && dt < 450) {
+          const rect = canvas.getBoundingClientRect();
           const point = {
             x: e.changedTouches[0].clientX - rect.left,
             y: e.changedTouches[0].clientY - rect.top
           };
-          const spot = findSpotAtPoint(point, 45);
+          const spot = findSpotAtPoint(point, 56);
           if (spot) {
             selectSpot(spot);
           }
