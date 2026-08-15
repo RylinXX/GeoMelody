@@ -209,7 +209,31 @@
 }
 
 .player-theme-btn {
-  color: var(--accent-amber);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-theme-btn .theme-icon-sun {
+  display: block;
+  color: #f59e0b;
+  width: 18px;
+  height: 18px;
+}
+
+.player-theme-btn .theme-icon-moon {
+  display: none;
+  color: #818cf8;
+  width: 18px;
+  height: 18px;
+}
+
+:root[data-theme="light"] .player-theme-btn .theme-icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] .player-theme-btn .theme-icon-moon {
+  display: block;
 }
 
 /* --- Center Right: Photo Gallery Switcher Dot Indicators --- */
