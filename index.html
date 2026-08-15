@@ -251,10 +251,17 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
             </button>
 
+            <!-- Gallery Drawer Toggle -->
+            <button class="player-action-btn" id="player-gallery-btn" title="胜景图集与共创" data-i18n-title="galleryTitle" aria-label="图集">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+              </svg>
+            </button>
+
             <!-- Share Button -->
             <button class="player-action-btn" id="player-share-btn" title="复制视听分享链接" data-i18n-title="shareSpot">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x1="12" y1="2" y2="15"/>
               </svg>
             </button>
 
@@ -360,11 +367,86 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
             <span data-i18n="storyTab">介绍</span>
           </button>
+          <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-gallery">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span data-i18n="galleryTab">图集</span>
+            <span class="mobile-pill-badge" id="mobile-gallery-badge">0</span>
+          </button>
           <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-comments">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span data-i18n="commentsTab">评论</span>
             <span class="mobile-pill-badge" id="mobile-comments-badge">0</span>
           </button>
+        </div>
+
+        <!-- ==================== Scenery Photo Gallery & Community Contribution Modal ==================== -->
+        <div class="player-gallery-modal" id="player-gallery-modal" aria-hidden="true" role="dialog" aria-label="胜景图集">
+          <div class="gallery-modal-backdrop" id="gallery-modal-backdrop"></div>
+          <div class="gallery-modal-panel">
+            <div class="gallery-modal-header">
+              <div class="gallery-title-group">
+                <h3 class="gallery-title">
+                  <span data-i18n="spotGalleryTitle">胜景图集</span>
+                  <span class="gallery-count-badge" id="gallery-count-badge">0 张</span>
+                </h3>
+                <span class="gallery-subtitle" id="gallery-spot-name">乌镇水乡 · 壁纸与共创</span>
+              </div>
+              <div class="gallery-header-actions">
+                <button type="button" class="gallery-upload-trigger-btn" id="btn-open-gallery-upload">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                  <span data-i18n="uploadWallpaper">上传壁纸</span>
+                </button>
+                <button type="button" class="gallery-modal-close" id="btn-close-gallery-modal" aria-label="关闭图集">✕</button>
+              </div>
+            </div>
+
+            <!-- Gallery Body with Views: [图集列表] / [上传新壁纸] -->
+            <div class="gallery-modal-body">
+              <!-- View 1: Gallery Grid -->
+              <div class="gallery-view-grid" id="gallery-view-grid">
+                <div class="gallery-cards-grid" id="gallery-cards-container">
+                  <!-- Dynamically populated photo cards with photographer info & active wallpaper indicator -->
+                </div>
+              </div>
+
+              <!-- View 2: Upload New Photo Form -->
+              <div class="gallery-view-upload" id="gallery-view-upload" style="display: none;">
+                <form class="gallery-upload-form" id="gallery-upload-form">
+                  <div class="gallery-upload-dropzone" id="gallery-dropzone">
+                    <input type="file" id="gallery-file-input" accept="image/*" class="hidden-file-input" required>
+                    <div class="dropzone-preview" id="gallery-file-preview" style="display: none;">
+                      <img id="gallery-preview-img" src="" alt="Preview">
+                      <button type="button" class="dropzone-remove-btn" id="btn-gallery-remove-file">✕</button>
+                    </div>
+                    <div class="dropzone-prompt" id="gallery-dropzone-prompt">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                      <strong>点击或拖拽上传胜景高清壁纸</strong>
+                      <span>支持 JPG, PNG, WebP · 建议横向 16:9 高清图</span>
+                    </div>
+                  </div>
+
+                  <div class="gallery-form-fields">
+                    <label class="gallery-field-group">
+                      <span class="field-label" data-i18n="photographerNickname">摄影师 / 贡献者昵称</span>
+                      <input type="text" id="gallery-author-input" class="modern-input" maxlength="20" placeholder="你的摄影昵称" data-i18n-placeholder="creatorPlaceholder">
+                    </label>
+                    <label class="gallery-field-group">
+                      <span class="field-label" data-i18n="photoCaption">壁纸故事 / 拍摄地点</span>
+                      <input type="text" id="gallery-caption-input" class="modern-input" maxlength="40" placeholder="例如：清晨断桥残雪的一抹阳光" data-i18n-placeholder="photoCaptionPlaceholder">
+                    </label>
+                  </div>
+
+                  <div class="gallery-form-actions">
+                    <button type="button" class="gallery-cancel-btn" id="btn-cancel-gallery-upload" data-i18n="cancel">取消</button>
+                    <button type="submit" class="gallery-submit-btn" id="btn-submit-gallery-photo">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <span data-i18n="submitToGallery">加入当前胜景图集</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Bottom Center Audiovisual Control Dock (Wide Horizontal Modern Audio Bar) -->
@@ -738,6 +820,28 @@
               <input type="checkbox" id="setting-toggle-autoplay" checked>
               <span class="switch-slider"></span>
             </label>
+          </div>
+        </div>
+
+        <!-- Section: Photo Gallery Moderation Entry (图集共创审核管理) -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h3 class="settings-section-title" data-i18n="moderationSection">图集共创审核管理</h3>
+          </div>
+          
+          <div class="setting-item setting-item-vertical">
+            <div class="setting-info">
+              <span class="setting-label" data-i18n="moderationModeLabel">图集共创审核模式</span>
+              <span class="setting-desc" data-i18n="moderationModeDesc">前期免审即发（所有人上传即刻加入图集与轮播）；开启人工审核后需确认后才展示</span>
+            </div>
+            <select class="setting-select" id="setting-select-auditmode">
+              <option value="auto_approve" selected data-i18n="auditAutoApprove">免审即发 (当前推荐模式)</option>
+              <option value="require_review" data-i18n="auditRequireReview">人工审核模式 (开启审核流程)</option>
+            </select>
+          </div>
+
+          <div class="moderation-queue-container" id="moderation-queue-container">
+            <!-- Dynamic list of user uploads with approve / reject buttons -->
           </div>
         </div>
 

@@ -584,6 +584,65 @@ document.addEventListener('DOMContentLoaded', () => {
   leaderboardBackdrop?.addEventListener('click', () => toggleLeaderboardDrawer(false));
 
   // ==================== Settings Drawer Management ====================
+  const selectAuditModeInput = document.getElementById('setting-select-auditmode');
+  const moderationQueueContainer = document.getElementById('moderation-queue-container');
+
+  function renderModerationQueue() {
+    if (!moderationQueueContainer) return;
+    const auditMode = storage.getPhotoAuditMode();
+    if (selectAuditModeInput) selectAuditModeInput.value = auditMode;
+
+    const allPhotos = storage.getAllCommunityPhotosList(SCENIC_SPOTS);
+    if (!allPhotos.length) {
+      moderationQueueContainer.innerHTML = `
+        <div style="font-size: 11.5px; color: var(--text-muted); text-align: center; padding: 12px 0;">
+          暂无用户共创照片
+        </div>
+      `;
+      return;
+    }
+
+    moderationQueueContainer.innerHTML = allPhotos.map(photo => {
+      const isPending = photo.status === 'pending';
+      const statusText = isPending ? '<span style="color: #f59e0b;">[待审核]</span>' : '<span style="color: #10b981;">[已发布]</span>';
+      return `
+        <div class="moderation-item-card" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">
+          <img src="${photo.url}" alt="${photo.caption || ''}" class="moderation-thumb" />
+          <div class="moderation-info">
+            <div class="moderation-title">${photo.caption || '胜景壁纸'} · 《${photo.spotName}》</div>
+            <div class="moderation-meta">
+              ${statusText} 摄影：${photo.author || '旅行者'}
+            </div>
+          </div>
+          <div class="moderation-actions">
+            ${isPending ? `<button type="button" class="btn-moderation-approve" data-action="approve" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">通过</button>` : ''}
+            <button type="button" class="btn-moderation-reject" data-action="reject" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">删除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    moderationQueueContainer.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const spotId = btn.dataset.spotId;
+        const photoId = btn.dataset.photoId;
+        if (action === 'approve') {
+          storage.updatePhotoStatus(spotId, photoId, 'approved');
+          showToast('已通过审核并发布至图集！');
+        } else if (action === 'reject') {
+          storage.deleteSpotPhoto(spotId, photoId);
+          showToast('已移除该照片');
+        }
+        renderModerationQueue();
+        if (playerManager?.currentSpot?.id === spotId) {
+          playerManager.renderPhotos();
+          playerManager.renderGalleryModal();
+        }
+      });
+    });
+  }
+
   function syncSettingsInputs() {
     currentSettings = storage.getSettings();
     if (selectMapSkinInput) selectMapSkinInput.value = currentSettings.mapSkin || 'streets-dark';
@@ -591,7 +650,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
     if (toggleAutoSpinInput) toggleAutoSpinInput.checked = Boolean(currentSettings.autoSpin);
     if (toggleAutoPlayInput) toggleAutoPlayInput.checked = Boolean(currentSettings.autoPlay);
+    if (selectAuditModeInput) selectAuditModeInput.value = storage.getPhotoAuditMode();
+    renderModerationQueue();
   }
+
+  selectAuditModeInput?.addEventListener('change', e => {
+    storage.setPhotoAuditMode(e.target.value);
+    showToast('已更新图集审核模式');
+    renderModerationQueue();
+  });
 
   function toggleSettingsDrawer(open) {
     const nextState = open ?? !settingsDrawer?.classList.contains('open');

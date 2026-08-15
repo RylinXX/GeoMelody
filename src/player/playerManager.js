@@ -79,6 +79,7 @@ export class PlayerManager {
     const commentsCard = document.getElementById('player-floating-comments');
     const toggleStoryBtn = document.getElementById('btn-mobile-toggle-story');
     const toggleCommentsBtn = document.getElementById('btn-mobile-toggle-comments');
+    const toggleGalleryBtn = document.getElementById('btn-mobile-toggle-gallery');
     const closeStoryBtn = document.getElementById('btn-close-story-sheet');
     const closeCommentsBtn = document.getElementById('btn-close-comments-sheet');
 
@@ -100,6 +101,11 @@ export class PlayerManager {
       toggleCommentsBtn?.classList.toggle('active', !isOpen);
     });
 
+    toggleGalleryBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.openGallery();
+    });
+
     closeStoryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       storyCard?.classList.remove('mobile-open');
@@ -111,6 +117,20 @@ export class PlayerManager {
       commentsCard?.classList.remove('mobile-open');
       toggleCommentsBtn?.classList.remove('active');
     });
+
+    const galleryBtn = document.getElementById('player-gallery-btn');
+    const closeGalleryBtn = document.getElementById('btn-close-gallery-modal');
+    const galleryBackdrop = document.getElementById('gallery-modal-backdrop');
+
+    galleryBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.openGallery();
+    });
+
+    closeGalleryBtn?.addEventListener('click', () => this.closeGallery());
+    galleryBackdrop?.addEventListener('click', () => this.closeGallery());
+
+    this.initGalleryUpload();
 
     const closeBtn = document.getElementById('player-close-btn');
     const mobileBackBtn = document.getElementById('player-mobile-back-btn');
@@ -138,7 +158,12 @@ export class PlayerManager {
       } else if (e.code === 'KeyF') {
         this.toggleFullscreen();
       } else if (e.code === 'Escape') {
-        this.close();
+        const modal = document.getElementById('player-gallery-modal');
+        if (modal?.classList.contains('open')) {
+          this.closeGallery();
+        } else {
+          this.close();
+        }
       }
     });
   }
@@ -165,7 +190,7 @@ export class PlayerManager {
     this.currentPhotoIndex = 0;
 
     this.renderSpotInfo(spot);
-    this.renderPhotos(spot.photos);
+    this.renderPhotos();
     this.updateFavoriteButton();
 
     this.overlay.classList.add('active');
@@ -187,7 +212,11 @@ export class PlayerManager {
   setLanguage() {
     if (!this.currentSpot) return;
     this.renderSpotInfo(this.currentSpot);
-    this.renderPhotos(this.currentSpot.photos);
+    this.renderPhotos();
+    const modal = document.getElementById('player-gallery-modal');
+    if (modal?.classList.contains('open')) {
+      this.renderGalleryModal();
+    }
   }
 
   renderSpotInfo(spot) {
@@ -245,8 +274,10 @@ export class PlayerManager {
     }
   }
 
-  renderPhotos(photos) {
-    if (!this.bgCanvas) return;
+  renderPhotos() {
+    if (!this.bgCanvas || !this.currentSpot) return;
+    const photos = storage.getSpotPhotos(this.currentSpot);
+    this.activePhotos = photos;
     this.bgCanvas.innerHTML = '';
     this.photoDots.innerHTML = '';
 
@@ -268,11 +299,16 @@ export class PlayerManager {
       dot.addEventListener('click', () => this.switchPhoto(index));
       this.photoDots.appendChild(dot);
     });
+
+    const mobileGalleryBadge = document.getElementById('mobile-gallery-badge');
+    if (mobileGalleryBadge) {
+      mobileGalleryBadge.textContent = String(photos.length);
+    }
   }
 
   switchPhoto(index) {
-    const imgs = this.bgCanvas.querySelectorAll('.scenery-slide-img');
-    const dots = this.photoDots.querySelectorAll('.scenery-dot');
+    const imgs = this.bgCanvas?.querySelectorAll('.scenery-slide-img') || [];
+    const dots = this.photoDots?.querySelectorAll('.scenery-dot') || [];
     if (!imgs.length) return;
 
     this.currentPhotoIndex = (index + imgs.length) % imgs.length;
@@ -290,6 +326,15 @@ export class PlayerManager {
     dots.forEach((dot, i) => {
       dot.classList.toggle('active', i === this.currentPhotoIndex);
     });
+
+    // Sync gallery modal card active state if open
+    const modal = document.getElementById('player-gallery-modal');
+    if (modal?.classList.contains('open')) {
+      const cards = modal.querySelectorAll('.gallery-card');
+      cards.forEach((card, i) => {
+        card.classList.toggle('active-wallpaper', i === this.currentPhotoIndex);
+      });
+    }
   }
 
   nextPhoto() {
@@ -312,6 +357,231 @@ export class PlayerManager {
       clearInterval(this.photoTimer);
       this.photoTimer = null;
     }
+  }
+
+  // ==================== Photo Gallery & Contribution Modal ====================
+  openGallery() {
+    if (!this.currentSpot) return;
+    const modal = document.getElementById('player-gallery-modal');
+    if (!modal) return;
+    this.showGalleryView('grid');
+    this.renderGalleryModal();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  closeGallery() {
+    const modal = document.getElementById('player-gallery-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    this.showGalleryView('grid');
+  }
+
+  showGalleryView(view = 'grid') {
+    const gridView = document.getElementById('gallery-view-grid');
+    const uploadView = document.getElementById('gallery-view-upload');
+    const uploadTriggerBtn = document.getElementById('btn-open-gallery-upload');
+    if (view === 'upload') {
+      if (gridView) gridView.style.display = 'none';
+      if (uploadView) uploadView.style.display = 'block';
+      if (uploadTriggerBtn) uploadTriggerBtn.style.display = 'none';
+    } else {
+      if (gridView) gridView.style.display = 'block';
+      if (uploadView) uploadView.style.display = 'none';
+      if (uploadTriggerBtn) uploadTriggerBtn.style.display = 'inline-flex';
+    }
+  }
+
+  renderGalleryModal() {
+    if (!this.currentSpot) return;
+    const records = storage.getSpotPhotoRecords(this.currentSpot, getSpotName(this.currentSpot, this.getLanguage()));
+    const container = document.getElementById('gallery-cards-container');
+    const countBadge = document.getElementById('gallery-count-badge');
+    const spotNameEl = document.getElementById('gallery-spot-name');
+
+    if (spotNameEl) {
+      spotNameEl.textContent = `${getSpotName(this.currentSpot, this.getLanguage())} · ${t('spotGalleryTitle', this.getLanguage())}`;
+    }
+    if (countBadge) {
+      countBadge.textContent = `${records.length} 张壁纸`;
+    }
+    if (!container) return;
+
+    container.innerHTML = records.map((record, index) => {
+      const isActive = index === this.currentPhotoIndex;
+      const tag = record.isBuiltin
+        ? `<span class="gallery-builtin-tag">精选</span>`
+        : `<span class="gallery-builtin-tag" style="color: #38bdf8;">共创</span>`;
+
+      return `
+        <div class="gallery-card ${isActive ? 'active-wallpaper' : ''}" data-photo-index="${index}" data-photo-id="${record.id}">
+          <div class="gallery-card-thumb-wrap">
+            <img src="${record.url}" alt="${record.caption || ''}" class="gallery-card-thumb" loading="lazy" />
+            ${isActive ? `<span class="gallery-active-badge">✓ 当前壁纸</span>` : ''}
+            ${tag}
+          </div>
+          <div class="gallery-card-info">
+            <span class="gallery-card-caption">${record.caption || '胜景留影'}</span>
+            <div class="gallery-card-meta">
+              <span>📷 ${record.author || '摄影师'}</span>
+              ${!record.isBuiltin ? `<button type="button" class="gallery-delete-photo-btn" data-photo-id="${record.id}" title="删除此照片" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 11px;">✕ 删除</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.gallery-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.gallery-delete-photo-btn')) return;
+        const idx = Number(card.dataset.photoIndex);
+        if (!isNaN(idx)) {
+          this.switchPhoto(idx);
+          this.renderGalleryModal();
+          this.showToast('已切换至此壁纸！');
+        }
+      });
+    });
+
+    container.querySelectorAll('.gallery-delete-photo-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const photoId = btn.dataset.photoId;
+        if (photoId && this.currentSpot) {
+          storage.deleteSpotPhoto(this.currentSpot.id, photoId);
+          this.renderPhotos();
+          this.renderGalleryModal();
+          this.showToast('已删除该共创照片');
+        }
+      });
+    });
+  }
+
+  initGalleryUpload() {
+    const fileInput = document.getElementById('gallery-file-input');
+    const dropzone = document.getElementById('gallery-dropzone');
+    const promptEl = document.getElementById('gallery-dropzone-prompt');
+    const previewEl = document.getElementById('gallery-file-preview');
+    const previewImg = document.getElementById('gallery-preview-img');
+    const removeFileBtn = document.getElementById('btn-gallery-remove-file');
+    const uploadForm = document.getElementById('gallery-upload-form');
+    const cancelBtn = document.getElementById('btn-cancel-gallery-upload');
+    const triggerUploadBtn = document.getElementById('btn-open-gallery-upload');
+
+    let currentFileDataUrl = null;
+
+    triggerUploadBtn?.addEventListener('click', () => this.showGalleryView('upload'));
+    cancelBtn?.addEventListener('click', () => this.showGalleryView('grid'));
+
+    dropzone?.addEventListener('click', (e) => {
+      if (e.target.closest('#btn-gallery-remove-file')) return;
+      fileInput?.click();
+    });
+
+    const handleFile = (file) => {
+      if (!file || !file.type.startsWith('image/')) {
+        this.showToast('请选择有效的图片文件 (JPG / PNG / WebP)');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1920;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          currentFileDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          if (previewImg) previewImg.src = currentFileDataUrl;
+          if (promptEl) promptEl.style.display = 'none';
+          if (previewEl) previewEl.style.display = 'block';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    fileInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) handleFile(file);
+    });
+
+    dropzone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+
+    dropzone?.addEventListener('dragleave', () => {
+      dropzone.classList.remove('drag-over');
+    });
+
+    dropzone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleFile(file);
+    });
+
+    removeFileBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentFileDataUrl = null;
+      if (fileInput) fileInput.value = '';
+      if (previewImg) previewImg.src = '';
+      if (previewEl) previewEl.style.display = 'none';
+      if (promptEl) promptEl.style.display = 'flex';
+    });
+
+    uploadForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentFileDataUrl) {
+        this.showToast('请先选择或拖拽一张壁纸图片');
+        return;
+      }
+      if (!this.currentSpot) return;
+
+      const authorInput = document.getElementById('gallery-author-input');
+      const captionInput = document.getElementById('gallery-caption-input');
+      const author = authorInput?.value?.trim() || '旅行摄影师';
+      const caption = captionInput?.value?.trim() || '胜景壁纸';
+
+      const newPhoto = storage.addSpotPhoto(this.currentSpot.id, {
+        url: currentFileDataUrl,
+        author,
+        caption
+      });
+
+      currentFileDataUrl = null;
+      if (fileInput) fileInput.value = '';
+      if (previewImg) previewImg.src = '';
+      if (previewEl) previewEl.style.display = 'none';
+      if (promptEl) promptEl.style.display = 'flex';
+      if (captionInput) captionInput.value = '';
+
+      this.renderPhotos();
+      this.renderGalleryModal();
+      this.showGalleryView('grid');
+
+      if (newPhoto.status === 'approved') {
+        this.showToast(t('photoApprovedToast', this.getLanguage()));
+      } else {
+        this.showToast(t('photoPendingToast', this.getLanguage()));
+      }
+    });
   }
 
   // Navigation Between Spots

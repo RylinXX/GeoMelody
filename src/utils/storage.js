@@ -205,5 +205,115 @@ export const storage = {
         };
       })
       .sort((a, b) => b.likes - a.likes);
+  },
+
+  // ==================== Scenery Photo Gallery & Moderation ====================
+  getPhotoAuditMode() {
+    return localStorage.getItem('geomelody_photo_audit_mode') || 'auto_approve';
+  },
+
+  setPhotoAuditMode(mode) {
+    localStorage.setItem('geomelody_photo_audit_mode', mode);
+  },
+
+  getCommunityPhotos(spotId) {
+    const all = readJson('geomelody_community_photos', {});
+    return all[spotId] || [];
+  },
+
+  getSpotPhotos(spot) {
+    if (!spot) return [];
+    const basePhotos = Array.isArray(spot.photos) ? spot.photos : [];
+    const userPhotos = this.getCommunityPhotos(spot.id)
+      .filter(p => p.status === 'approved')
+      .map(p => p.url);
+    return [...basePhotos, ...userPhotos];
+  },
+
+  getSpotPhotoRecords(spot, spotName = '') {
+    if (!spot) return [];
+    const basePhotos = (spot.photos || []).map((url, i) => ({
+      id: `builtin_${spot.id}_${i}`,
+      spotId: spot.id,
+      url,
+      author: '官方精选壁纸',
+      caption: `${spotName || spot.name} · ${i + 1}`,
+      timestamp: 0,
+      isBuiltin: true,
+      status: 'approved'
+    }));
+
+    const userPhotos = this.getCommunityPhotos(spot.id);
+    return [...basePhotos, ...userPhotos];
+  },
+
+  addSpotPhoto(spotId, { url, author, caption }) {
+    const all = readJson('geomelody_community_photos', {});
+    const list = all[spotId] || [];
+    const auditMode = this.getPhotoAuditMode();
+    const isAuto = auditMode === 'auto_approve';
+
+    const newPhoto = {
+      id: 'photo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      spotId,
+      url,
+      author: author?.trim() || (localStorage.getItem('geomelody_user_nickname') || '旅行摄影师'),
+      caption: caption?.trim() || '胜景留影',
+      timestamp: Date.now(),
+      status: isAuto ? 'approved' : 'pending',
+      isBuiltin: false,
+      isUserUploaded: true
+    };
+
+    list.unshift(newPhoto);
+    all[spotId] = list;
+    writeJson('geomelody_community_photos', all);
+    return newPhoto;
+  },
+
+  updatePhotoStatus(spotId, photoId, status) {
+    const all = readJson('geomelody_community_photos', {});
+    const list = all[spotId] || [];
+    const photo = list.find(p => p.id === photoId);
+    if (photo) {
+      photo.status = status;
+      all[spotId] = list;
+      writeJson('geomelody_community_photos', all);
+    }
+    return list;
+  },
+
+  deleteSpotPhoto(spotId, photoId) {
+    const all = readJson('geomelody_community_photos', {});
+    const list = all[spotId] || [];
+    all[spotId] = list.filter(p => p.id !== photoId);
+    writeJson('geomelody_community_photos', all);
+    return all[spotId];
+  },
+
+  getAllPendingPhotos(spots = []) {
+    const all = readJson('geomelody_community_photos', {});
+    const result = [];
+    Object.keys(all).forEach(spotId => {
+      const spot = spots.find(s => s.id === spotId);
+      (all[spotId] || []).forEach(photo => {
+        if (photo.status === 'pending') {
+          result.push({ ...photo, spotName: spot ? spot.name : spotId });
+        }
+      });
+    });
+    return result;
+  },
+
+  getAllCommunityPhotosList(spots = []) {
+    const all = readJson('geomelody_community_photos', {});
+    const result = [];
+    Object.keys(all).forEach(spotId => {
+      const spot = spots.find(s => s.id === spotId);
+      (all[spotId] || []).forEach(photo => {
+        result.push({ ...photo, spotName: spot ? spot.name : spotId });
+      });
+    });
+    return result;
   }
 };
