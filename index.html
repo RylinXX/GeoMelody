@@ -255,13 +255,13 @@
 
         <!-- Bottom Row: Left Story Card + Right Floating Comments Modal Card -->
         <div class="player-bottom-layout">
-          <!-- Bottom Left: Poetic Story & AI Audio Info Card -->
+          <!-- Bottom Left: Story & AI Audio Info Card -->
           <div class="player-story-card" id="player-story-card">
-            <button type="button" class="mobile-sheet-close" id="btn-close-story-sheet" aria-label="收起意境">✕</button>
+            <button type="button" class="mobile-sheet-close" id="btn-close-story-sheet" aria-label="收起介绍">✕</button>
             <p class="story-quote" id="player-story-quote">“青石板巷，摇橹船桨划破一池春水。白墙黛瓦掩映在江南烟雨之中，廊棚之下，听雨落乌篷，时光在此慢了下来。”</p>
             <div class="audio-recipe-box">
               <div class="audio-recipe-title">
-                <span data-i18n="audioRecipe">🎵 地域专属 AI 音景配方</span>
+                <span data-i18n="audioRecipe">AI 声音配方</span>
                 <div class="live-audio-visualizer" id="player-visualizer"></div>
               </div>
               <div class="audio-recipe-formula" id="player-audio-formula">五声羽调 · 古筝 · 竹笛 · 68 BPM</div>
@@ -270,12 +270,11 @@
           </div>
 
           <!-- Bottom Right: Floating Live Comments & Likes Modal Card -->
-          <aside class="player-floating-comments" id="player-floating-comments" aria-label="胜景评论与互动">
+          <aside class="player-floating-comments" id="player-floating-comments" aria-label="评论">
             <button type="button" class="mobile-sheet-close" id="btn-close-comments-sheet" aria-label="收起评论">✕</button>
             <div class="player-comments-header">
               <div class="player-comments-title">
-                <span class="player-comments-icon">💬</span>
-                <span data-i18n="commentsInteraction">胜景寄语与互动</span>
+                <span data-i18n="comments">评论</span>
                 <span class="player-comments-badge" id="player-comments-count-badge">0</span>
               </div>
               <button class="player-floating-like-btn" id="player-like-btn" type="button" aria-pressed="false" title="为胜景视听点赞">
@@ -296,16 +295,16 @@
                 </span>
                 <input type="text" id="player-comment-author-input" class="comment-author-input" maxlength="16" placeholder="你的昵称" data-i18n-placeholder="creatorPlaceholder">
               </div>
-              <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下你的聆听感受、旅行记忆与寄语…" data-i18n-placeholder="postCommentPlaceholder"></textarea>
+              <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下此时此刻的感受与留言…" data-i18n-placeholder="postCommentPlaceholder"></textarea>
               <div class="comment-quick-tags" id="player-quick-tags">
                 <button type="button" class="quick-tag-chip" data-tag="极度舒适" data-i18n="tagComfortable">极度舒适</button>
-                <button type="button" class="quick-tag-chip" data-tag="治愈身心" data-i18n="tagHealing">治愈身心</button>
-                <button type="button" class="quick-tag-chip" data-tag="循环播放" data-i18n="tagRepeat">循环播放</button>
-                <button type="button" class="quick-tag-chip" data-tag="想去打卡" data-i18n="tagWantToGo">想去打卡</button>
+                <button type="button" class="quick-tag-chip" data-tag="身心治愈" data-i18n="tagHealing">身心治愈</button>
+                <button type="button" class="quick-tag-chip" data-tag="单曲循环" data-i18n="tagRepeat">单曲循环</button>
+                <button type="button" class="quick-tag-chip" data-tag="心驰神往" data-i18n="tagWantToGo">心驰神往</button>
               </div>
               <div class="comment-form-actions">
                 <button type="submit" class="comment-submit-btn">
-                  <span data-i18n="sendComment">发表寄语</span>
+                  <span data-i18n="sendComment">发表评论</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
@@ -316,37 +315,51 @@
         <!-- Mobile Floating Toggle Pills Bar (Visible on mobile screens <= 768px) -->
         <div class="player-mobile-pills-bar" id="player-mobile-pills-bar">
           <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-story">
-            <span>📖</span>
-            <span data-i18n="storyTab">意境描述</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            <span data-i18n="storyTab">介绍</span>
           </button>
           <button type="button" class="mobile-pill-btn" id="btn-mobile-toggle-comments">
-            <span>💬</span>
-            <span data-i18n="commentsTab">胜景寄语</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span data-i18n="commentsTab">评论</span>
             <span class="mobile-pill-badge" id="mobile-comments-badge">0</span>
           </button>
         </div>
 
-        <!-- Bottom Center Audiovisual Control Dock -->
-        <div class="player-control-island">
-          <button class="player-secondary-btn" id="player-btn-prev" title="上一胜景 (←)" data-i18n-title="previousSpot">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>
-            </svg>
-          </button>
+        <!-- Bottom Center Audiovisual Control Dock (Wide Horizontal Modern Audio Bar) -->
+        <div class="player-control-island" id="player-control-island">
+          <!-- Left: Track Name & Artist Info -->
+          <div class="dock-track-info" id="player-dock-track-info">
+            <div class="dock-music-disc">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="dock-track-details">
+              <span class="dock-track-title" id="player-dock-song-title">半岛铁盒</span>
+              <span class="dock-track-artist" id="player-dock-song-artist">周杰伦</span>
+            </div>
+          </div>
 
-          <button class="player-main-play-btn" id="player-play-btn" title="播放 / 暂停 (Space)" data-i18n-title="playPause" aria-pressed="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
-            </svg>
-          </button>
+          <!-- Center: Playback Controls -->
+          <div class="dock-center-controls">
+            <button class="player-secondary-btn" id="player-btn-prev" title="上一胜景 (←)" data-i18n-title="previousSpot">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>
+              </svg>
+            </button>
 
-          <button class="player-secondary-btn" id="player-btn-next" title="下一胜景 (→)" data-i18n-title="nextSpot">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>
-            </svg>
-          </button>
+            <button class="player-main-play-btn" id="player-play-btn" title="播放 / 暂停 (Space)" data-i18n-title="playPause" aria-pressed="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+              </svg>
+            </button>
 
-          <!-- Volume Control -->
+            <button class="player-secondary-btn" id="player-btn-next" title="下一胜景 (→)" data-i18n-title="nextSpot">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Right: Volume Slider -->
           <div class="dock-volume-group">
             <button class="player-secondary-btn" id="player-btn-mute" title="静音切换" data-i18n-title="mute" aria-pressed="false">
               <svg id="volume-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

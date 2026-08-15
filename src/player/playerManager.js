@@ -228,13 +228,20 @@ export class PlayerManager {
     }
 
     const creditEl = document.getElementById('player-track-credit');
+    const track = getDemoTrack(spot);
     if (creditEl) {
-      const track = getDemoTrack(spot);
       const prefix = spot.audioTrack?.url ? t('userUpload', language) : t('demoMusic', language);
       const credit = `${prefix} · ${track.title} — ${track.creator} · ${track.license}`;
       creditEl.innerHTML = track.sourceUrl
         ? `<a href="${track.sourceUrl}" target="_blank" rel="noopener noreferrer">${credit}</a>`
         : credit;
+    }
+
+    const dockSongTitle = document.getElementById('player-dock-song-title');
+    const dockSongArtist = document.getElementById('player-dock-song-artist');
+    if (dockSongTitle && dockSongArtist) {
+      dockSongTitle.textContent = track.title;
+      dockSongArtist.textContent = track.creator;
     }
   }
 
