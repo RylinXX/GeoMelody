@@ -38,10 +38,11 @@ function normalizeLongitude(value) {
 }
 
 export class GlobeManager {
-  constructor({ containerId, spots, onSpotSelect, language = 'zh', theme = 'dark', settings = {} }) {
+  constructor({ containerId, spots, onSpotSelect, onMapClick, language = 'zh', theme = 'dark', settings = {} }) {
     this.containerId = containerId;
     this.spots = spots;
     this.onSpotSelect = onSpotSelect;
+    this.onMapClick = onMapClick;
     this.currentLanguage = language || 'zh';
     this.currentTheme = theme;
     this.mapSettings = { ...DEFAULT_SETTINGS, ...settings };
@@ -496,6 +497,8 @@ export class GlobeManager {
         this.pauseRotation(7000);
         this.hideTooltip();
         this.onSpotSelect?.(spot);
+      } else {
+        this.onMapClick?.(event);
       }
     };
 

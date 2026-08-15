@@ -747,6 +747,228 @@ button, input {
 .sound-bar:nth-child(3) { height: 9px; animation-delay: 0.2s; }
 .sound-bar:nth-child(4) { height: 16px; animation-delay: 0.4s; }
 
+/* ==================== Spot Preview & Guide Bottom Card ==================== */
+.spot-preview-card {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%) translateY(24px);
+  width: min(480px, calc(100vw - 28px));
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+  z-index: 1050;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.spot-preview-card.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.spot-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 13px;
+  transition: all var(--trans-fast);
+}
+
+.spot-preview-close:hover {
+  background: rgba(239, 68, 68, 0.5);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.spot-preview-body {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+}
+
+.spot-preview-media {
+  position: relative;
+  width: 110px;
+  min-width: 110px;
+  height: 125px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.spot-preview-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.spot-preview-card:hover .spot-preview-cover {
+  transform: scale(1.05);
+}
+
+.spot-preview-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--accent-cyan);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.spot-preview-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 6px;
+}
+
+.spot-preview-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 24px;
+}
+
+.spot-preview-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spot-preview-loc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spot-preview-story {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.spot-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.spot-preview-track-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.preview-music-disc {
+  color: var(--accent-cyan);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.preview-music-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spot-preview-enter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 3px 12px rgba(56, 189, 248, 0.45);
+  transition: all var(--trans-fast);
+}
+
+.spot-preview-enter-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.65);
+}
+
+@media (max-width: 560px) {
+  .spot-preview-card {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: calc(100vw - 20px);
+    border-radius: 18px;
+  }
+  .spot-preview-body {
+    padding: 12px;
+    gap: 10px;
+  }
+  .spot-preview-media {
+    width: 95px;
+    min-width: 95px;
+    height: 115px;
+  }
+  .spot-preview-name {
+    font-size: 15px;
+  }
+  .spot-preview-story {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+  .spot-preview-enter-btn {
+    padding: 5px 12px;
+    font-size: 11.5px;
+  }
+}
+
 /* ==================== Cosmic Starfield Background ==================== */
 .cosmic-stars-canvas {
   position: fixed;

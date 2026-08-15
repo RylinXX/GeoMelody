@@ -105,6 +105,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleAutoSpinInput = document.getElementById('setting-toggle-autospin');
   const toggleAutoPlayInput = document.getElementById('setting-toggle-autoplay');
 
+  // Spot Preview Bottom Card Elements
+  const spotPreviewCard = document.getElementById('spot-preview-card');
+  const btnCloseSpotPreview = document.getElementById('btn-close-spot-preview');
+  const btnSpotPreviewEnter = document.getElementById('btn-spot-preview-enter');
+  let previewSpotTarget = null;
+
+  function showSpotPreviewCard(spot) {
+    if (!spot || !spotPreviewCard) return;
+    previewSpotTarget = spot;
+    globeManager.flyToSpot(spot, 6.2);
+
+    const coverEl = document.getElementById('spot-preview-img');
+    const catEl = document.getElementById('spot-preview-category');
+    const nameEl = document.getElementById('spot-preview-name');
+    const locEl = document.getElementById('spot-preview-loc');
+    const storyEl = document.getElementById('spot-preview-story');
+    const trackTitleEl = document.getElementById('spot-preview-track-title');
+
+    if (coverEl) coverEl.src = spot.photos?.[0] || '';
+    if (catEl) {
+      const cat = CATEGORY_MAP[spot.category];
+      catEl.textContent = getCategoryName(cat, currentLanguage);
+    }
+    if (nameEl) nameEl.textContent = getSpotName(spot, currentLanguage);
+    if (locEl) locEl.textContent = `${getSpotLocation(spot, currentLanguage)} · ${spot.lat.toFixed(2)}°, ${spot.lng.toFixed(2)}°`;
+    if (storyEl) storyEl.textContent = getSpotDescription(spot, currentLanguage);
+    if (trackTitleEl) {
+      const track = getDemoTrack(spot);
+      trackTitleEl.textContent = track ? `${track.title} — ${track.creator}` : (spot.audioRecipe?.scale || '');
+    }
+
+    miniIsland?.classList.remove('visible');
+    spotPreviewCard.classList.add('visible');
+    spotPreviewCard.setAttribute('aria-hidden', 'false');
+  }
+
+  function hideSpotPreviewCard() {
+    if (!spotPreviewCard) return;
+    spotPreviewCard.classList.remove('visible');
+    spotPreviewCard.setAttribute('aria-hidden', 'true');
+    previewSpotTarget = null;
+  }
+
+  btnCloseSpotPreview?.addEventListener('click', hideSpotPreviewCard);
+
+  btnSpotPreviewEnter?.addEventListener('click', () => {
+    if (previewSpotTarget) {
+      const target = previewSpotTarget;
+      hideSpotPreviewCard();
+      playerManager.openSpot(target, true);
+    }
+  });
+
   let playerManager;
   let communityManager;
 
@@ -114,7 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
     language: currentLanguage,
     theme: currentTheme,
     settings: currentSettings,
-    onSpotSelect: spot => playerManager.openSpot(spot, currentSettings.autoPlay)
+    onSpotSelect: spot => showSpotPreviewCard(spot),
+    onMapClick: () => hideSpotPreviewCard()
   });
   try {
     globeManager.init();
@@ -140,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     getLanguage: () => currentLanguage,
     showToast,
     onBeforeOpen: () => {
+      hideSpotPreviewCard();
       toggleFavDrawer(false);
       toggleSettingsDrawer(false);
       toggleLeaderboardDrawer(false);
@@ -427,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleFavDrawer(open) {
     const nextState = open ?? !favDrawer?.classList.contains('open');
     if (nextState) {
+      hideSpotPreviewCard();
       communityManager.close();
       toggleSettingsDrawer(false);
       toggleLeaderboardDrawer(false);
@@ -479,6 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const spotId = card.dataset.spotId;
         const target = SCENIC_SPOTS.find(s => s.id === spotId);
         if (target) {
+          hideSpotPreviewCard();
           toggleLeaderboardDrawer(false);
           globeManager.flyToSpot(target);
           playerManager.openSpot(target, true);
@@ -498,6 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleLeaderboardDrawer(open) {
     const nextState = open ?? !leaderboardDrawer?.classList.contains('open');
     if (nextState) {
+      hideSpotPreviewCard();
       communityManager.close();
       toggleFavDrawer(false);
       toggleSettingsDrawer(false);
@@ -526,6 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function toggleSettingsDrawer(open) {
     const nextState = open ?? !settingsDrawer?.classList.contains('open');
     if (nextState) {
+      hideSpotPreviewCard();
       communityManager.close();
       toggleFavDrawer(false);
       toggleLeaderboardDrawer(false);
