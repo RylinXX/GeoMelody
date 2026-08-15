@@ -643,56 +643,38 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
 
-        <!-- Printable / Exportable Poster Card -->
+        <!-- Printable / Exportable Minimalist Poster Card -->
         <div class="share-poster-card" id="share-poster-card">
-          <!-- Card Header Brand -->
+          <!-- Background Full-bleed Photo -->
+          <img src="" alt="胜景背景" class="poster-full-bg" id="poster-cover-image" crossOrigin="anonymous">
+          <div class="poster-gradient-mask"></div>
+
+          <!-- Top-Left: Logo + GeoMelody -->
           <div class="poster-brand-header">
             <div class="poster-brand-logo">
               <img src="/logo-128.jpg" alt="GeoMelody" class="poster-logo-img">
-              <div class="poster-brand-texts">
-                <span class="poster-brand-name">境音地图 · GeoMelody</span>
-                <span class="poster-brand-sub">3D 沉浸式全球视听与治愈音乐</span>
+              <span class="poster-brand-name">GeoMelody</span>
+            </div>
+          </div>
+
+          <!-- Bottom Area: Spot Name + Hot Comment + Clean QR -->
+          <div class="poster-bottom-wrapper">
+            <div class="poster-meta-column">
+              <div class="poster-title-row">
+                <h3 class="poster-spot-title" id="poster-spot-title">北京故宫紫禁城</h3>
+                <span class="poster-location-text" id="poster-location-text">中国 · 北京</span>
+              </div>
+
+              <!-- Hot Comment Quote -->
+              <div class="poster-hot-comment-card" id="poster-hot-comment-box">
+                <p class="hot-comment-text" id="poster-comment-text">“这段旋律不是把人带离生活，而是把散落在生活里的自己慢慢领回来。”</p>
+                <span class="hot-comment-author" id="poster-comment-author">—— @把晚风装进口袋</span>
               </div>
             </div>
-            <div class="poster-category-tag" id="poster-category-badge">探索</div>
-          </div>
 
-          <!-- Cover Image -->
-          <div class="poster-cover-wrapper">
-            <img src="" alt="胜景封面" class="poster-cover-img" id="poster-cover-image" crossOrigin="anonymous">
-            <div class="poster-cover-overlay">
-              <span class="poster-location-pill" id="poster-location-text">中国 · 北京</span>
-            </div>
-          </div>
-
-          <!-- Spot Title & Story -->
-          <div class="poster-content-block">
-            <h3 class="poster-spot-title" id="poster-spot-title">北京故宫紫禁城</h3>
-            <div class="poster-music-badge">
-              <span class="poster-music-icon">♫</span>
-              <span id="poster-music-text">纯音乐 · 编钟 · 古琴 · 琵琶 (72 BPM)</span>
-            </div>
-            <p class="poster-story-quote" id="poster-story-text">红墙金瓦，六百年巍峨帝阙。太和殿前云气缭绕，角楼倒映护城河夕照，回荡着华夏文明的宏大历史回响。</p>
-          </div>
-
-          <!-- Hot Comment Section -->
-          <div class="poster-hot-comment-card" id="poster-hot-comment-box">
-            <div class="hot-comment-header">
-              <span class="hot-comment-tag">精选热评</span>
-              <span class="hot-comment-likes" id="poster-comment-likes">❤️ 2.4k</span>
-            </div>
-            <p class="hot-comment-text" id="poster-comment-text">“这段旋律不是把人带离生活，而是把散落在生活里的自己慢慢领回来。看到光点亮起时，耳机里的风也有了方向。”</p>
-            <span class="hot-comment-author" id="poster-comment-author">—— @把晚风装进口袋</span>
-          </div>
-
-          <!-- Footer QR Code Section -->
-          <div class="poster-footer-scan">
+            <!-- Bottom-Right Clean QR Code (No noisy text) -->
             <div class="poster-qr-wrapper">
-              <canvas id="poster-qrcode-canvas" width="80" height="80"></canvas>
-            </div>
-            <div class="poster-scan-guide">
-              <strong>扫码或长按直接进入</strong>
-              <span>在 3D 地球上聆听此胜景与专属音乐</span>
+              <canvas id="poster-qrcode-canvas" width="68" height="68"></canvas>
             </div>
           </div>
         </div>

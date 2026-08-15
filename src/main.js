@@ -710,8 +710,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialSpot = SCENIC_SPOTS.find(spot => spot.id === shareUtil.getInitialSpotId());
   if (initialSpot) {
     setTimeout(() => {
-      playerManager.openSpot(initialSpot, currentSettings.autoPlay);
-      showToast(t('loadingSpot', currentLanguage, { name: getSpotName(initialSpot, currentLanguage) }));
-    }, 500);
+      globeManager.flyToSpot(initialSpot, 7.5);
+      updateMiniAudioIsland(initialSpot, false);
+      const name = getSpotName(initialSpot, currentLanguage);
+      showToast(currentLanguage === 'en' ? `Arrived at “${name}” · Tap to enter` : `已定位至「${name}」· 点击即可进入视听`);
+    }, 600);
   }
 });

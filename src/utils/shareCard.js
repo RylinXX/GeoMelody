@@ -83,16 +83,10 @@ export const shareCardManager = {
 
     const name = getSpotName(spot, currentLanguage);
     const location = getSpotLocation(spot, currentLanguage);
-    const track = getDemoTrack(spot);
-    const categoryInfo = CATEGORIES[spot.category] || { label: '探索', enLabel: 'Explore' };
-    const categoryLabel = currentLanguage === 'en' ? categoryInfo.enLabel : categoryInfo.label;
     const coverUrl = spot.photos?.[0] || '/textures/earth_dark.jpg';
 
     if (this.spotTitle) this.spotTitle.textContent = name;
     if (this.locationText) this.locationText.textContent = location;
-    if (this.categoryBadge) this.categoryBadge.textContent = categoryLabel;
-    if (this.musicText) this.musicText.textContent = `♫ ${track.title} · ${spot.audioRecipe?.instruments || '专属音景'}`;
-    if (this.storyText) this.storyText.textContent = spot.description || '';
     if (this.coverImg) {
       this.coverImg.src = coverUrl;
       this.coverImg.alt = name;
@@ -104,20 +98,18 @@ export const shareCardManager = {
       ? [...comments].sort((a, b) => (Number(b.likes || 0) - Number(a.likes || 0)))[0]
       : {
           text: '“这段旋律不是把人带离生活，而是把散落在生活里的自己慢慢领回来。”',
-          author: '把晚风装进口袋',
-          likes: 2480
+          author: '把晚风装进口袋'
         };
 
-    if (this.commentLikes) this.commentLikes.textContent = `❤️ ${Number(topComment.likes || 0).toLocaleString()}`;
     if (this.commentText) this.commentText.textContent = `“${topComment.text.replace(/^[“”]/g, '')}”`;
     if (this.commentAuthor) this.commentAuthor.textContent = `—— @${topComment.author}`;
 
-    // Generate QR Code
+    // Generate Clean QR Code
     const shareUrl = shareUtil.getSpotShareUrl(spot.id);
     if (this.qrCanvas) {
       try {
         await QRCode.toCanvas(this.qrCanvas, shareUrl, {
-          width: 144,
+          width: 136,
           margin: 1,
           color: {
             dark: '#080c14',
@@ -157,7 +149,6 @@ export const shareCardManager = {
     if (!currentSpot) return;
     const name = getSpotName(currentSpot, currentLanguage);
     const location = getSpotLocation(currentSpot, currentLanguage);
-    const track = getDemoTrack(currentSpot);
     const coverUrl = currentSpot.photos?.[0] || '/textures/earth_dark.jpg';
 
     this.showToast(currentLanguage === 'en' ? 'Generating high-res card…' : '正在生成高清分享图…');
@@ -165,34 +156,12 @@ export const shareCardManager = {
     // Create high-res offscreen canvas
     const canvas = document.createElement('canvas');
     const width = 720;
-    const height = 1080;
+    const height = 1050;
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
 
-    // 1. Background Gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-    bgGrad.addColorStop(0, '#0f172a');
-    bgGrad.addColorStop(0.5, '#090d16');
-    bgGrad.addColorStop(1, '#04070d');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, width, height);
-
-    // Subtle Cyan Outer Border
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(16, 16, width - 32, height - 32);
-
-    // 2. Header Brand
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('境音地图 · GeoMelody', 48, 64);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('3D 沉浸式全球视听与治愈音乐', 48, 92);
-
-    // 3. Load & Draw Cover Image
+    // 1. Load & Draw Full Bleed Background Image
     const coverImage = new Image();
     coverImage.crossOrigin = 'anonymous';
     coverImage.src = coverUrl;
@@ -202,70 +171,78 @@ export const shareCardManager = {
       coverImage.onerror = () => resolve();
     });
 
-    const coverX = 48;
-    const coverY = 120;
-    const coverW = width - 96;
-    const coverH = 340;
-
-    // Rounded rectangle clip for image
-    ctx.save();
-    ctx.beginPath();
-    const r = 16;
-    ctx.moveTo(coverX + r, coverY);
-    ctx.arcTo(coverX + coverW, coverY, coverX + coverW, coverY + coverH, r);
-    ctx.arcTo(coverX + coverW, coverY + coverH, coverX, coverY + coverH, r);
-    ctx.arcTo(coverX, coverY + coverH, coverX, coverY, r);
-    ctx.arcTo(coverX, coverY, coverX + coverW, coverY, r);
-    ctx.closePath();
-    ctx.clip();
-
     try {
-      ctx.drawImage(coverImage, coverX, coverY, coverW, coverH);
+      ctx.drawImage(coverImage, 0, 0, width, height);
     } catch (_) {
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(coverX, coverY, coverW, coverH);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
     }
 
-    // Location Pill on Cover
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-    ctx.fillRect(coverX + 16, coverY + coverH - 48, 220, 32);
-    ctx.restore();
+    // 2. Gradient Shadow Mask
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, 'rgba(2, 6, 12, 0.65)');
+    grad.addColorStop(0.25, 'rgba(2, 6, 12, 0.15)');
+    grad.addColorStop(0.55, 'rgba(2, 6, 12, 0.6)');
+    grad.addColorStop(1, 'rgba(2, 6, 12, 0.96)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
 
-    ctx.fillStyle = '#f8fafc';
-    ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText(`📍 ${location}`, coverX + 28, coverY + coverH - 27);
+    // Subtle Outer Border
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(16, 16, width - 32, height - 32);
 
-    // 4. Spot Title
-    let currentY = 500;
+    // 3. Top-Left: Logo + GeoMelody
+    ctx.fillStyle = 'rgba(2, 6, 12, 0.6)';
+    ctx.fillRect(44, 44, 180, 42);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.strokeRect(44, 44, 180, 42);
+
+    const logoImg = new Image();
+    logoImg.src = '/logo-128.jpg';
+    await new Promise((res) => {
+      logoImg.onload = res;
+      logoImg.onerror = () => res();
+    });
+
+    try {
+      ctx.drawImage(logoImg, 52, 51, 28, 28);
+    } catch (_) {}
+
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText(name, 48, currentY);
+    ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText('GeoMelody', 90, 72);
 
-    // Music Info Pill
-    currentY += 36;
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText(`♫ ${track.title} · ${currentSpot.audioRecipe?.instruments || '专属音景'} (${currentSpot.audioRecipe?.bpm || 72} BPM)`, 48, currentY);
+    // 4. Bottom Area: Spot Name, Location, Hot Comment & Clean QR
+    const qrSize = 110;
+    const qrX = width - 48 - qrSize;
+    const qrY = height - 48 - qrSize;
 
-    // Description / Story
-    currentY += 30;
+    // Draw QR Code on bottom right
+    if (this.qrCanvas) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX - 6, qrY - 6, qrSize + 12, qrSize + 12);
+      ctx.drawImage(this.qrCanvas, qrX, qrY, qrSize, qrSize);
+    }
+
+    // Spot Title & Location
+    const contentMaxWidth = width - 96 - qrSize - 24;
+    let textY = height - 250;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 10;
+    ctx.fillText(name, 48, textY);
+    ctx.shadowBlur = 0;
+
+    textY += 32;
     ctx.fillStyle = '#cbd5e1';
-    ctx.font = 'italic 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    currentY = wrapText(ctx, currentSpot.description || '', 48, currentY, width - 96, 26, 3);
+    ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillText(`📍 ${location}`, 48, textY);
 
-    // 5. Hot Comment Box
-    currentY += 15;
-    const boxY = currentY;
-    const boxH = 150;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.fillRect(48, boxY, width - 96, boxH);
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(48, boxY, 4, boxH);
-
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('精选热评 · HOT COMMENT', 66, boxY + 28);
-
+    // Hot Comment Card
+    textY += 24;
     const comments = storage.getComments(currentSpot.id) || [];
     const topComment = comments.length > 0
       ? [...comments].sort((a, b) => (Number(b.likes || 0) - Number(a.likes || 0)))[0]
@@ -274,37 +251,22 @@ export const shareCardManager = {
           author: '把晚风装进口袋'
         };
 
+    const commentBoxY = textY;
+    const commentBoxH = 100;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(48, commentBoxY, contentMaxWidth, commentBoxH);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(48, commentBoxY, 4, commentBoxH);
+
     ctx.fillStyle = '#f1f5f9';
-    ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    wrapText(ctx, `“${topComment.text.replace(/^[“”]/g, '')}”`, 66, boxY + 62, width - 132, 24, 2);
+    ctx.font = 'italic 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    wrapText(ctx, `“${topComment.text.replace(/^[“”]/g, '')}”`, 64, commentBoxY + 34, contentMaxWidth - 32, 24, 2);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText(`—— @${topComment.author}`, width - 180, boxY + 126);
+    ctx.fillText(`—— @${topComment.author}`, 64, commentBoxY + 84);
 
-    // 6. QR Code & Guide
-    const footerY = height - 140;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(48, footerY - 15);
-    ctx.lineTo(width - 48, footerY - 15);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    if (this.qrCanvas) {
-      ctx.drawImage(this.qrCanvas, 48, footerY, 96, 96);
-    }
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('扫码或长按直接进入', 162, footerY + 36);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('在 3D 地球上聆听此胜景与专属音乐', 162, footerY + 68);
-
-    // 7. Trigger Image Download
+    // 5. Trigger Image Download
     try {
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
