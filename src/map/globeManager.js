@@ -15,6 +15,9 @@ const SPOT_HIT_LAYER_ID = 'geomelody-spot-hit';
 const SPOT_GLOW_LAYER_ID = 'geomelody-spot-glow';
 const SPOT_HALO_LAYER_ID = 'geomelody-spot-halo';
 const SPOT_CORE_LAYER_ID = 'geomelody-spot-core';
+const AIRPLANE_CONTRAIL_SOURCE_ID = 'geomelody-airplane-contrail';
+const AIRPLANE_CONTRAIL_LAYER_ID = 'geomelody-airplane-contrail-line';
+const AIRPLANE_CONTRAIL_GLOW_LAYER_ID = 'geomelody-airplane-contrail-glow';
 const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY?.trim();
 
 const INITIAL_CAMERA = {
@@ -61,6 +64,9 @@ export class GlobeManager {
     this.airplaneMarker = null;
     this.airplaneProgress = 0.0;
     this.flightOrbitCoords = [];
+    this.contrailTrail = [];
+    this.isAirplaneActive = false;
+    this.isRoaming = false;
   }
 
   async init() {
@@ -773,6 +779,9 @@ export class GlobeManager {
 
   pauseRotation(duration = 5000) {
     this.rotationPausedUntil = Math.max(this.rotationPausedUntil, Date.now() + duration);
+    if (!this.isRoaming) {
+      this.hideAirplane();
+    }
   }
 
   calculateBearing(lng1, lat1, lng2, lat2) {
@@ -817,12 +826,59 @@ export class GlobeManager {
     this.flightOrbitCoords = interpolated;
   }
 
+  initContrailLayer() {
+    if (!this.map || this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID)) return;
+    try {
+      this.map.addSource(AIRPLANE_CONTRAIL_SOURCE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: [] }
+        }
+      });
+
+      this.map.addLayer({
+        id: AIRPLANE_CONTRAIL_GLOW_LAYER_ID,
+        type: 'line',
+        source: AIRPLANE_CONTRAIL_SOURCE_ID,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#38bdf8',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 4, 6, 8],
+          'line-opacity': 0.6,
+          'line-blur': 2
+        }
+      });
+
+      this.map.addLayer({
+        id: AIRPLANE_CONTRAIL_LAYER_ID,
+        type: 'line',
+        source: AIRPLANE_CONTRAIL_SOURCE_ID,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.8, 6, 3],
+          'line-opacity': 0.85
+        }
+      });
+    } catch (e) {
+      console.warn('[Contrail layer init]', e);
+    }
+  }
+
   initAirplaneMarker() {
     if (this.airplaneMarker || !this.map) return;
     this.generateFlightOrbit();
+    this.initContrailLayer();
 
     const el = document.createElement('div');
-    el.className = 'globe-airplane-container';
+    el.className = 'globe-airplane-container hidden';
     el.id = 'globe-airplane-marker';
     el.title = this.currentLanguage === 'en' ? '✈️ Orbiting Earth' : '✈️ 环球漫游飞行中';
     el.innerHTML = `
@@ -844,12 +900,46 @@ export class GlobeManager {
     this.airplaneMarker = new Marker({ element: el })
       .setLngLat(startPos)
       .addTo(this.map);
+  }
 
+  showAirplane() {
+    this.isAirplaneActive = true;
+    this.initAirplaneMarker();
+    this.initContrailLayer();
+    const el = this.airplaneMarker?.getElement();
+    if (el) {
+      el.classList.remove('hidden');
+    }
+  }
+
+  hideAirplane() {
+    this.isAirplaneActive = false;
+    const el = this.airplaneMarker?.getElement();
+    if (el) {
+      el.classList.add('hidden');
+    }
+    this.contrailTrail = [];
+    if (this.map?.getSource(AIRPLANE_CONTRAIL_SOURCE_ID)) {
+      this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID).setData({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [] }
+      });
+    }
+  }
+
+  startRoamingMode() {
+    this.isRoaming = true;
+    this.showAirplane();
     this.stepAirplaneFlight(true);
   }
 
+  stopRoamingMode() {
+    this.isRoaming = false;
+    this.hideAirplane();
+  }
+
   stepAirplaneFlight(forceUpdate = false) {
-    if (!this.airplaneMarker || !this.flightOrbitCoords.length) return;
+    if (!this.airplaneMarker || !this.flightOrbitCoords.length || !this.isAirplaneActive) return;
 
     if (!forceUpdate) {
       this.airplaneProgress = (this.airplaneProgress + 0.0006) % 1.0;
@@ -869,6 +959,21 @@ export class GlobeManager {
       if (bodyWrapper) {
         bodyWrapper.style.transform = `rotate(${bearing}deg)`;
       }
+
+      // Add point to contrail trail (keep last ~2 seconds / points within 2000ms)
+      const now = Date.now();
+      this.contrailTrail.push({ coord: currentCoord, time: now });
+      this.contrailTrail = this.contrailTrail.filter(pt => now - pt.time <= 2000);
+
+      if (this.map?.getSource(AIRPLANE_CONTRAIL_SOURCE_ID) && this.contrailTrail.length > 1) {
+        this.map.getSource(AIRPLANE_CONTRAIL_SOURCE_ID).setData({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: this.contrailTrail.map(pt => pt.coord)
+          }
+        });
+      }
     }
   }
 
@@ -886,10 +991,22 @@ export class GlobeManager {
 
   startAutoRotation() {
     if (this.rotationTimer) return;
-    this.initAirplaneMarker();
     this.rotationTimer = window.setInterval(() => {
-      if (!this.map || this.viewMode !== '3d' || Date.now() < this.rotationPausedUntil) return;
-      if (!this.styleReady || this.map.isMoving() || !this.mapSettings.autoSpin) return;
+      if (!this.map || this.viewMode !== '3d' || Date.now() < this.rotationPausedUntil) {
+        if (!this.isRoaming && this.isAirplaneActive) {
+          this.hideAirplane();
+        }
+        return;
+      }
+      if (!this.styleReady || this.map.isMoving() || !this.mapSettings.autoSpin) {
+        if (!this.isRoaming && this.isAirplaneActive) {
+          this.hideAirplane();
+        }
+        return;
+      }
+
+      // Enter idle rotation -> show and step airplane!
+      this.showAirplane();
       const center = this.map.getCenter();
       this.map.setCenter([normalizeLongitude(center.lng + 0.018), center.lat]);
       this.stepAirplaneFlight();
@@ -899,6 +1016,7 @@ export class GlobeManager {
   setUserLocation({ lng, lat, accuracy }) {
     if (!this.map || typeof lng !== 'number' || typeof lat !== 'number') return;
     this.userLocation = { lng, lat, accuracy };
+    this.airplaneProgress = 0.0; // Reset starting position to user's location
     this.generateFlightOrbit();
 
     if (!this.userMarker) {
@@ -924,9 +1042,10 @@ export class GlobeManager {
       if (badge) badge.textContent = this.currentLanguage === 'en' ? 'My Location' : '我的位置';
     }
 
-    if (!this.airplaneMarker) {
-      this.initAirplaneMarker();
+    if (this.airplaneMarker) {
+      this.airplaneMarker.setLngLat([lng, lat]);
     }
+    this.hideAirplane();
 
     this.flyToUserLocation();
   }

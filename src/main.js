@@ -784,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('dock-btn-wander')?.addEventListener('click', () => {
-    globeManager.initAirplaneMarker();
+    globeManager.startRoamingMode();
     playerManager.randomRoam();
   });
 
@@ -796,7 +796,9 @@ document.addEventListener('DOMContentLoaded', () => {
       autoTourText.textContent = isActive ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
     }
     if (isActive) {
-      globeManager.initAirplaneMarker();
+      globeManager.startRoamingMode();
+    } else {
+      globeManager.stopRoamingMode();
     }
   });
 
