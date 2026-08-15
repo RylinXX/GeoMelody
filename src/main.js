@@ -183,13 +183,25 @@ document.addEventListener('DOMContentLoaded', () => {
     settings: currentSettings,
     onSpotSelect: spot => {
       hideSpotPreviewCard();
-      globeManager.flyToSpot(spot, undefined, true);
+      if (globeManager.isRoaming) {
+        // 巡航模式下：点地图上的光点不直接播放，小飞机飞过去并弹出推荐浮窗，暂停自转等待用户判定
+        globeManager.pauseRotation(60000);
+        globeManager.flyToSpot(spot, undefined, true);
+      } else {
+        // 普通模式下：点击光点直接进入播放
+        playerManager.openSpot(spot, true);
+      }
     },
     onFlybyPlay: spot => {
       hideSpotPreviewCard();
       playerManager.openSpot(spot, true);
     },
-    onMapClick: () => hideSpotPreviewCard()
+    onMapClick: () => {
+      hideSpotPreviewCard();
+      if (globeManager.isRoaming) {
+        globeManager.rotationPausedUntil = 0;
+      }
+    }
   });
   try {
     globeManager.init();
@@ -794,8 +806,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('dock-btn-wander')?.addEventListener('click', () => {
-    globeManager.startRoamingMode();
-    playerManager.randomRoam();
+    // 随机漫游：随机选一个胜景，小飞机飞过去并弹出推荐卡片，暂停漫游自转等待用户判定是否听歌
+    const randomSpot = SCENIC_SPOTS[Math.floor(Math.random() * SCENIC_SPOTS.length)];
+    if (!randomSpot) return;
+
+    globeManager.showAirplane();
+    globeManager.pauseRotation(60000); // 暂停自转，小飞机悬停等待
+    globeManager.flyToSpot(randomSpot, undefined, true);
   });
 
   autoTourBtn?.addEventListener('click', () => {
