@@ -148,16 +148,14 @@ class SoundEngine {
     this.currentStyle = style;
     this.isPlaying = true;
 
-    // Prefer the local, openly licensed reference track. Browsers without Ogg
-    // support or autoplay permission fall back to the procedural sound engine.
+    // Exclusively play user-provided authentic MP3 songs
     const track = getDemoTrack(spot);
-    const startedReferenceTrack = await this.playReferenceTrack(track);
-    if (!startedReferenceTrack) this.startMusicStyle(style);
+    await this.playReferenceTrack(track);
 
-    // Pure music mode: keep ambient generators muted by default unless manually adjusted in the mixer
+    // Keep ambient noise generators completely off
     this.muteAllAmbient();
 
-    this.notify('playStateChange', { isPlaying: true, spot, style });
+    this.notify('playStateChange', { isPlaying: true, spot, style, track });
   }
 
   pause() {
@@ -207,26 +205,44 @@ class SoundEngine {
   }
 
   async playReferenceTrack(track) {
-    if (!this.referenceAudio || !track?.url) return false;
-    const canPlayOgg = this.referenceAudio.canPlayType('audio/ogg; codecs="vorbis"');
-    if (track.url.endsWith('.ogg') && !canPlayOgg) return false;
+    if (!track?.url) return false;
+    if (!this.ctx) this.init();
 
     try {
-      this.referenceAudio.src = track.url;
+      if (!this.referenceAudio.src.endsWith(track.url)) {
+        this.referenceAudio.src = track.url;
+        this.referenceAudio.load();
+      }
       this.referenceAudio.currentTime = 0;
       await this.referenceAudio.play();
       this.currentTrack = track;
       this.notify('trackChange', { track, spot: this.currentSpot });
       return true;
     } catch (error) {
-      console.warn('[GeoMelody Audio] Direct reference playback deferred to synthesis fallback.', error);
-      this.currentTrack = null;
+      console.warn('[GeoMelody Audio] Autoplay pending user interaction:', error);
+      this.currentTrack = track;
+      this.notify('trackChange', { track, spot: this.currentSpot });
+      
+      const onFirstInteract = async () => {
+        window.removeEventListener('click', onFirstInteract);
+        window.removeEventListener('touchstart', onFirstInteract);
+        window.removeEventListener('keydown', onFirstInteract);
+        if (this.isPlaying && this.currentTrack?.url === track.url) {
+          try {
+            await this.resumeContext();
+            await this.referenceAudio.play();
+          } catch (_) {}
+        }
+      };
+      window.addEventListener('click', onFirstInteract, { once: true });
+      window.addEventListener('touchstart', onFirstInteract, { once: true });
+      window.addEventListener('keydown', onFirstInteract, { once: true });
       return false;
     }
   }
 
   applyScenicSoundscape() {
-    // Default ambient background noise is disabled as per user specification.
+    // Ambient background white noise is completely disabled
     this.muteAllAmbient();
   }
 
@@ -239,33 +255,8 @@ class SoundEngine {
     });
   }
 
-  // ==================== Procedural Regional Music Engines ====================
-  startMusicStyle(style) {
-    switch (style) {
-      case 'guzheng_rain':
-        this.playGuzhengRainEngine();
-        break;
-      case 'mountain_ambient':
-        this.playMountainAmbientEngine();
-        break;
-      case 'island_breeze':
-        this.playIslandBreezeEngine();
-        break;
-      case 'desert_strings':
-        this.playDesertStringsEngine();
-        break;
-      case 'forest_guitar':
-        this.playForestGuitarEngine();
-        break;
-      case 'city_lofi':
-        this.playCityLofiEngine();
-        break;
-      case 'lake_zen':
-      default:
-        this.playLakeZenEngine();
-        break;
-    }
-  }
+  // Legacy procedural engines disabled to prioritize authentic songs
+  startMusicStyle() {}
 
   // 1. 江南古风 · 五声音阶古筝与笛韵 (Pentatonic Guzheng & Bamboo Flute)
   playGuzhengRainEngine() {
