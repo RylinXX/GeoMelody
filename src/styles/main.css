@@ -2177,4 +2177,141 @@ button, input {
   background: #dc2626;
 }
 
+/* ==================== Comprehensive Light Mode Theme Adaptations ==================== */
+:root[data-theme="light"] .spot-preview-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(25, 57, 72, 0.16);
+  box-shadow: 0 20px 50px rgba(29, 58, 72, 0.18), 0 0 30px rgba(2, 132, 199, 0.12);
+}
+
+:root[data-theme="light"] .spot-preview-close {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+
+:root[data-theme="light"] .spot-preview-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #e11d48;
+}
+
+:root[data-theme="light"] .spot-preview-badge {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  color: #0284c7;
+}
+
+:root[data-theme="light"] .spot-preview-story {
+  color: #475569;
+}
+
+:root[data-theme="light"] .spot-preview-track-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+
+:root[data-theme="light"] .center-flight-badge {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  color: #0284c7;
+  box-shadow: 0 8px 24px rgba(29, 58, 72, 0.14), 0 0 16px rgba(2, 132, 199, 0.15);
+}
+
+:root[data-theme="light"] .center-flyby-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(2, 132, 199, 0.4);
+  box-shadow: 0 16px 40px rgba(29, 58, 72, 0.16), 0 0 24px rgba(2, 132, 199, 0.15);
+}
+
+:root[data-theme="light"] .flyby-spot-name {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .flyby-track-row {
+  color: #475569;
+}
+
+:root[data-theme="light"] .floating-map-dock {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(25, 57, 72, 0.14);
+  box-shadow: 0 12px 32px rgba(29, 58, 72, 0.14);
+}
+
+:root[data-theme="light"] .dock-btn {
+  color: #475569;
+}
+
+:root[data-theme="light"] .dock-btn:hover {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.2);
+  color: #0284c7;
+}
+
+:root[data-theme="light"] .dock-btn.primary {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(3, 105, 161, 0.22) 100%);
+  border-color: rgba(2, 132, 199, 0.45);
+  color: #0284c7;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.2);
+}
+
+:root[data-theme="light"] .dock-btn.primary:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .dock-divider {
+  background: rgba(25, 57, 72, 0.12);
+}
+
+:root[data-theme="light"] .search-suggestions {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(25, 57, 72, 0.16);
+  box-shadow: 0 16px 40px rgba(29, 58, 72, 0.16);
+}
+
+:root[data-theme="light"] .suggestion-item:hover,
+:root[data-theme="light"] .suggestion-item.active {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+:root[data-theme="light"] .mini-audio-island {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(25, 57, 72, 0.16);
+  box-shadow: 0 16px 40px rgba(29, 58, 72, 0.18), 0 0 24px rgba(2, 132, 199, 0.12);
+}
+
+:root[data-theme="light"] .mini-spot-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .mini-btn {
+  color: #475569;
+}
+
+:root[data-theme="light"] .mini-btn:hover {
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+}
+
+:root[data-theme="light"] .globe-tooltip-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(25, 57, 72, 0.16);
+  color: var(--text-primary);
+  box-shadow: 0 12px 30px rgba(29, 58, 72, 0.18);
+}
+
+:root[data-theme="light"] .tooltip-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .tooltip-loc {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .tooltip-track {
+  color: #0284c7;
+}
+
+
 
