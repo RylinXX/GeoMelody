@@ -82,6 +82,14 @@
           </svg>
           <span class="nav-btn-label" data-i18n="settings">设置</span>
         </button>
+        <button class="nav-btn fullscreen-toggle" id="btn-fullscreen-toggle" title="进入全屏沉浸体验" data-i18n-title="fullscreenTitle" aria-label="切换全屏模式">
+          <svg class="icon-enter-fullscreen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+          </svg>
+          <svg class="icon-exit-fullscreen" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+          </svg>
+        </button>
         <button class="nav-btn theme-toggle" id="btn-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
           <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
@@ -191,6 +199,17 @@
           <line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>
         </svg>
         <span data-i18n="locateMe">我的</span>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button class="dock-btn" id="dock-btn-fullscreen" title="进入全屏沉浸体验" data-i18n-title="fullscreenTitle" aria-pressed="false">
+        <svg class="icon-enter-fullscreen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+        <svg class="icon-exit-fullscreen" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+        </svg>
+        <span id="dock-fullscreen-text" data-i18n="fullscreen">全屏</span>
       </button>
     </div>
 

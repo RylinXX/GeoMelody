@@ -195,7 +195,11 @@ const MESSAGES = {
     travelingTag: '旅行中',
     listenThis: '听这首',
     flyToSpotTitle: '点击飞往此胜景位置',
-    openPlaybackTitle: '点击直接进入播放'
+    openPlaybackTitle: '点击直接进入播放',
+    fullscreen: '全屏',
+    exitFullscreen: '退出全屏',
+    fullscreenTitle: '进入全屏沉浸体验',
+    exitFullscreenTitle: '退出全屏模式'
   },
   en: {
     documentTitle: 'GeoMelody - Immersive 3D Soundscape Map',
@@ -387,7 +391,11 @@ const MESSAGES = {
     travelingTag: 'Traveling',
     listenThis: 'Play This',
     flyToSpotTitle: 'Fly to spot location',
-    openPlaybackTitle: 'Open immersive player'
+    openPlaybackTitle: 'Open immersive player',
+    fullscreen: 'Fullscreen',
+    exitFullscreen: 'Exit Fullscreen',
+    fullscreenTitle: 'Enter Fullscreen Mode',
+    exitFullscreenTitle: 'Exit Fullscreen Mode'
   }
 };
 

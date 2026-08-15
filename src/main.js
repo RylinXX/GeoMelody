@@ -733,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (navLanguageLabel) navLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
     if (playerLanguageLabel) playerLanguageLabel.textContent = currentLanguage === LANGUAGES.EN ? 'EN' : '中';
+    updateFullscreenUI();
   }
 
   function applyTheme(nextTheme, updateMap = true) {
@@ -857,6 +858,69 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
   });
+
+  // ==================== Web / Desktop Fullscreen Controller ====================
+  const headerFullscreenBtn = document.getElementById('btn-fullscreen-toggle');
+  const dockFullscreenBtn = document.getElementById('dock-btn-fullscreen');
+  const dockFullscreenText = document.getElementById('dock-fullscreen-text');
+
+  function isFullscreenActive() {
+    return Boolean(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+  }
+
+  function updateFullscreenUI() {
+    const isFs = isFullscreenActive();
+    const enterIcons = document.querySelectorAll('.icon-enter-fullscreen');
+    const exitIcons = document.querySelectorAll('.icon-exit-fullscreen');
+
+    enterIcons.forEach(icon => { icon.style.display = isFs ? 'none' : 'block'; });
+    exitIcons.forEach(icon => { icon.style.display = isFs ? 'block' : 'none'; });
+
+    headerFullscreenBtn?.setAttribute('aria-pressed', String(isFs));
+    headerFullscreenBtn?.setAttribute('title', isFs ? t('exitFullscreenTitle', currentLanguage) : t('fullscreenTitle', currentLanguage));
+
+    dockFullscreenBtn?.setAttribute('aria-pressed', String(isFs));
+    dockFullscreenBtn?.setAttribute('title', isFs ? t('exitFullscreenTitle', currentLanguage) : t('fullscreenTitle', currentLanguage));
+    dockFullscreenBtn?.classList.toggle('highlight', isFs);
+
+    if (dockFullscreenText) {
+      dockFullscreenText.textContent = isFs ? t('exitFullscreen', currentLanguage) : t('fullscreen', currentLanguage);
+    }
+  }
+
+  function toggleFullscreen() {
+    if (!isFullscreenActive()) {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      } else if (docEl.msRequestFullscreen) {
+        docEl.msRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+  }
+
+  headerFullscreenBtn?.addEventListener('click', toggleFullscreen);
+  dockFullscreenBtn?.addEventListener('click', toggleFullscreen);
+
+  document.addEventListener('fullscreenchange', updateFullscreenUI);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+  document.addEventListener('mozfullscreenchange', updateFullscreenUI);
+  document.addEventListener('MSFullscreenChange', updateFullscreenUI);
 
   searchInput?.addEventListener('input', event => renderSearchResults(event.target.value));
   searchInput?.addEventListener('focus', () => renderSearchResults(searchInput.value));
