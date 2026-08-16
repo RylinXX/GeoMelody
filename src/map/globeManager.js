@@ -129,6 +129,33 @@ export class GlobeManager {
       }
     });
 
+    // Mobile Viewport Dynamic Resize Engine: Ensures 100% full-screen canvas on mobile refresh
+    const container = document.getElementById(this.containerId);
+    if (container && window.ResizeObserver) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.map?.resize();
+      });
+      this.resizeObserver.observe(container);
+    }
+
+    const triggerResize = () => {
+      if (this.map) {
+        this.map.resize();
+      }
+    };
+    window.addEventListener('resize', triggerResize, { passive: true });
+    window.addEventListener('orientationchange', triggerResize, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', triggerResize, { passive: true });
+    }
+
+    // Staged resize executions to adapt to mobile browser URL bar & viewport settlement
+    requestAnimationFrame(triggerResize);
+    setTimeout(triggerResize, 60);
+    setTimeout(triggerResize, 200);
+    setTimeout(triggerResize, 500);
+    setTimeout(triggerResize, 1000);
+
     this.bindRotationPauseEvents();
     if (this.mapSettings.autoSpin) {
       this.startAutoRotation();
