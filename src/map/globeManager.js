@@ -102,7 +102,7 @@ export class GlobeManager {
       renderWorldCopies: false,
       antialias: true,
       terrain: false,
-      space: this.mapSettings.showStars ? { preset: 'stars', color: '#ffffff' } : { color: '#02060c' },
+      space: this.mapSettings.showStars ? { preset: 'stars', color: '#02060c' } : { color: '#02060c' },
       halo: false,
       attributionControl: false,
       navigationControl: false,
@@ -348,7 +348,7 @@ export class GlobeManager {
           if (this.mapSettings.showStars) {
             this.map.setSpace({
               preset: 'stars',
-              color: '#ffffff'
+              color: this.currentTheme === 'dark' ? '#02060c' : '#dce8ed'
             });
           } else {
             this.map.setSpace({ color: this.currentTheme === 'dark' ? '#02060c' : '#dce8ed' });
