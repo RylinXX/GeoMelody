@@ -1,5 +1,23 @@
 /* MapTiler SDK is the single renderer for both globe and flat projections. */
 
+.cosmic-starfield-canvas {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, #070e1a 0%, #02060c 60%, #010307 100%);
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
 #globe-container {
   position: fixed;
   inset: 0;
@@ -13,7 +31,7 @@
   height: 100dvh;
   z-index: 2;
   overflow: hidden;
-  background: #02060c !important;
+  background: transparent !important;
 }
 
 #globe-container .maplibregl-canvas-container,
@@ -23,7 +41,7 @@
   width: 100% !important;
   height: 100% !important;
   overflow: hidden;
-  background: #02060c !important;
+  background: transparent !important;
 }
 
 #globe-container .maplibregl-canvas {
@@ -32,7 +50,7 @@
   width: 100% !important;
   height: 100% !important;
   outline: none;
-  background: #02060c !important;
+  background: transparent !important;
   opacity: 0;
   transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }

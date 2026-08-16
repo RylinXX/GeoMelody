@@ -11,6 +11,7 @@ import { getDemoTrack } from '../data/demoTracks.js';
 import { getSpotName } from '../utils/i18n.js';
 import { DEFAULT_SETTINGS } from '../utils/storage.js';
 import { fetchAndLocalizeStyle } from './styleHelper.js';
+import { StarfieldEngine } from './starfield.js';
 
 const SPOT_SOURCE_ID = 'geomelody-spots';
 const SPOT_HIT_LAYER_ID = 'geomelody-spot-hit';
@@ -81,6 +82,8 @@ export class GlobeManager {
     this.currentFlybySpot = null;
     this.lastFlybyRotationTime = 0;
     this.flybyCandidateIndex = 0;
+    this.starfield = new StarfieldEngine('cosmic-starfield-canvas');
+    this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
   }
 
   async init() {
@@ -357,6 +360,9 @@ export class GlobeManager {
   }
 
   updateSpaceAppearance() {
+    if (this.starfield) {
+      this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
+    }
     if (!this.map) return;
     try {
       if (this.viewMode === '3d') {
@@ -771,6 +777,9 @@ export class GlobeManager {
 
   setTheme(theme = 'dark') {
     this.currentTheme = theme;
+    if (this.starfield) {
+      this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
+    }
     const targetSkin = theme === 'light' ? 'dataviz-light' : 'streets-dark';
     if (this.mapSettings.mapSkin !== targetSkin) {
       this.applyMapSettings({ mapSkin: targetSkin });
