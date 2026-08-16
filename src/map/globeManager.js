@@ -104,6 +104,7 @@ export class GlobeManager {
       terrain: false,
       space: this.mapSettings.showStars ? { preset: 'stars', color: '#ffffff' } : { color: '#02060c' },
       halo: false,
+      attributionControl: false,
       navigationControl: false,
       geolocateControl: false,
       projectionControl: false,

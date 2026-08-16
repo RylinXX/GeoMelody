@@ -41,38 +41,19 @@
   opacity: 1;
 }
 
+/* Completely hide MapTiler watermark logo & attribution controls for pure immersion */
 #globe-container .maplibregl-ctrl-bottom-left,
-#globe-container .maplibregl-ctrl-bottom-right {
-  z-index: 30;
-}
-
-#globe-container .maplibregl-ctrl-bottom-left {
-  bottom: 4px;
-  left: 8px;
-}
-
-#globe-container .maplibregl-ctrl-bottom-right {
-  right: 8px;
-  bottom: 4px;
-}
-
-#globe-container .maplibregl-ctrl-attrib {
-  max-width: min(52vw, 560px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  color: var(--text-muted);
-  background: var(--bg-card);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-#globe-container .maplibregl-ctrl-attrib a {
-  color: var(--text-secondary);
-}
-
-#globe-container .maplibregl-ctrl-logo {
-  opacity: 0.8;
+#globe-container .maplibregl-ctrl-bottom-right,
+#globe-container .maplibregl-ctrl-logo,
+#globe-container .maplibregl-ctrl-attrib,
+#globe-container .maptiler-logo,
+#globe-container .maptiler-ctrl,
+#globe-container a.maplibregl-ctrl-logo,
+#globe-container .maplibregl-ctrl-attrib-inner {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* Lightweight hover card for GeoMelody audio points. */
@@ -142,10 +123,6 @@
 }
 
 @media (max-width: 720px) {
-  #globe-container .maplibregl-ctrl-attrib {
-    max-width: 70vw;
-  }
-
   .globe-tooltip-card {
     display: none;
   }
