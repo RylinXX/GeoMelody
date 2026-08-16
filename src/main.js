@@ -36,19 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Global Image Fallback Interceptor
   initGlobalImageFallback();
 
-  const THEME_STORAGE_KEY = 'geomelody-theme';
+  const THEME_STORAGE_KEY = 'geomelody-map-style';
   let viewMode = '3d';
   let activeRegion = 'asia';
   let currentLanguage = getInitialLanguage();
-  let currentTheme = 'dark';
+  let currentMapSkin = 'fast-dark';
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+    currentMapSkin = localStorage.getItem(THEME_STORAGE_KEY) || 'fast-dark';
   } catch {}
+  const validSkins = ['fast-dark', 'rich-dark', 'light'];
+  if (!validSkins.includes(currentMapSkin)) currentMapSkin = 'fast-dark';
+  let currentTheme = currentMapSkin === 'light' ? 'light' : 'dark';
   let currentSettings = storage.getSettings();
-  if (currentSettings.mapSkin === 'dataviz-light') {
-    currentSettings.mapSkin = 'streets-dark';
-    storage.saveSettings({ mapSkin: 'streets-dark' });
-  }
+  currentSettings.mapSkin = currentMapSkin;
 
   storage.getCommunityPosts().forEach(post => {
     if (!SCENIC_SPOTS.some(spot => spot.id === post.id)) SCENIC_SPOTS.unshift(post);
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     spots: SCENIC_SPOTS,
     language: currentLanguage,
     theme: currentTheme,
-    settings: currentSettings,
+    settings: { ...currentSettings, mapSkin: currentMapSkin },
     onSpotSelect: spot => {
       hideSpotPreviewCard();
       if (globeManager.isRoaming) {
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function syncSettingsInputs() {
     currentSettings = storage.getSettings();
-    if (selectMapSkinInput) selectMapSkinInput.value = currentSettings.mapSkin || 'streets-dark';
+    if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '01-streets-dark';
     if (toggleStarsInput) toggleStarsInput.checked = Boolean(currentSettings.showStars);
     if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
     if (toggleAutoSpinInput) toggleAutoSpinInput.checked = Boolean(currentSettings.autoSpin);
@@ -702,6 +702,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleSettingChange(key, value) {
+    if (key === 'mapSkin') {
+      applyMapSkin(value);
+      storage.saveSettings({ mapSkin: value });
+      showToast(t('settingsSaved', currentLanguage));
+      return;
+    }
     currentSettings = storage.saveSettings({ [key]: value });
     globeManager.applyMapSettings({ [key]: value });
     showToast(t('settingsSaved', currentLanguage));
@@ -715,6 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetSettingsBtn?.addEventListener('click', () => {
     currentSettings = storage.resetSettings();
+    applyMapSkin('01-streets-dark');
     syncSettingsInputs();
     globeManager.applyMapSettings(currentSettings);
     showToast(t('settingsReset', currentLanguage));
@@ -748,39 +755,95 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFullscreenUI();
   }
 
-  function applyTheme(nextTheme, updateMap = true) {
-    if (nextTheme === 'light' || nextTheme === 'dark') {
-      currentTheme = nextTheme;
-    } else {
-      currentTheme = 'dark';
-    }
+  function applyMapSkin(skin) {
+    currentMapSkin = skin || '01-streets-dark';
+    const isLightSkin = ['10-dataviz-light', '11-base-light', '12-streets-light', '13-landscape-light', '14-voyager-light', '15-toner', 'dataviz-light', 'light'].includes(currentMapSkin);
+    currentTheme = isLightSkin ? 'light' : 'dark';
+    
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+      localStorage.setItem(THEME_STORAGE_KEY, currentMapSkin);
     } catch {}
+    
     document.documentElement.dataset.theme = currentTheme;
     document.documentElement.style.colorScheme = currentTheme;
-    if (updateMap) {
-      globeManager.setTheme(currentTheme);
-    }
+    
+    globeManager.setMapSkin(currentMapSkin);
+    
     const isLight = currentTheme === 'light';
-    const themeTitle = isLight
-      ? (currentLanguage === LANGUAGES.EN ? 'Switch to Dark Theme' : '切换为深色模式')
-      : (currentLanguage === LANGUAGES.EN ? 'Switch to Light Theme' : '切换为浅色模式');
-
+    
     [themeBtn, playerThemeBtn].forEach(btn => {
       if (!btn) return;
       btn.classList.toggle('is-light', isLight);
-      btn.setAttribute('aria-pressed', String(isLight));
-      btn.setAttribute('title', themeTitle);
-      btn.setAttribute('aria-label', themeTitle);
     });
+
+    document.querySelectorAll('.theme-option').forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.skin === currentMapSkin);
+    });
+
+    if (selectMapSkinInput) {
+      selectMapSkinInput.value = currentMapSkin;
+    }
   }
 
-  function toggleTheme() {
-    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(nextTheme, true);
-    showToast(t(nextTheme === 'light' ? 'switchedLight' : 'switchedDark', currentLanguage));
+  selectMapSkinInput?.addEventListener('change', (e) => {
+    const skin = e.target.value;
+    if (skin) {
+      applyMapSkin(skin);
+      const label = e.target.options[e.target.selectedIndex]?.text || skin;
+      showToast(`已切换至：${label}`);
+    }
+  });
+
+  // Initial call to set active states correctly
+  applyMapSkin(currentMapSkin);
+
+  function closeAllThemeMenus() {
+    document.getElementById('theme-dropdown-menu')?.classList.remove('visible');
+    document.getElementById('player-theme-dropdown-menu')?.classList.remove('visible');
+    themeBtn?.setAttribute('aria-expanded', 'false');
+    playerThemeBtn?.setAttribute('aria-expanded', 'false');
   }
+
+  themeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const menu = document.getElementById('theme-dropdown-menu');
+    const isVisible = menu?.classList.contains('visible');
+    closeAllThemeMenus();
+    if (!isVisible) {
+      menu?.classList.add('visible');
+      themeBtn.setAttribute('aria-expanded', 'true');
+    }
+  });
+
+  playerThemeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const menu = document.getElementById('player-theme-dropdown-menu');
+    const isVisible = menu?.classList.contains('visible');
+    closeAllThemeMenus();
+    if (!isVisible) {
+      menu?.classList.add('visible');
+      playerThemeBtn.setAttribute('aria-expanded', 'true');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.theme-dropdown-wrapper')) {
+      closeAllThemeMenus();
+    }
+  });
+
+  document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const skin = opt.dataset.skin;
+      if (skin && skin !== currentMapSkin) {
+        applyMapSkin(skin);
+        let name = skin === 'light' ? '明亮地图' : (skin === 'rich-dark' ? '精致暗黑 · 经典街道' : '极速暗黑 · 秒速加载');
+        showToast(`已切换至 ${name}`);
+      }
+      closeAllThemeMenus();
+    });
+  });
 
   function toggleLanguage() {
     applyLanguage(currentLanguage === LANGUAGES.ZH ? LANGUAGES.EN : LANGUAGES.ZH);
@@ -788,8 +851,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   languageBtn?.addEventListener('click', toggleLanguage);
   playerLanguageBtn?.addEventListener('click', toggleLanguage);
-  themeBtn?.addEventListener('click', toggleTheme);
-  playerThemeBtn?.addEventListener('click', toggleTheme);
 
   toggleViewModeBtn?.addEventListener('click', () => {
     viewMode = viewMode === '3d' ? '2d' : '3d';
@@ -836,6 +897,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (autoTourText) {
       autoTourText.textContent = isRoaming ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
     }
+  });
+
+  // Clicking the airplane HUD badge can also exit cruise mode
+  document.getElementById('center-flight-badge')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    exitRoamingMode();
   });
 
   document.getElementById('dock-btn-reset-view')?.addEventListener('click', () => {

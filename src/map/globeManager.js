@@ -83,7 +83,8 @@ export class GlobeManager {
     this.lastFlybyRotationTime = 0;
     this.flybyCandidateIndex = 0;
     this.starfield = new StarfieldEngine('cosmic-starfield-canvas');
-    this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
+    this.starfield.setTheme(this.currentTheme);
+    this.starfield.setEnabled(this.mapSettings.showStars);
   }
 
   async init() {
@@ -165,25 +166,83 @@ export class GlobeManager {
     }
   }
 
-  async getResolvedStyle(skin = 'streets-dark') {
-    const targetSkin = skin || 'streets-dark';
+  async getResolvedStyle(skin) {
+    const targetSkin = skin || '01-streets-dark';
     if (!this.usingMapTilerCloud) {
       return await fetchAndLocalizeStyle(targetSkin, this.currentLanguage, false);
     }
 
     switch (targetSkin) {
+      // 3 Main Presets
+      case 'fast-dark':
+        // 极速暗黑（默认）：极简轻量、超快加载 (编号 02 Dataviz Dark)
+        return MapStyle.DATAVIZ?.DARK ?? MapStyle.BASE?.DARK ?? MapStyle.BASIC?.DARK;
+      case 'rich-dark':
+        // 精致暗黑：经典深色街道、全量城市路网与丰富地标 (编号 01 Streets Dark)
+        return MapStyle.STREETS?.DARK ?? MapStyle.LANDSCAPE?.DARK;
+      case 'light':
+        // 明亮地图：极简明亮浅色 (编号 10 Dataviz Light)
+        return MapStyle.DATAVIZ?.LIGHT ?? MapStyle.BASE?.LIGHT;
+
+      // 01 - 09 Dark modes
+      case '01-streets-dark':
       case 'streets-dark':
-        return MapStyle.STREETS.DARK;
+        return MapStyle.STREETS?.DARK;
+      case '02-dataviz-dark':
       case 'dataviz-dark':
-        return MapStyle.DATAVIZ.DARK;
+        return MapStyle.DATAVIZ?.DARK;
+      case '03-backdrop-dark':
       case 'backdrop-dark':
-        return MapStyle.BACKDROP.DARK;
+        return MapStyle.BACKDROP?.DARK;
+      case '04-landscape-dark':
+      case 'landscape-dark':
+        return MapStyle.LANDSCAPE?.DARK;
+      case '05-base-dark':
+      case 'base-dark':
+        return MapStyle.BASE?.DARK;
+      case '06-outdoor-dark':
+      case 'outdoor-dark':
+        return MapStyle.OUTDOOR?.DARK;
+      case '07-ocean-dark':
+      case 'ocean-dark':
+        return MapStyle.OCEAN?.DARK;
+      case '08-topo-dark':
+      case 'topo-dark':
+        return MapStyle.TOPO?.DARK;
+      case '09-aquarelle-dark':
+      case 'aquarelle-dark':
+        return MapStyle.AQUARELLE?.DARK;
+
+      // 10 - 15 Light modes
+      case '10-dataviz-light':
       case 'dataviz-light':
-        return MapStyle.DATAVIZ.LIGHT;
+        return MapStyle.DATAVIZ?.LIGHT;
+      case '11-base-light':
+      case 'base-light':
+        return MapStyle.BASE?.LIGHT;
+      case '12-streets-light':
+      case 'streets-light':
+        return MapStyle.STREETS?.DEFAULT;
+      case '13-landscape-light':
+      case 'landscape-light':
+        return MapStyle.LANDSCAPE?.DEFAULT;
+      case '14-voyager-light':
+      case 'voyager-light':
+        return MapStyle.VOYAGER?.DEFAULT;
+      case '15-toner':
+      case 'toner':
+        return MapStyle.TONER?.DEFAULT;
+
+      // 16 - 17 Satellite modes
+      case '16-satellite':
       case 'satellite':
-        return MapStyle.SATELLITE;
+        return MapStyle.SATELLITE?.DEFAULT ?? MapStyle.SATELLITE;
+      case '17-hybrid':
+      case 'hybrid':
+        return MapStyle.HYBRID?.DEFAULT ?? MapStyle.HYBRID;
+
       default:
-        return MapStyle.STREETS.DARK;
+        return MapStyle.DATAVIZ?.DARK ?? MapStyle.STREETS?.DARK;
     }
   }
 
@@ -247,7 +306,7 @@ export class GlobeManager {
 
       if (layer.type === 'background') {
         try {
-          this.map.setPaintProperty(layer.id, 'background-opacity', 0);
+          this.map.setPaintProperty(layer.id, 'background-opacity', 1);
         } catch (_) {}
       }
 
@@ -263,7 +322,7 @@ export class GlobeManager {
 
       if (isDayTexture) {
         try {
-          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+          this.map.setLayoutProperty(layer.id, 'visibility', this.currentTheme === 'dark' ? 'none' : 'visible');
         } catch (_) {}
       }
 
@@ -338,20 +397,11 @@ export class GlobeManager {
 
   async applyMapSettings(newSettings) {
     if (!newSettings) return;
-    const prevSkin = this.mapSettings.mapSkin;
+    const skinChanged = newSettings.mapSkin && newSettings.mapSkin !== this.mapSettings.mapSkin;
     this.mapSettings = { ...this.mapSettings, ...newSettings };
 
-    // If map base skin changed, cleanly switch style and restore markers
-    if (newSettings.mapSkin && newSettings.mapSkin !== prevSkin && this.map && this.styleReady) {
-      this.styleReady = false;
-      this.interactionsBound = false;
-      delete this.map.getContainer().dataset.markerLayer;
-      delete this.map.getContainer().dataset.spotCount;
-      const nextStyle = await this.getResolvedStyle(this.mapSettings.mapSkin);
-      this.map.setStyle(nextStyle);
-      this.map.once('style.load', () => this.handleStyleReady());
-      this.map.once('idle', () => this.handleStyleReady());
-      return;
+    if (skinChanged) {
+      await this.setMapSkin(newSettings.mapSkin);
     }
 
     this.applyLayerFilters();
@@ -364,9 +414,50 @@ export class GlobeManager {
     }
   }
 
+  async setMapSkin(skin) {
+    if (!this.map || this.mapSettings.mapSkin === skin) return;
+
+    // Loading transition indicator
+    const mapContainer = document.getElementById(this.containerId);
+    if (mapContainer) {
+      mapContainer.style.transition = 'opacity 0.3s ease';
+      mapContainer.style.opacity = '0.6';
+    }
+
+    this.mapSettings.mapSkin = skin;
+    const isLightSkin = ['10-dataviz-light', '11-base-light', '12-streets-light', '13-landscape-light', '14-voyager-light', '15-toner', 'dataviz-light', 'light'].includes(skin);
+    this.setTheme(isLightSkin ? 'light' : 'dark');
+
+    this.styleReady = false;
+    this.interactionsBound = false;
+    delete this.map.getContainer().dataset.markerLayer;
+    delete this.map.getContainer().dataset.spotCount;
+
+    try {
+      const nextStyle = await this.getResolvedStyle(skin);
+      this.map.setStyle(nextStyle);
+      
+      const onStyleReady = () => {
+        this.handleStyleReady();
+        if (mapContainer) mapContainer.style.opacity = '1';
+      };
+      
+      this.map.once('style.load', onStyleReady);
+      this.map.once('idle', onStyleReady);
+    } catch (e) {
+      console.warn('[GeoMelody map] Failed to load style for skin', skin, e);
+      if (skin !== 'fast-dark') {
+        this.setMapSkin('fast-dark');
+      } else {
+        if (mapContainer) mapContainer.style.opacity = '1';
+      }
+    }
+  }
+
   updateSpaceAppearance() {
     if (this.starfield) {
-      this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
+      this.starfield.setTheme(this.currentTheme);
+      this.starfield.setEnabled(this.mapSettings.showStars);
     }
     if (!this.map) return;
     try {
@@ -776,11 +867,8 @@ export class GlobeManager {
   setTheme(theme = 'dark') {
     this.currentTheme = theme;
     if (this.starfield) {
-      this.starfield.setEnabled(this.mapSettings.showStars && this.currentTheme === 'dark');
-    }
-    const targetSkin = theme === 'light' ? 'dataviz-light' : 'streets-dark';
-    if (this.mapSettings.mapSkin !== targetSkin) {
-      this.applyMapSettings({ mapSkin: targetSkin });
+      this.starfield.setTheme(this.currentTheme);
+      this.starfield.setEnabled(this.mapSettings.showStars);
     }
   }
 
@@ -1023,8 +1111,16 @@ export class GlobeManager {
         return;
       }
 
-      // Standby / Roaming: Show center airplane HUD across both 2D and 3D mode
-      this.showAirplane();
+      // Only show airplane HUD when user has explicitly activated Roaming/Cruise mode
+      if (this.isRoaming) {
+        if (!this.isAirplaneActive) {
+          this.showAirplane();
+        }
+      } else {
+        if (this.isAirplaneActive) {
+          this.hideAirplane();
+        }
+      }
       const center = this.map.getCenter();
       const zoom = this.map.getZoom();
 
@@ -1087,11 +1183,38 @@ export class GlobeManager {
   flyToUserLocation() {
     if (!this.map || !this.userLocation) return;
     this.pauseRotation(10000);
-    const targetZoom = this.viewMode === '3d' ? 6.5 : 9.0;
+    
+    const center = this.map.getCenter();
+    const currentZoom = this.map.getZoom();
+    
+    const dLat = Math.abs(center.lat - this.userLocation.lat);
+    let dLng = Math.abs(center.lng - this.userLocation.lng);
+    while (dLng > 180) dLng -= 360;
+    dLng = Math.abs(dLng);
+    
+    const isClose = dLat < 0.5 && dLng < 0.5;
+    const baseZoom = this.viewMode === '3d' ? 6.5 : 9.0;
+    const streetZoom = this.viewMode === '3d' ? 14.5 : 15.0;
+    
+    let targetZoom = baseZoom;
+    let targetPitch = this.viewMode === '3d' ? 20 : 0;
+    
+    if (isClose && currentZoom >= baseZoom - 0.5) {
+      if (currentZoom >= streetZoom - 1.0) {
+        // Toggle back to city level
+        targetZoom = baseZoom;
+        targetPitch = this.viewMode === '3d' ? 20 : 0;
+      } else {
+        // Zoom to street level
+        targetZoom = streetZoom;
+        targetPitch = this.viewMode === '3d' ? 55 : 0;
+      }
+    }
+
     this.map.flyTo({
       center: [this.userLocation.lng, this.userLocation.lat],
       zoom: targetZoom,
-      pitch: this.viewMode === '3d' ? 20 : 0,
+      pitch: targetPitch,
       bearing: 0,
       duration: 1800,
       essential: true

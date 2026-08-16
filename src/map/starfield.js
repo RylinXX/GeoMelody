@@ -13,6 +13,7 @@ export class StarfieldEngine {
     this.isEnabled = true;
     this.lastShootingStarTime = Date.now();
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.currentTheme = 'dark';
 
     if (this.canvas) {
       this.init();
@@ -48,27 +49,30 @@ export class StarfieldEngine {
   generateStars() {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    const count = Math.floor(Math.min(260, Math.max(120, (width * height) / 5500)));
+    // Sparse, clean, lightweight star count (initial version aesthetic)
+    const count = Math.floor(Math.min(75, Math.max(35, (width * height) / 20000)));
 
-    const starColors = [
+    const starColors = this.currentTheme === 'light' ? [
+      'rgba(148, 163, 184, ', // slate-400
+      'rgba(100, 116, 139, ', // slate-500
+      'rgba(56, 189, 248, '   // subtle cyan
+    ] : [
       'rgba(255, 255, 255, ',
       'rgba(224, 242, 254, ', // Soft ice blue
-      'rgba(56, 189, 248, ',  // Starlight cyan
-      'rgba(254, 240, 138, ', // Soft warm gold
-      'rgba(192, 132, 252, '  // Stardust violet
+      'rgba(56, 189, 248, '   // Starlight cyan
     ];
 
     this.stars = [];
     for (let i = 0; i < count; i++) {
       const colorPrefix = starColors[Math.floor(Math.random() * starColors.length)];
-      const baseAlpha = 0.35 + Math.random() * 0.55;
+      const baseAlpha = 0.25 + Math.random() * 0.45;
       this.stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: 0.55 + Math.random() * 1.35,
+        radius: 0.5 + Math.random() * 0.8,
         colorPrefix,
         baseAlpha,
-        twinkleSpeed: 0.0015 + Math.random() * 0.0035,
+        twinkleSpeed: 0.0012 + Math.random() * 0.0025,
         phase: Math.random() * Math.PI * 2
       });
     }
@@ -127,6 +131,13 @@ export class StarfieldEngine {
     }
   }
 
+  setTheme(theme) {
+    if (this.currentTheme !== theme) {
+      this.currentTheme = theme;
+      this.generateStars();
+    }
+  }
+
   draw(now, dt) {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -138,20 +149,12 @@ export class StarfieldEngine {
     for (let i = 0; i < this.stars.length; i++) {
       const s = this.stars[i];
       const brightness = s.baseAlpha + Math.sin(now * s.twinkleSpeed + s.phase) * 0.35;
-      const alpha = Math.max(0.1, Math.min(1.0, brightness));
+      const alpha = Math.max(0.1, Math.min(0.9, brightness));
 
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `${s.colorPrefix}${alpha})`;
+      ctx.fillStyle = `${s.colorPrefix}${alpha.toFixed(2)})`;
       ctx.fill();
-
-      // Subtle glow for larger stars
-      if (s.radius > 1.2 && alpha > 0.6) {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius * 2.2, 0, Math.PI * 2);
-        ctx.fillStyle = `${s.colorPrefix}${(alpha * 0.18).toFixed(2)})`;
-        ctx.fill();
-      }
     }
 
     // 2. Spawn & Draw Subtle Shooting Stars
@@ -175,9 +178,15 @@ export class StarfieldEngine {
       const tailY = ss.y - Math.sin(ss.angle) * ss.length;
 
       const gradient = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
-      gradient.addColorStop(0, 'rgba(56, 189, 248, 0)');
-      gradient.addColorStop(0.7, `rgba(56, 189, 248, ${(alpha * 0.4).toFixed(2)})`);
-      gradient.addColorStop(1, `rgba(255, 255, 255, ${alpha.toFixed(2)})`);
+      if (this.currentTheme === 'light') {
+        gradient.addColorStop(0, 'rgba(100, 116, 139, 0)');
+        gradient.addColorStop(0.7, `rgba(100, 116, 139, ${(alpha * 0.4).toFixed(2)})`);
+        gradient.addColorStop(1, `rgba(71, 85, 105, ${alpha.toFixed(2)})`);
+      } else {
+        gradient.addColorStop(0, 'rgba(56, 189, 248, 0)');
+        gradient.addColorStop(0.7, `rgba(56, 189, 248, ${(alpha * 0.4).toFixed(2)})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${alpha.toFixed(2)})`);
+      }
 
       ctx.beginPath();
       ctx.moveTo(tailX, tailY);

@@ -9,6 +9,9 @@
 const STYLE_CACHE = new Map();
 
 const FALLBACK_STYLES = {
+  'fast-dark': 'https://tiles.openfreemap.org/styles/dark',
+  'rich-dark': 'https://tiles.openfreemap.org/styles/dark',
+  'light': 'https://tiles.openfreemap.org/styles/positron',
   'streets-dark': 'https://tiles.openfreemap.org/styles/dark',
   'dataviz-dark': 'https://tiles.openfreemap.org/styles/dark',
   'backdrop-dark': 'https://tiles.openfreemap.org/styles/dark',
@@ -49,13 +52,13 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
     const isChinese = language !== 'en';
     const targetTextField = isChinese ? CHINESE_TEXT_FIELD : ENGLISH_TEXT_FIELD;
 
-    // 1. Ensure background layer is transparent so cosmic starfield shines through 3D space
+    // 1. Ensure Earth base layer is solid and opaque so background stars never shine through the globe
     const bgLayer = styleJson.layers?.find(l => l.type === 'background');
     if (bgLayer) {
       bgLayer.paint = {
         ...(bgLayer.paint || {}),
-        'background-color': '#02060c',
-        'background-opacity': 0
+        'background-color': skin.includes('light') ? '#f1f5f9' : '#060a14',
+        'background-opacity': 1
       };
     }
 

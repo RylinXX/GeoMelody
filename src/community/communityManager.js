@@ -170,14 +170,46 @@ function createSeedComments(spot) {
   const backupList = COMMENT_COLLECTIONS.community;
   const fullCollection = [...hotList, ...backupList];
 
-  return fullCollection.map((comment, index) => ({
-    ...comment,
-    id: `${spot.id}-${track.id}-hot-${index + 1}`,
-    text: comment.text.replaceAll('{place}', spot.name),
-    enText: comment.enText.replaceAll('{placeEn}', spot.enName || spot.name),
-    liked: false,
-    isSeed: true
-  }));
+  return fullCollection.map((comment, index) => {
+    const replies = [];
+    if (comment.reply) {
+      replies.push({
+        id: `${spot.id}-${track.id}-reply-${index + 1}-1`,
+        author: comment.reply.author,
+        enAuthor: comment.reply.enAuthor,
+        replyToAuthor: null,
+        text: comment.reply.text.replaceAll('{place}', spot.name),
+        enText: (comment.reply.enText || comment.reply.text).replaceAll('{placeEn}', spot.enName || spot.name),
+        likes: Math.floor((comment.likes || 10) * 0.15) + 1,
+        liked: false,
+        createdAt: comment.createdAt
+      });
+    }
+    if (comment.replies && Array.isArray(comment.replies)) {
+      comment.replies.forEach((r, rIdx) => {
+        replies.push({
+          id: `${spot.id}-${track.id}-reply-${index + 1}-${rIdx + 1}`,
+          author: r.author,
+          enAuthor: r.enAuthor,
+          replyToAuthor: r.replyToAuthor || null,
+          text: r.text.replaceAll('{place}', spot.name),
+          enText: (r.enText || r.text).replaceAll('{placeEn}', spot.enName || spot.name),
+          likes: r.likes || Math.floor((comment.likes || 10) * 0.1) + 1,
+          liked: false,
+          createdAt: r.createdAt || comment.createdAt
+        });
+      });
+    }
+    return {
+      ...comment,
+      id: `${spot.id}-${track.id}-hot-${index + 1}`,
+      text: comment.text.replaceAll('{place}', spot.name),
+      enText: comment.enText.replaceAll('{placeEn}', spot.enName || spot.name),
+      liked: false,
+      isSeed: true,
+      replies
+    };
+  });
 }
 
 function fileToDataUrl(file) {
@@ -199,6 +231,7 @@ export class CommunityManager {
     this.activeSpot = spots[0] || null;
     this.activeTab = 'publish';
     this.commentSort = 'hot';
+    this.replyingTarget = null; // { rootId, targetAuthor, targetId }
 
     this.drawer = document.getElementById('community-drawer');
     this.backdrop = document.getElementById('community-drawer-backdrop');
@@ -216,6 +249,73 @@ export class CommunityManager {
     this.renderLocationOptions();
     this.bindEvents();
     this.setActiveSpot(this.activeSpot);
+  }
+
+  setReplyTarget(target, formType = 'auto') {
+    this.replyingTarget = target;
+    this.updateReplyingUI(formType);
+  }
+
+  cancelReply() {
+    this.replyingTarget = null;
+    this.updateReplyingUI();
+  }
+
+  updateReplyingUI(focusedFormType = 'auto') {
+    const language = this.getLanguage();
+    const author = this.replyingTarget?.targetAuthor;
+
+    // 1. Community Drawer Replying Bar
+    const drawerBar = document.getElementById('community-replying-bar');
+    const drawerTextarea = this.commentsForm?.querySelector('textarea[name="comment"]');
+    if (drawerBar) {
+      if (this.replyingTarget) {
+        drawerBar.style.display = 'flex';
+        const nameEl = drawerBar.querySelector('.replying-name');
+        if (nameEl) nameEl.textContent = `@${author}`;
+        if (drawerTextarea) {
+          drawerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
+        }
+      } else {
+        drawerBar.style.display = 'none';
+        if (drawerTextarea) {
+          drawerTextarea.placeholder = t('commentPlaceholder', language);
+        }
+      }
+    }
+
+    // 2. Immersive Player Replying Bar
+    const playerBar = document.getElementById('player-replying-bar');
+    const playerTextarea = document.getElementById('player-comment-text-input');
+    if (playerBar) {
+      if (this.replyingTarget) {
+        playerBar.style.display = 'flex';
+        const nameEl = playerBar.querySelector('.replying-name');
+        if (nameEl) nameEl.textContent = `@${author}`;
+        if (playerTextarea) {
+          playerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
+        }
+      } else {
+        playerBar.style.display = 'none';
+        if (playerTextarea) {
+          playerTextarea.placeholder = t('postCommentPlaceholder', language);
+        }
+      }
+    }
+
+    if (this.replyingTarget) {
+      if (focusedFormType === 'drawer' && drawerTextarea) {
+        drawerTextarea.focus();
+      } else if (focusedFormType === 'player' && playerTextarea) {
+        playerTextarea.focus();
+      } else {
+        if (this.drawer?.classList.contains('open') && drawerTextarea) {
+          drawerTextarea.focus();
+        } else if (playerTextarea) {
+          playerTextarea.focus();
+        }
+      }
+    }
   }
 
   bindEvents() {
@@ -249,6 +349,10 @@ export class CommunityManager {
     document.getElementById('player-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
     document.getElementById('community-spot-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
 
+    // Cancel reply triggers
+    document.getElementById('btn-cancel-community-reply')?.addEventListener('click', () => this.cancelReply());
+    document.getElementById('btn-cancel-player-reply')?.addEventListener('click', () => this.cancelReply());
+
     // Player Quick Comment Form
     this.playerCommentForm?.addEventListener('submit', event => {
       event.preventDefault();
@@ -278,27 +382,63 @@ export class CommunityManager {
     });
 
     const handleCommentListClick = (event) => {
+      if (!this.activeSpot) return;
+
+      // 1. Delete root comment
       const deleteButton = event.target.closest('[data-comment-delete]');
-      if (deleteButton && this.activeSpot) {
+      if (deleteButton) {
         storage.deleteComment(this.activeSpot.id, deleteButton.dataset.commentDelete);
         this.renderComments();
         return;
       }
-      const replyButton = event.target.closest('[data-comment-reply]');
-      if (replyButton && this.activeSpot) {
-        const comment = this.ensureActiveComments().find(item => item.id === replyButton.dataset.commentReply);
-        const textarea = this.commentsForm?.querySelector('textarea[name="comment"]') || document.getElementById('player-comment-text-input');
-        if (comment && textarea) {
-          const author = this.getLanguage() === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
-          textarea.value = `${t('replyTo', this.getLanguage(), { name: author })} `;
-          textarea.focus();
-        }
+
+      // 2. Delete sub-comment
+      const subDelBtn = event.target.closest('[data-sub-del-id]');
+      if (subDelBtn) {
+        const rootId = subDelBtn.dataset.subDelRoot;
+        const replyId = subDelBtn.dataset.subDelId;
+        storage.deleteComment(this.activeSpot.id, rootId, replyId);
+        this.renderComments();
         return;
       }
+
+      // 3. Reply to sub-comment
+      const subReplyBtn = event.target.closest('[data-sub-reply-root]');
+      if (subReplyBtn) {
+        const rootId = subReplyBtn.dataset.subReplyRoot;
+        const author = subReplyBtn.dataset.subReplyAuthor;
+        const formType = subReplyBtn.closest('#player-comments-list') ? 'player' : 'drawer';
+        this.setReplyTarget({ rootId, targetAuthor: author }, formType);
+        return;
+      }
+
+      // 4. Reply to root comment
+      const replyButton = event.target.closest('[data-comment-reply]');
+      if (replyButton) {
+        const rootId = replyButton.dataset.commentReply;
+        const author = replyButton.dataset.author;
+        const formType = replyButton.closest('#player-comments-list') ? 'player' : 'drawer';
+        this.setReplyTarget({ rootId, targetAuthor: author }, formType);
+        return;
+      }
+
+      // 5. Like sub-comment
+      const subLikeBtn = event.target.closest('[data-sub-like-id]');
+      if (subLikeBtn) {
+        const rootId = subLikeBtn.dataset.subLikeRoot;
+        const replyId = subLikeBtn.dataset.subLikeId;
+        storage.toggleCommentLike(this.activeSpot.id, rootId, replyId);
+        this.renderComments();
+        return;
+      }
+
+      // 6. Like root comment
       const button = event.target.closest('[data-comment-like]');
-      if (!button || !this.activeSpot) return;
-      storage.toggleCommentLike(this.activeSpot.id, button.dataset.commentLike);
-      this.renderComments();
+      if (button) {
+        storage.toggleCommentLike(this.activeSpot.id, button.dataset.commentLike);
+        this.renderComments();
+        return;
+      }
     };
 
     this.commentsList?.addEventListener('click', handleCommentListClick);
@@ -367,7 +507,6 @@ export class CommunityManager {
       },
       err => {
         console.warn('[Publish Location Geolocation]', err);
-        // Sensible fallback
         const fallbackLat = 30.2428;
         const fallbackLng = 120.1504;
         this.currentLocationCoords = { lat: fallbackLat, lng: fallbackLng };
@@ -443,6 +582,7 @@ export class CommunityManager {
   setActiveSpot(spot) {
     if (!spot) return;
     this.activeSpot = spot;
+    this.cancelReply();
     this.ensureActiveComments();
     const name = getSpotName(spot, this.getLanguage());
     const location = getSpotLocation(spot, this.getLanguage());
@@ -463,17 +603,19 @@ export class CommunityManager {
     if (!this.activeSpot) return;
     const likeState = storage.getSpotLike(this.activeSpot.id, seedLikeCount(this.activeSpot.id));
     const comments = this.ensureActiveComments();
+    const totalCount = comments.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0);
+
     document.querySelectorAll('[data-spot-like-count]').forEach(element => {
       element.textContent = String(likeState.count);
     });
     document.querySelectorAll('[data-spot-comment-count]').forEach(element => {
-      element.textContent = String(comments.length);
+      element.textContent = String(totalCount);
     });
 
     const playerCommentsBadge = document.getElementById('player-comments-count-badge');
-    if (playerCommentsBadge) playerCommentsBadge.textContent = String(comments.length);
+    if (playerCommentsBadge) playerCommentsBadge.textContent = String(totalCount);
     const tabCommentsBadge = document.getElementById('player-tab-comments-badge') || document.getElementById('mobile-comments-badge');
-    if (tabCommentsBadge) tabCommentsBadge.textContent = String(comments.length);
+    if (tabCommentsBadge) tabCommentsBadge.textContent = String(totalCount);
 
     [document.getElementById('player-like-btn'), document.getElementById('community-spot-like-btn')].forEach(button => {
       button?.classList.toggle('active', likeState.liked);
@@ -496,7 +638,7 @@ export class CommunityManager {
     return storage.ensureComments(
       this.activeSpot.id,
       createSeedComments(this.activeSpot),
-      `editorial-v3-${track.id}`
+      `nested-v2-${track.id}`
     );
   }
 
@@ -524,15 +666,11 @@ export class CommunityManager {
         this.commentsList.innerHTML = comments.map(comment => {
           const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
           const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
-          const replyAuthor = language === LANGUAGES.EN
-            ? (comment.reply?.enAuthor || comment.reply?.author)
-            : comment.reply?.author;
-          const replyText = language === LANGUAGES.EN
-            ? (comment.reply?.enText || comment.reply?.text)
-            : comment.reply?.text;
           const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
             month: 'short', day: 'numeric'
           }).format(new Date(comment.createdAt));
+          const replies = comment.replies || [];
+
           return `
             <article class="community-comment ${comment.id === pinnedId ? 'pinned' : ''}">
               <div class="comment-meta">
@@ -543,15 +681,51 @@ export class CommunityManager {
                 </div>
                 ${comment.id === pinnedId ? `<span class="pinned-badge">${t('pinnedComment', language)}</span>` : ''}
               </div>
-              <p>${escapeHtml(text)}</p>
-              ${comment.reply ? `<div class="comment-reply-preview"><strong>@${escapeHtml(replyAuthor)}</strong><span>${escapeHtml(replyText)}</span></div>` : ''}
+              <p class="comment-content">${escapeHtml(text)}</p>
               <div class="comment-actions">
-                <button class="comment-reply-btn" type="button" data-comment-reply="${comment.id}">${t('reply', language)}</button>
+                <button class="comment-reply-btn" type="button" data-comment-reply="${comment.id}" data-author="${escapeHtml(author)}">${t('reply', language)}</button>
                 <button class="comment-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}" aria-pressed="${Boolean(comment.liked)}">
-                  <span>♡</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
+                  <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
                 </button>
                 ${comment.isUser ? `<button class="comment-delete-btn" type="button" data-comment-delete="${comment.id}">${t('deleteComment', language)}</button>` : ''}
               </div>
+
+              ${replies.length > 0 ? `
+                <div class="comment-sub-thread">
+                  ${replies.map(sub => {
+                    const subAuthor = language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author;
+                    const subText = language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text;
+                    const subDate = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
+                      month: 'numeric', day: 'numeric'
+                    }).format(new Date(sub.createdAt || comment.createdAt));
+                    const replyTo = sub.replyToAuthor;
+
+                    return `
+                      <div class="sub-comment-item">
+                        <div class="sub-comment-main">
+                          <span class="sub-comment-author">${escapeHtml(subAuthor)}</span>
+                          ${replyTo ? `
+                            <span class="sub-comment-reply-label">回复</span>
+                            <span class="sub-comment-target-author">@${escapeHtml(replyTo)}</span>
+                          ` : ''}
+                          <span class="sub-comment-colon">：</span>
+                          <span class="sub-comment-text">${escapeHtml(subText)}</span>
+                        </div>
+                        <div class="sub-comment-footer">
+                          <span class="sub-comment-time">${subDate}</span>
+                          <div class="sub-comment-actions">
+                            <button class="sub-reply-action-btn" type="button" data-sub-reply-root="${comment.id}" data-sub-reply-author="${escapeHtml(subAuthor)}">${t('reply', language)}</button>
+                            <button class="sub-like-action-btn ${sub.liked ? 'active' : ''}" type="button" data-sub-like-root="${comment.id}" data-sub-like-id="${sub.id}">
+                              <span>${sub.liked ? '♥' : '♡'}</span><span>${Number(sub.likes || 0)}</span>
+                            </button>
+                            ${sub.isUser ? `<button class="sub-del-action-btn" type="button" data-sub-del-root="${comment.id}" data-sub-del-id="${sub.id}">${t('deleteComment', language)}</button>` : ''}
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
             </article>`;
         }).join('');
       }
@@ -568,6 +742,8 @@ export class CommunityManager {
           const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
             month: 'numeric', day: 'numeric'
           }).format(new Date(comment.createdAt));
+          const replies = comment.replies || [];
+
           return `
             <div class="player-comment-card">
               <div class="comment-card-header">
@@ -576,11 +752,45 @@ export class CommunityManager {
                   <span class="comment-author-name">${escapeHtml(author)}</span>
                   <span class="comment-time">${date}</span>
                 </div>
-                <button class="comment-card-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}">
-                  <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0)}</span>
-                </button>
+                <div class="comment-header-actions">
+                  <button class="player-comment-reply-trigger" type="button" data-comment-reply="${comment.id}" data-author="${escapeHtml(author)}">${t('reply', language)}</button>
+                  <button class="comment-card-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}">
+                    <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0)}</span>
+                  </button>
+                </div>
               </div>
               <div class="comment-body">${escapeHtml(text)}</div>
+
+              ${replies.length > 0 ? `
+                <div class="player-sub-thread">
+                  ${replies.map(sub => {
+                    const subAuthor = language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author;
+                    const subText = language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text;
+                    const replyTo = sub.replyToAuthor;
+
+                    return `
+                      <div class="player-sub-item">
+                        <div class="player-sub-content">
+                          <span class="player-sub-author">${escapeHtml(subAuthor)}</span>
+                          ${replyTo ? `
+                            <span class="player-sub-reply-tag">回复</span>
+                            <span class="player-sub-target">@${escapeHtml(replyTo)}</span>
+                          ` : ''}
+                          <span class="player-sub-colon">：</span>
+                          <span class="player-sub-text">${escapeHtml(subText)}</span>
+                        </div>
+                        <div class="player-sub-meta">
+                          <button class="player-sub-reply-btn" type="button" data-sub-reply-root="${comment.id}" data-sub-reply-author="${escapeHtml(subAuthor)}">${t('reply', language)}</button>
+                          <button class="player-sub-like-btn ${sub.liked ? 'active' : ''}" type="button" data-sub-like-root="${comment.id}" data-sub-like-id="${sub.id}">
+                            <span>${sub.liked ? '♥' : '♡'}</span><span>${Number(sub.likes || 0)}</span>
+                          </button>
+                          ${sub.isUser ? `<button class="player-sub-del-btn" type="button" data-sub-del-root="${comment.id}" data-sub-del-id="${sub.id}">${t('deleteComment', language)}</button>` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
             </div>`;
         }).join('');
       }
@@ -595,16 +805,34 @@ export class CommunityManager {
     const text = String(formData.get('comment') || '').trim();
     const author = String(formData.get('author') || '').trim() || t('anonymousTraveler', this.getLanguage());
     if (!text) return;
-    storage.addComment(this.activeSpot.id, {
-      id: `comment-${Date.now()}`,
-      author,
-      text,
-      likes: 0,
-      liked: false,
-      isUser: true,
-      createdAt: new Date().toISOString()
-    });
-    this.commentsForm.reset();
+
+    if (this.replyingTarget) {
+      storage.addReply(this.activeSpot.id, this.replyingTarget.rootId, {
+        id: `reply-${Date.now()}`,
+        author,
+        text,
+        replyToAuthor: this.replyingTarget.targetAuthor,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString()
+      });
+      this.cancelReply();
+    } else {
+      storage.addComment(this.activeSpot.id, {
+        id: `comment-${Date.now()}`,
+        author,
+        text,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString(),
+        replies: []
+      });
+    }
+
+    const textarea = this.commentsForm.querySelector('textarea[name="comment"]');
+    if (textarea) textarea.value = '';
     this.renderComments();
     this.showToast(t('commentAdded', this.getLanguage()));
   }
@@ -616,15 +844,32 @@ export class CommunityManager {
     const text = String(textInput?.value || '').trim();
     const author = String(authorInput?.value || '').trim() || t('anonymousTraveler', this.getLanguage());
     if (!text) return;
-    storage.addComment(this.activeSpot.id, {
-      id: `comment-${Date.now()}`,
-      author,
-      text,
-      likes: 0,
-      liked: false,
-      isUser: true,
-      createdAt: new Date().toISOString()
-    });
+
+    if (this.replyingTarget) {
+      storage.addReply(this.activeSpot.id, this.replyingTarget.rootId, {
+        id: `reply-${Date.now()}`,
+        author,
+        text,
+        replyToAuthor: this.replyingTarget.targetAuthor,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString()
+      });
+      this.cancelReply();
+    } else {
+      storage.addComment(this.activeSpot.id, {
+        id: `comment-${Date.now()}`,
+        author,
+        text,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString(),
+        replies: []
+      });
+    }
+
     if (textInput) textInput.value = '';
     this.renderComments();
     this.showToast(t('commentAdded', this.getLanguage()));

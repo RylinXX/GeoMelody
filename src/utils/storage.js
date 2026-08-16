@@ -47,8 +47,7 @@ export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
-    const validSkins = ['streets-dark', 'dataviz-dark', 'satellite', 'backdrop-dark', 'dataviz-light'];
-    const skin = validSkins.includes(saved.mapSkin) ? saved.mapSkin : 'streets-dark';
+    const skin = saved.mapSkin || '01-streets-dark';
     return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin };
   },
 
@@ -132,18 +131,43 @@ export const storage = {
     return allComments[spotId] || [];
   },
 
-  ensureComments(spotId, seedComments, seedVersion = 'legacy-v1') {
+  ensureComments(spotId, seedComments, seedVersion = 'nested-v2') {
     const allComments = readJson(STORAGE_KEYS.COMMENTS, {});
     const seedVersions = readJson(STORAGE_KEYS.COMMENT_SEED_VERSIONS, {});
+
+    const normalizeComment = (c) => {
+      if (!c.replies) {
+        if (c.reply) {
+          c.replies = [{
+            id: `${c.id}-reply-1`,
+            author: c.reply.author,
+            enAuthor: c.reply.enAuthor,
+            replyToAuthor: null,
+            text: c.reply.text,
+            enText: c.reply.enText,
+            likes: Math.floor((c.likes || 10) * 0.15) + 1,
+            liked: false,
+            createdAt: c.createdAt
+          }];
+        } else {
+          c.replies = [];
+        }
+      }
+      return c;
+    };
+
     if (seedVersions[spotId] !== seedVersion) {
-      const userComments = (allComments[spotId] || []).filter(comment => comment.isUser);
-      allComments[spotId] = [...userComments, ...seedComments];
+      const userComments = (allComments[spotId] || []).filter(comment => comment.isUser).map(normalizeComment);
+      const normalizedSeeds = seedComments.map(normalizeComment);
+      allComments[spotId] = [...userComments, ...normalizedSeeds];
       seedVersions[spotId] = seedVersion;
       writeJson(STORAGE_KEYS.COMMENTS, allComments);
       writeJson(STORAGE_KEYS.COMMENT_SEED_VERSIONS, seedVersions);
     } else if (!allComments[spotId]?.length) {
-      allComments[spotId] = seedComments;
+      allComments[spotId] = seedComments.map(normalizeComment);
       writeJson(STORAGE_KEYS.COMMENTS, allComments);
+    } else {
+      allComments[spotId] = allComments[spotId].map(normalizeComment);
     }
     return allComments[spotId];
   },
@@ -151,27 +175,59 @@ export const storage = {
   addComment(spotId, comment) {
     const allComments = readJson(STORAGE_KEYS.COMMENTS, {});
     const comments = allComments[spotId] || [];
+    if (!comment.replies) comment.replies = [];
     comments.unshift(comment);
     allComments[spotId] = comments;
     writeJson(STORAGE_KEYS.COMMENTS, allComments);
     return comments;
   },
 
-  toggleCommentLike(spotId, commentId) {
+  addReply(spotId, rootCommentId, reply) {
     const allComments = readJson(STORAGE_KEYS.COMMENTS, {});
     const comments = allComments[spotId] || [];
-    const comment = comments.find(item => item.id === commentId);
-    if (!comment) return comments;
-    comment.liked = !comment.liked;
-    comment.likes = Math.max(0, Number(comment.likes || 0) + (comment.liked ? 1 : -1));
+    const rootComment = comments.find(item => item.id === rootCommentId);
+    if (!rootComment) return comments;
+    if (!rootComment.replies) rootComment.replies = [];
+    rootComment.replies.push(reply);
     allComments[spotId] = comments;
     writeJson(STORAGE_KEYS.COMMENTS, allComments);
     return comments;
   },
 
-  deleteComment(spotId, commentId) {
+  toggleCommentLike(spotId, commentId, replyId = null) {
     const allComments = readJson(STORAGE_KEYS.COMMENTS, {});
-    allComments[spotId] = (allComments[spotId] || []).filter(comment => comment.id !== commentId);
+    const comments = allComments[spotId] || [];
+    const rootComment = comments.find(item => item.id === commentId);
+    if (!rootComment) return comments;
+
+    if (replyId) {
+      const reply = (rootComment.replies || []).find(r => r.id === replyId);
+      if (reply) {
+        reply.liked = !reply.liked;
+        reply.likes = Math.max(0, Number(reply.likes || 0) + (reply.liked ? 1 : -1));
+      }
+    } else {
+      rootComment.liked = !rootComment.liked;
+      rootComment.likes = Math.max(0, Number(rootComment.likes || 0) + (rootComment.liked ? 1 : -1));
+    }
+
+    allComments[spotId] = comments;
+    writeJson(STORAGE_KEYS.COMMENTS, allComments);
+    return comments;
+  },
+
+  deleteComment(spotId, commentId, replyId = null) {
+    const allComments = readJson(STORAGE_KEYS.COMMENTS, {});
+    if (replyId) {
+      const comments = allComments[spotId] || [];
+      const rootComment = comments.find(item => item.id === commentId);
+      if (rootComment && rootComment.replies) {
+        rootComment.replies = rootComment.replies.filter(r => r.id !== replyId);
+      }
+      allComments[spotId] = comments;
+    } else {
+      allComments[spotId] = (allComments[spotId] || []).filter(comment => comment.id !== commentId);
+    }
     writeJson(STORAGE_KEYS.COMMENTS, allComments);
     return allComments[spotId];
   },

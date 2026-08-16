@@ -9,18 +9,9 @@
   <link rel="icon" type="image/jpeg" href="/logo-128.jpg">
   <script>
     try {
-      localStorage.setItem('geomelody-theme', 'dark');
-      const rawSettings = localStorage.getItem('geomelody_settings');
-      if (rawSettings) {
-        const parsed = JSON.parse(rawSettings);
-        if (parsed.mapSkin === 'dataviz-light') {
-          parsed.mapSkin = 'streets-dark';
-          localStorage.setItem('geomelody_settings', JSON.stringify(parsed));
-        }
-      }
+      const skin = localStorage.getItem('geomelody-map-style') || 'fast-dark';
+      document.documentElement.dataset.theme = skin === 'light' ? 'light' : 'dark';
     } catch {}
-    document.documentElement.dataset.theme = 'dark';
-    document.documentElement.style.colorScheme = 'dark';
   </script>
   <link rel="stylesheet" href="./src/styles/main.css">
   <link rel="stylesheet" href="./src/styles/map.css">
@@ -90,14 +81,39 @@
             <path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
           </svg>
         </button>
-        <button class="nav-btn theme-toggle" id="btn-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
-          <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-          </svg>
-          <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-          </svg>
-        </button>
+        <div class="theme-dropdown-wrapper" id="theme-dropdown-wrapper">
+          <button class="nav-btn theme-toggle" id="btn-theme-toggle" title="切换地图皮肤" aria-label="切换地图皮肤" aria-expanded="false" aria-haspopup="true">
+            <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+            <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+          </button>
+          <div class="theme-dropdown-menu" id="theme-dropdown-menu">
+            <button class="theme-option" data-skin="fast-dark" title="极速暗黑">
+              <span class="theme-opt-icon">⚡</span>
+              <div class="theme-opt-text">
+                <span class="theme-opt-title">极速暗黑</span>
+                <span class="theme-opt-desc">轻量 · 加载更快</span>
+              </div>
+            </button>
+            <button class="theme-option" data-skin="rich-dark" title="精致暗黑">
+              <span class="theme-opt-icon">✦</span>
+              <div class="theme-opt-text">
+                <span class="theme-opt-title">精致暗黑</span>
+                <span class="theme-opt-desc">地形 · 更多细节</span>
+              </div>
+            </button>
+            <button class="theme-option" data-skin="light" title="明亮地图">
+              <span class="theme-opt-icon">☀</span>
+              <div class="theme-opt-text">
+                <span class="theme-opt-title">明亮地图</span>
+                <span class="theme-opt-desc">浅色 · 清晰明亮</span>
+              </div>
+            </button>
+          </div>
+        </div>
 
         <!-- Compact State-Only Language Toggle -->
         <button class="nav-btn language-toggle-compact" id="btn-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="切换语言">
@@ -342,14 +358,39 @@
               </svg>
             </button>
 
-            <button class="player-action-btn player-theme-btn" id="player-theme-toggle" title="切换深色 / 浅色模式" aria-label="切换深色 / 浅色模式" aria-pressed="false">
-              <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-              </svg>
-              <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-              </svg>
-            </button>
+            <div class="theme-dropdown-wrapper" id="player-theme-dropdown-wrapper">
+              <button class="player-action-btn player-theme-btn" id="player-theme-toggle" title="切换地图皮肤" aria-label="切换地图皮肤" aria-expanded="false" aria-haspopup="true">
+                <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                </svg>
+                <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                </svg>
+              </button>
+              <div class="theme-dropdown-menu player-theme-menu" id="player-theme-dropdown-menu">
+                <button class="theme-option" data-skin="fast-dark" title="极速暗黑">
+                  <span class="theme-opt-icon">⚡</span>
+                  <div class="theme-opt-text">
+                    <span class="theme-opt-title">极速暗黑</span>
+                    <span class="theme-opt-desc">轻量 · 加载更快</span>
+                  </div>
+                </button>
+                <button class="theme-option" data-skin="rich-dark" title="精致暗黑">
+                  <span class="theme-opt-icon">✦</span>
+                  <div class="theme-opt-text">
+                    <span class="theme-opt-title">精致暗黑</span>
+                    <span class="theme-opt-desc">地形 · 更多细节</span>
+                  </div>
+                </button>
+                <button class="theme-option" data-skin="light" title="明亮地图">
+                  <span class="theme-opt-icon">☀</span>
+                  <div class="theme-opt-text">
+                    <span class="theme-opt-title">明亮地图</span>
+                    <span class="theme-opt-desc">浅色 · 清晰明亮</span>
+                  </div>
+                </button>
+              </div>
+            </div>
 
             <!-- Language Toggle (kept available inside immersive mode) -->
             <button class="player-action-btn player-language-btn" id="player-language-toggle" title="切换为 English" data-i18n-title="languageTitle" aria-label="中文 / English">
@@ -401,6 +442,14 @@
 
             <!-- Quick Interactive Comment Form (Bottom) -->
             <form class="player-comment-quick-form" id="player-comment-form">
+              <div class="comment-replying-bar" id="player-replying-bar" style="display: none;">
+                <div class="replying-info">
+                  <span class="replying-icon">↩</span>
+                  <span class="replying-label" data-i18n="reply">回复</span>
+                  <strong class="replying-name">@</strong>
+                </div>
+                <button type="button" class="btn-cancel-reply" id="btn-cancel-player-reply" title="取消回复">✕</button>
+              </div>
               <div class="comment-author-row">
                 <span class="comment-avatar-preview" id="player-user-avatar">
                   <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -778,6 +827,14 @@
           </article>
 
           <form class="community-comment-form" id="community-comment-form">
+            <div class="comment-replying-bar" id="community-replying-bar" style="display: none;">
+              <div class="replying-info">
+                <span class="replying-icon">↩</span>
+                <span class="replying-label" data-i18n="reply">回复</span>
+                <strong class="replying-name">@</strong>
+              </div>
+              <button type="button" class="btn-cancel-reply" id="btn-cancel-community-reply" title="取消回复">✕</button>
+            </div>
             <div class="comment-author-row">
               <span class="comment-avatar-preview">💬</span>
               <input name="author" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
@@ -817,25 +874,43 @@
       </div>
 
       <div class="drawer-body settings-drawer-body">
-        <!-- Section: Map Skin -->
+        <!-- Section: All Map Styles Preview (17 Styles) -->
         <div class="settings-section">
-          <h3 class="settings-section-title" data-i18n="settingsMapSection">地图底图皮肤</h3>
+          <h3 class="settings-section-title">全量底图风格实时预览 (17种)</h3>
           
-          <!-- Map Skin Selector -->
           <div class="setting-item setting-item-vertical">
             <div class="setting-info">
-              <span class="setting-label" data-i18n="settingMapSkin">底图风格选择</span>
-              <span class="setting-desc" data-i18n="settingMapSkinDesc">切换 MapTiler 官方底层渲染皮肤，默认经典深色街道</span>
+              <span class="setting-label">选择底图风格快速试看</span>
+              <span class="setting-desc">点击即刻切换 MapTiler 官方 17 种底图，查看每个编号的具体渲染效果</span>
             </div>
-            <select class="setting-select" id="setting-select-mapskin">
-              <option value="streets-dark" selected data-i18n="skinStreetsDark">经典深色街道 (Streets Dark · 默认推荐)</option>
-              <option value="dataviz-dark" data-i18n="skinDatavizDark">极简暗黑灰 (Dataviz Dark)</option>
-              <option value="backdrop-dark" data-i18n="skinBackdropDark">深邃纯黑底图 (Backdrop Dark)</option>
-              <option value="dataviz-light" data-i18n="skinDatavizLight">极简明亮浅色 (Dataviz Light)</option>
-              <option value="satellite" data-i18n="skinSatellite">真实遥感卫星 (Satellite)</option>
+            <select class="setting-select" id="setting-select-mapskin" style="margin-top: 8px;">
+              <optgroup label="🌌 暗色 / 黑色系模式">
+                <option value="01-streets-dark" selected>01. 经典深色街道 (Streets Dark · 默认推荐)</option>
+                <option value="02-dataviz-dark">02. 极简极暗灰 (Dataviz Dark)</option>
+                <option value="03-backdrop-dark">03. 深邃纯黑底图 (Backdrop Dark)</option>
+                <option value="04-landscape-dark">04. 暗黑地理地形 (Landscape Dark)</option>
+                <option value="05-base-dark">05. 轻量基础暗色 (Base Dark)</option>
+                <option value="06-outdoor-dark">06. 暗黑户外山野 (Outdoor Dark)</option>
+                <option value="07-ocean-dark">07. 深邃海洋模式 (Ocean Dark)</option>
+                <option value="08-topo-dark">08. 暗黑等高线地形 (Topo Dark)</option>
+                <option value="09-aquarelle-dark">09. 暗黑水彩艺术 (Aquarelle Dark)</option>
+              </optgroup>
+              <optgroup label="☀️ 浅色 / 明亮系模式">
+                <option value="10-dataviz-light">10. 极简明亮浅色 (Dataviz Light)</option>
+                <option value="11-base-light">11. 轻量基础浅色 (Base Light)</option>
+                <option value="12-streets-light">12. 经典明亮街道 (Streets Default)</option>
+                <option value="13-landscape-light">13. 明亮地理地形 (Landscape Default)</option>
+                <option value="14-voyager-light">14. 复古旅行者浅色 (Voyager)</option>
+                <option value="15-toner">15. 黑白高对比度版画 (Toner)</option>
+              </optgroup>
+              <optgroup label="🛰️ 遥感与实景模式">
+                <option value="16-satellite">16. 真实遥感卫星照片 (Satellite)</option>
+                <option value="17-hybrid">17. 卫星混合标注 (Hybrid)</option>
+              </optgroup>
             </select>
           </div>
         </div>
+
 
         <!-- Section: Globe & Visuals -->
         <div class="settings-section">
