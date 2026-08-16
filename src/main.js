@@ -426,12 +426,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let isMiniIslandDismissed = false;
+
   function updateMiniPlayButton(isPlaying) {
     if (!miniPlayBtn) return;
     miniPlayBtn.innerHTML = isPlaying
       ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
       : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
     miniPlayBtn.setAttribute('aria-pressed', String(isPlaying));
+    miniPlayBtn.setAttribute('title', isPlaying ? (currentLanguage === LANGUAGES.EN ? 'Pause Playback' : '暂停播放') : (currentLanguage === LANGUAGES.EN ? 'Resume Playback' : '继续播放'));
   }
 
   function updateMiniAudioIsland(spot, isPlaying) {
@@ -440,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const playerIsOpen = document.getElementById('immersive-player')?.classList.contains('active');
-    if (!playerIsOpen && isPlaying) {
+    if (!playerIsOpen && !isMiniIslandDismissed) {
       miniIsland.classList.add('visible');
       const track = getDemoTrack(spot);
       miniThumb.src = spot.photos[0];
@@ -806,13 +809,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('dock-btn-wander')?.addEventListener('click', () => {
-    // 随机漫游：随机选一个胜景，小飞机飞过去并弹出推荐卡片，暂停漫游自转等待用户判定是否听歌
+    // 漫游功能：跳转到推荐歌曲的光点位置，不自动播放音乐，唤出推荐卡片等待用户确定是否点进去听
     const randomSpot = SCENIC_SPOTS[Math.floor(Math.random() * SCENIC_SPOTS.length)];
     if (!randomSpot) return;
 
+    hideSpotPreviewCard();
     globeManager.showAirplane();
     globeManager.pauseRotation(60000); // 暂停自转，小飞机悬停等待
     globeManager.flyToSpot(randomSpot, undefined, true);
+    showToast(t('roamTo', currentLanguage, { name: getSpotName(randomSpot, currentLanguage) }));
   });
 
   autoTourBtn?.addEventListener('click', () => {
@@ -987,29 +992,34 @@ document.addEventListener('DOMContentLoaded', () => {
   miniIsland?.addEventListener('click', event => {
     if (event.target.closest('#mini-close-btn')) {
       event.stopPropagation();
+      isMiniIslandDismissed = true;
       soundEngine.pause();
       miniIsland.classList.remove('visible');
       return;
     }
     if (event.target.closest('#mini-play-toggle-btn')) {
       event.stopPropagation();
+      isMiniIslandDismissed = false;
       playerManager.togglePlay();
       return;
     }
     if (playerManager.currentSpot) {
-      playerManager.openSpot(playerManager.currentSpot, true);
+      isMiniIslandDismissed = false;
+      playerManager.openSpot(playerManager.currentSpot, soundEngine.isPlaying);
     }
   });
 
   document.getElementById('mini-expand-btn')?.addEventListener('click', event => {
     event.stopPropagation();
     if (playerManager.currentSpot) {
-      playerManager.openSpot(playerManager.currentSpot, true);
+      isMiniIslandDismissed = false;
+      playerManager.openSpot(playerManager.currentSpot, soundEngine.isPlaying);
     }
   });
 
   document.getElementById('mini-close-btn')?.addEventListener('click', event => {
     event.stopPropagation();
+    isMiniIslandDismissed = true;
     soundEngine.pause();
     miniIsland?.classList.remove('visible');
   });

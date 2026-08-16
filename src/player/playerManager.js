@@ -199,6 +199,8 @@ export class PlayerManager {
     if (autoStartAudio) {
       soundEngine.playSpot(spot);
       this.updatePlayButton(true);
+    } else {
+      this.updatePlayButton(soundEngine.isPlaying);
     }
 
     this.startPhotoSlideshow();
