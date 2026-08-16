@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chip.setAttribute('aria-pressed', String(region.id === activeRegion));
       chip.innerHTML = `<span class="region-chip-icon">${region.icon}</span><span>${regionName}</span>`;
       chip.addEventListener('click', () => {
+        exitRoamingMode();
         activeRegion = region.id;
         globeManager.flyToRegion(region);
         renderRegionNavigation();
@@ -285,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function selectSearchSpot(spot) {
     if (!spot) return;
+    exitRoamingMode();
     searchDropdown?.classList.remove('visible');
     if (searchInput) {
       searchInput.value = '';
@@ -803,7 +805,20 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(t(viewMode === '3d' ? 'switched3d' : 'switched2d', currentLanguage));
   });
 
+  function exitRoamingMode() {
+    if (globeManager.isRoaming) {
+      globeManager.stopRoamingMode();
+    }
+    globeManager.hideAirplane();
+    autoTourBtn?.classList.remove('primary');
+    autoTourBtn?.setAttribute('aria-pressed', 'false');
+    if (autoTourText) {
+      autoTourText.textContent = t('autoTour', currentLanguage);
+    }
+  }
+
   document.getElementById('btn-brand-home')?.addEventListener('click', () => {
+    exitRoamingMode();
     globeManager.resetView();
     showToast(t('viewReset', currentLanguage));
   });
@@ -813,21 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomSpot = SCENIC_SPOTS[Math.floor(Math.random() * SCENIC_SPOTS.length)];
     if (!randomSpot) return;
 
-    // 1. 关闭巡航模式
-    if (globeManager.isRoaming) {
-      globeManager.stopRoamingMode();
-    }
-    // 2. 隐藏小飞机 HUD，确保视野开阔无遮挡
-    globeManager.hideAirplane();
-
-    // 3. 同步重置巡航按钮 UI 状态
-    autoTourBtn?.classList.remove('primary');
-    autoTourBtn?.setAttribute('aria-pressed', 'false');
-    if (autoTourText) {
-      autoTourText.textContent = t('autoTour', currentLanguage);
-    }
-
-    // 4. 镜头平滑飞跃至该胜景，展示胜景预览卡片供用户决定是否进入
+    exitRoamingMode();
     globeManager.flyToSpot(randomSpot, undefined, false);
     showSpotPreviewCard(randomSpot);
     showToast(t('roamTo', currentLanguage, { name: getSpotName(randomSpot, currentLanguage) }));
@@ -843,6 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('dock-btn-reset-view')?.addEventListener('click', () => {
+    exitRoamingMode();
     globeManager.resetView();
     showToast(t('viewReset', currentLanguage));
   });
@@ -861,6 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const locateBtn = document.getElementById('dock-btn-locate-me');
   locateBtn?.addEventListener('click', () => {
+    exitRoamingMode();
     if (!navigator.geolocation) {
       showToast(t('locateError', currentLanguage));
       return;
