@@ -435,6 +435,11 @@ button, input {
   color: var(--accent-cyan);
 }
 
+#btn-fullscreen-toggle,
+#dock-btn-fullscreen {
+  display: none !important;
+}
+
 .theme-toggle {
   width: 38px;
   min-width: 38px;
