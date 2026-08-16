@@ -809,14 +809,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('dock-btn-wander')?.addEventListener('click', () => {
-    // 漫游功能：跳转到推荐歌曲的光点位置，不自动播放音乐，唤出推荐卡片等待用户确定是否点进去听
+    // 漫游功能：随机跳转到一个推荐胜景点位，同时关闭巡航模式并隐藏小飞机，避免遮挡胜景视线
     const randomSpot = SCENIC_SPOTS[Math.floor(Math.random() * SCENIC_SPOTS.length)];
     if (!randomSpot) return;
 
-    hideSpotPreviewCard();
-    globeManager.showAirplane();
-    globeManager.pauseRotation(60000); // 暂停自转，小飞机悬停等待
-    globeManager.flyToSpot(randomSpot, undefined, true);
+    // 1. 关闭巡航模式
+    if (globeManager.isRoaming) {
+      globeManager.stopRoamingMode();
+    }
+    // 2. 隐藏小飞机 HUD，确保视野开阔无遮挡
+    globeManager.hideAirplane();
+
+    // 3. 同步重置巡航按钮 UI 状态
+    autoTourBtn?.classList.remove('primary');
+    autoTourBtn?.setAttribute('aria-pressed', 'false');
+    if (autoTourText) {
+      autoTourText.textContent = t('autoTour', currentLanguage);
+    }
+
+    // 4. 镜头平滑飞跃至该胜景，展示胜景预览卡片供用户决定是否进入
+    globeManager.flyToSpot(randomSpot, undefined, false);
+    showSpotPreviewCard(randomSpot);
     showToast(t('roamTo', currentLanguage, { name: getSpotName(randomSpot, currentLanguage) }));
   });
 
