@@ -118,8 +118,7 @@ export class GlobeManager {
       logSDKVersion: false
     });
 
-    this.map.on('load', () => this.handleStyleReady());
-    this.map.on('style.load', () => this.handleStyleReady());
+    this.map.once('load', () => this.handleStyleReady());
     this.map.on('idle', () => {
       if (!this.map?.getLayer(SPOT_CORE_LAYER_ID)) {
         this.renderLightDotMarkers();

@@ -11,9 +11,9 @@
   width: 100dvw;
   height: 100vh;
   height: 100dvh;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 45%, #070e1a 0%, #02060c 60%, #010307 100%);
+  background: transparent;
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
 }
