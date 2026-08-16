@@ -10,6 +10,7 @@ import { storage, DEFAULT_SETTINGS } from './utils/storage.js';
 import { shareUtil } from './utils/share.js';
 import { shareCardManager } from './utils/shareCard.js';
 import { CosmicStarfield } from './utils/cosmicStars.js';
+import { initGlobalImageFallback, getFallbackCover } from './utils/imageFallback.js';
 import {
   LANGUAGES,
   applyTranslations,
@@ -33,6 +34,9 @@ function showToast(message) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Global Image Fallback Interceptor
+  initGlobalImageFallback();
+
   // Initialize Cosmic Outer-Space Twinkling Starfield
   try {
     const starfield = new CosmicStarfield();

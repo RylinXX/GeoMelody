@@ -15,6 +15,7 @@ import {
   getSunLabel,
   t
 } from '../utils/i18n.js';
+import { getFallbackCover } from '../utils/imageFallback.js';
 
 export class PlayerManager {
   constructor({ spots, onSpotChange, onExit, showToast, getLanguage = () => LANGUAGES.ZH }) {
@@ -292,6 +293,12 @@ export class PlayerManager {
       img.loading = index === 0 ? 'eager' : 'lazy';
       img.decoding = 'async';
       img.fetchPriority = index === 0 ? 'high' : 'low';
+      img.onerror = () => {
+        if (!img.dataset.fallbackApplied) {
+          img.dataset.fallbackApplied = 'true';
+          img.src = getFallbackCover(this.currentSpot?.category);
+        }
+      };
       this.bgCanvas.appendChild(img);
 
       // Dot indicator
