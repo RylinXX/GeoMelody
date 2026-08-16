@@ -647,28 +647,31 @@ button, input {
   position: fixed;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   z-index: 40;
   opacity: 1;
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.35s ease-out;
 }
 
 .globe-center-flight-overlay.hidden {
   opacity: 0 !important;
   pointer-events: none !important;
-  transform: translate(-50%, -50%) scale(0.55) !important;
 }
 
 .center-airplane-rig {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
   animation: centerAirplaneHover 3s ease-in-out infinite;
 }
 
@@ -717,7 +720,10 @@ button, input {
 }
 
 .center-flight-badge {
-  margin-top: 8px;
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -751,7 +757,10 @@ button, input {
 
 /* ==================== Center Flyover Music Discovery Card ==================== */
 .center-flyby-card {
-  margin-top: 10px;
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -763,6 +772,7 @@ button, input {
   border-radius: 99px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
   pointer-events: auto;
+  width: max-content;
   max-width: min(360px, calc(100vw - 32px));
   animation: flybySlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   transition: transform var(--trans-fast), box-shadow var(--trans-fast), border-color var(--trans-fast);
