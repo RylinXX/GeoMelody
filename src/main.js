@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const spotName = getSpotName(spot, currentLanguage);
       const spotLocation = getSpotLocation(spot, currentLanguage);
       const track = getDemoTrack(spot);
-      const photo = spot.photos?.[0] || '/textures/earth_day.jpg';
+      const photo = spot.photos?.[0] || '/textures/earth_dark.jpg';
 
       return `
         <div class="leaderboard-card ${rankClass}" data-spot-id="${spot.id}" role="button" tabindex="0">

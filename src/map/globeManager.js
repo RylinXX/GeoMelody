@@ -243,6 +243,22 @@ export class GlobeManager {
       const id = layer.id.toLowerCase();
       if (id.startsWith('geomelody-')) return;
 
+      // Filter out any dayTexture, white stylized surface textures, and daytime light overlays
+      const isDayTexture =
+        id.includes('day') ||
+        id.includes('daytexture') ||
+        id.includes('earth_day') ||
+        id.includes('sunlight') ||
+        id.includes('daylight') ||
+        id.includes('atmosphere') ||
+        id.includes('cloud');
+
+      if (isDayTexture) {
+        try {
+          this.map.setLayoutProperty(layer.id, 'visibility', 'none');
+        } catch (_) {}
+      }
+
       if (
         layer.type === 'hillshade' ||
         id.includes('hillshade') ||
