@@ -105,7 +105,7 @@ export class GlobeManager {
       renderWorldCopies: false,
       antialias: true,
       terrain: false,
-      space: this.mapSettings.showStars ? { preset: 'stars', color: '#02060c' } : { color: '#02060c' },
+      space: { color: 'rgba(0, 0, 0, 0)' },
       halo: false,
       attributionControl: false,
       navigationControl: false,
@@ -245,6 +245,12 @@ export class GlobeManager {
       const id = layer.id.toLowerCase();
       if (id.startsWith('geomelody-')) return;
 
+      if (layer.type === 'background') {
+        try {
+          this.map.setPaintProperty(layer.id, 'background-opacity', 0);
+        } catch (_) {}
+      }
+
       // Filter out any dayTexture, white stylized surface textures, and daytime light overlays
       const isDayTexture =
         id.includes('day') ||
@@ -366,14 +372,7 @@ export class GlobeManager {
     try {
       if (this.viewMode === '3d') {
         if (typeof this.map.setSpace === 'function') {
-          if (this.mapSettings.showStars) {
-            this.map.setSpace({
-              preset: 'stars',
-              color: this.currentTheme === 'dark' ? '#02060c' : '#dce8ed'
-            });
-          } else {
-            this.map.setSpace({ color: this.currentTheme === 'dark' ? '#02060c' : '#dce8ed' });
-          }
+          this.map.setSpace({ color: 'rgba(0, 0, 0, 0)' });
         }
 
         if (this.mapSettings.showHalo) {

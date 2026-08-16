@@ -49,10 +49,14 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
     const isChinese = language !== 'en';
     const targetTextField = isChinese ? CHINESE_TEXT_FIELD : ENGLISH_TEXT_FIELD;
 
-    // 1. Ensure background color is deep dark from millisecond 0
+    // 1. Ensure background layer is transparent so cosmic starfield shines through 3D space
     const bgLayer = styleJson.layers?.find(l => l.type === 'background');
     if (bgLayer) {
-      bgLayer.paint = { ...(bgLayer.paint || {}), 'background-color': '#02060c' };
+      bgLayer.paint = {
+        ...(bgLayer.paint || {}),
+        'background-color': '#02060c',
+        'background-opacity': 0
+      };
     }
 
     // 2. Pre-configure text-fields with Chinese/English priority on all label layers
