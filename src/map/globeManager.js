@@ -357,21 +357,19 @@ export class GlobeManager {
   }
 
   async setMapSkin(skin) {
-    if (!this.map || !skin || this.mapSettings.mapSkin === skin) return;
+    if (!this.map || !skin) return;
 
     // Loading transition indicator
     const mapContainer = document.getElementById(this.containerId);
     if (mapContainer) {
-      mapContainer.style.transition = 'opacity 0.3s ease';
-      mapContainer.style.opacity = '0.6';
+      mapContainer.style.transition = 'opacity 0.25s ease';
+      mapContainer.style.opacity = '0.7';
     }
 
     this.mapSettings.mapSkin = skin;
     const isLightSkin = skin === 'white-terrain' || skin === 'light' || skin === '02-white-terrain';
     this.setTheme(isLightSkin ? 'light' : 'dark');
 
-    this.styleReady = false;
-    this.interactionsBound = false;
     delete this.map.getContainer().dataset.markerLayer;
     delete this.map.getContainer().dataset.spotCount;
 
@@ -379,20 +377,20 @@ export class GlobeManager {
       const nextStyle = await this.getResolvedStyle(skin);
       this.map.setStyle(nextStyle);
       
+      let readyDone = false;
       const onStyleReady = () => {
+        if (readyDone) return;
+        readyDone = true;
         this.handleStyleReady();
         if (mapContainer) mapContainer.style.opacity = '1';
       };
       
-      this.map.once('style.load', onStyleReady);
+      this.map.once('styledata', onStyleReady);
       this.map.once('idle', onStyleReady);
+      setTimeout(onStyleReady, 400);
     } catch (e) {
       console.warn('[GeoMelody map] Failed to load style for skin', skin, e);
-      if (skin !== '01-dark' && skin !== 'dark') {
-        this.setMapSkin('01-dark');
-      } else {
-        if (mapContainer) mapContainer.style.opacity = '1';
-      }
+      if (mapContainer) mapContainer.style.opacity = '1';
     }
   }
 
