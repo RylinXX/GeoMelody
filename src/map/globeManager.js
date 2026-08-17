@@ -174,7 +174,15 @@ export class GlobeManager {
       return await fetchWhiteTerrainStyle(MAPTILER_KEY, this.currentLanguage);
     }
 
-    // 2. 01 Classic Dark Streets Theme (01 经典深色街道 / 深色主题)
+    // 2. 03 Fast Dark Theme (极速轻量暗黑 · 极简秒开加载)
+    if (targetSkin === '03-fast-dark' || targetSkin === 'fast-dark' || targetSkin === 'dataviz-dark') {
+      if (!this.usingMapTilerCloud) {
+        return await fetchAndLocalizeStyle('dark', this.currentLanguage, false);
+      }
+      return MapStyle.DATAVIZ?.DARK ?? MapStyle.BASE?.DARK;
+    }
+
+    // 3. 01 Classic Dark Streets Theme (01 经典深色街道 / 细腻路网与丰富地标)
     if (!this.usingMapTilerCloud) {
       return await fetchAndLocalizeStyle('streets-dark', this.currentLanguage, false);
     }

@@ -779,13 +779,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.theme-option').forEach(opt => {
       const optSkin = opt.dataset.skin;
       const isActive = optSkin === currentMapSkin || 
-        (optSkin === '01-dark' && (currentMapSkin === 'streets-dark' || currentMapSkin === '01-streets-dark' || currentMapSkin === 'dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'rich-dark')) ||
-        (optSkin === 'white-terrain' && (currentMapSkin === 'light' || currentMapSkin === '02-white-terrain'));
+        (optSkin === '01-dark' && (currentMapSkin === 'streets-dark' || currentMapSkin === '01-streets-dark' || currentMapSkin === 'dark' || currentMapSkin === 'rich-dark')) ||
+        (optSkin === 'white-terrain' && (currentMapSkin === 'light' || currentMapSkin === '02-white-terrain')) ||
+        (optSkin === '03-fast-dark' && (currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark'));
       opt.classList.toggle('active', isActive);
     });
 
     if (selectMapSkinInput) {
-      selectMapSkinInput.value = isLightSkin ? 'white-terrain' : '01-dark';
+      if (isLightSkin) selectMapSkinInput.value = 'white-terrain';
+      else if (currentMapSkin === '03-fast-dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark') selectMapSkinInput.value = '03-fast-dark';
+      else selectMapSkinInput.value = '01-dark';
     }
   }
 
@@ -842,7 +845,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const skin = opt.dataset.skin;
       if (skin && skin !== currentMapSkin) {
         applyMapSkin(skin);
-        let name = (skin === 'white-terrain' || skin === 'light') ? '白色立体地形 (白陆 · 灰山 · 深蓝海)' : '经典深色街道 (01)';
+        let name = '经典深色街道 (01)';
+        if (skin === 'white-terrain' || skin === 'light') {
+          name = '白色立体地形 (02)';
+        } else if (skin === '03-fast-dark' || skin === 'fast-dark') {
+          name = '极速轻量暗黑 (03)';
+        }
         showToast(`已切换至 ${name}`);
       }
       closeAllThemeMenus();
