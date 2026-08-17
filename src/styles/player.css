@@ -278,7 +278,7 @@
   gap: 32px;
   width: 100%;
   min-width: 0;
-  margin-bottom: 68px; /* Leave clean clearance for bottom audio dock */
+  margin-bottom: 92px; /* Leave clean clearance for switcher dock and bottom audio island */
   pointer-events: none;
 }
 
@@ -300,6 +300,19 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
   min-width: 0;
+  position: relative;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.player-story-card.panel-open,
+.player-story-card.mobile-open,
+.player-story-card.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .story-quote {
@@ -326,7 +339,19 @@
   flex-direction: column;
   gap: 10px;
   overflow: hidden;
-  transition: all var(--trans-normal);
+  position: relative;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.player-floating-comments.panel-open,
+.player-floating-comments.mobile-open,
+.player-floating-comments.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .player-comments-header {
@@ -1293,35 +1318,36 @@
   opacity: 0.6;
 }
 
-/* Mobile Sheet Close Button (Hidden on Desktop) */
+/* Card Close Button (Visible on both Desktop and Mobile when card is open) */
 .mobile-sheet-close {
-  display: none;
+  display: flex;
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 28px;
-  height: 28px;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--text-secondary);
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   z-index: 5;
   transition: all var(--trans-fast);
 }
 
 .mobile-sheet-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
+  transform: scale(1.08);
 }
 
 /* ==================== Morphic Segmented Glass View Switcher Dock (介绍 · 图集 · 评论) ==================== */
 .player-view-switcher-dock {
   position: absolute;
-  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 64px);
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 92px);
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
@@ -1329,7 +1355,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px;
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.18);

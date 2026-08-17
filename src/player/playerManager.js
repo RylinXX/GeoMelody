@@ -77,39 +77,70 @@ export class PlayerManager {
     const closeStoryBtn = document.getElementById('btn-close-story-sheet');
     const closeCommentsBtn = document.getElementById('btn-close-comments-sheet');
 
+    const toggleStoryCard = (forceState) => {
+      const isCurrentlyOpen = storyCard?.classList.contains('panel-open') || storyCard?.classList.contains('mobile-open') || storyCard?.classList.contains('open');
+      const targetState = forceState !== undefined ? forceState : !isCurrentlyOpen;
+      
+      storyCard?.classList.toggle('panel-open', targetState);
+      storyCard?.classList.toggle('mobile-open', targetState);
+      storyCard?.classList.toggle('open', targetState);
+      tabStoryBtn?.classList.toggle('active', targetState);
+      tabStoryBtn?.setAttribute('aria-pressed', String(targetState));
+
+      if (targetState) {
+        // Mutually exclusive: close comments when opening story
+        commentsCard?.classList.remove('panel-open', 'mobile-open', 'open');
+        tabCommentsBtn?.classList.remove('active');
+        tabCommentsBtn?.setAttribute('aria-pressed', 'false');
+      }
+    };
+
+    const toggleCommentsCard = (forceState) => {
+      const isCurrentlyOpen = commentsCard?.classList.contains('panel-open') || commentsCard?.classList.contains('mobile-open') || commentsCard?.classList.contains('open');
+      const targetState = forceState !== undefined ? forceState : !isCurrentlyOpen;
+      
+      commentsCard?.classList.toggle('panel-open', targetState);
+      commentsCard?.classList.toggle('mobile-open', targetState);
+      commentsCard?.classList.toggle('open', targetState);
+      tabCommentsBtn?.classList.toggle('active', targetState);
+      tabCommentsBtn?.setAttribute('aria-pressed', String(targetState));
+
+      if (targetState) {
+        // Mutually exclusive: close story when opening comments
+        storyCard?.classList.remove('panel-open', 'mobile-open', 'open');
+        tabStoryBtn?.classList.remove('active');
+        tabStoryBtn?.setAttribute('aria-pressed', 'false');
+      }
+    };
+
     if (this.overlay) {
       this.overlay.addEventListener('mousemove', () => this.handleUserActivity());
       this.overlay.addEventListener('click', (e) => {
         if (this.uiLayer.classList.contains('ui-hidden')) {
           this.revealUI();
         }
-        if (window.innerWidth <= 768) {
-          if (!e.target.closest('#player-story-card') && !e.target.closest('#player-floating-comments') && !e.target.closest('#player-view-switcher-dock') && !e.target.closest('#player-mobile-pills-bar')) {
-            storyCard?.classList.remove('mobile-open');
-            commentsCard?.classList.remove('mobile-open');
-            tabStoryBtn?.classList.remove('active');
-            tabCommentsBtn?.classList.remove('active');
-          }
+        if (!e.target.closest('#player-story-card') &&
+            !e.target.closest('#player-floating-comments') &&
+            !e.target.closest('#player-view-switcher-dock') &&
+            !e.target.closest('#player-gallery-modal') &&
+            !e.target.closest('#player-control-island') &&
+            !e.target.closest('.player-top-header') &&
+            !e.target.closest('.comment-card-like-btn') &&
+            !e.target.closest('.comment-sub-like-btn')) {
+          toggleStoryCard(false);
+          toggleCommentsCard(false);
         }
       });
     }
 
     tabStoryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = storyCard?.classList.contains('mobile-open');
-      commentsCard?.classList.remove('mobile-open');
-      tabCommentsBtn?.classList.remove('active');
-      storyCard?.classList.toggle('mobile-open', !isOpen);
-      tabStoryBtn?.classList.toggle('active', !isOpen);
+      toggleStoryCard();
     });
 
     tabCommentsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = commentsCard?.classList.contains('mobile-open');
-      storyCard?.classList.remove('mobile-open');
-      tabStoryBtn?.classList.remove('active');
-      commentsCard?.classList.toggle('mobile-open', !isOpen);
-      tabCommentsBtn?.classList.toggle('active', !isOpen);
+      toggleCommentsCard();
     });
 
     tabGalleryBtn?.addEventListener('click', (e) => {
@@ -119,14 +150,12 @@ export class PlayerManager {
 
     closeStoryBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      storyCard?.classList.remove('mobile-open');
-      tabStoryBtn?.classList.remove('active');
+      toggleStoryCard(false);
     });
 
     closeCommentsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      commentsCard?.classList.remove('mobile-open');
-      tabCommentsBtn?.classList.remove('active');
+      toggleCommentsCard(false);
     });
 
     const galleryBtn = document.getElementById('player-gallery-btn');
