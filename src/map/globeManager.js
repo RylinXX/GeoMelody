@@ -1010,32 +1010,32 @@ export class GlobeManager {
       this.flybyAnchorEl.className = 'globe-flyby-anchor-pill';
     }
 
+    // Hide during coordinate repositioning to prevent any top-left flash
+    this.flybyAnchorEl.classList.remove('visible');
+
     this.flybyAnchorEl.innerHTML = `
-      <div class="geo-pill-card" role="button" title="点击直接进入播放">
-        <div class="geo-pill-cover-wrap">
-          <img class="geo-pill-cover-img" src="${coverSrc}" alt="${spotName}">
-        </div>
-        <div class="geo-pill-info">
-          <div class="geo-pill-title-row">
-            <span class="geo-pill-tag">${this.currentLanguage === 'en' ? 'Nearby' : '胜景'}</span>
-            <strong class="geo-pill-spot-name">${spotName}</strong>
+      <div class="geo-pill-inner-anim">
+        <div class="geo-pill-card" role="button" title="点击直接进入播放">
+          <div class="geo-pill-cover-wrap">
+            <img class="geo-pill-cover-img" src="${coverSrc}" alt="${spotName}">
           </div>
-          <span class="geo-pill-track-name">♫ ${trackText}</span>
+          <div class="geo-pill-info">
+            <div class="geo-pill-title-row">
+              <span class="geo-pill-tag">${this.currentLanguage === 'en' ? 'Nearby' : '胜景'}</span>
+              <strong class="geo-pill-spot-name">${spotName}</strong>
+            </div>
+            <span class="geo-pill-track-name">♫ ${trackText}</span>
+          </div>
+          <button type="button" class="geo-pill-play-btn" title="点击听这首">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>${this.currentLanguage === 'en' ? 'Play' : '听这首'}</span>
+          </button>
         </div>
-        <button type="button" class="geo-pill-play-btn" title="点击听这首">
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span>${this.currentLanguage === 'en' ? 'Play' : '听这首'}</span>
-        </button>
-      </div>
-      <div class="geo-pill-pointer">
-        <div class="geo-pill-beacon-dot"></div>
+        <div class="geo-pill-pointer">
+          <div class="geo-pill-beacon-dot"></div>
+        </div>
       </div>
     `;
-
-    // Re-trigger animation on change
-    this.flybyAnchorEl.style.animation = 'none';
-    this.flybyAnchorEl.offsetHeight; // reflow
-    this.flybyAnchorEl.style.animation = 'geoPillBloom 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
 
     this.flybyAnchorEl.onclick = (e) => {
       e.stopPropagation();
@@ -1058,10 +1058,22 @@ export class GlobeManager {
     } else {
       this.flybyAnchorMarker.setLngLat([spot.lng, spot.lat]);
     }
+
+    // Reveal smoothly AFTER MapLibre has calculated screen projection matrix
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.flybyAnchorEl && this.isAirplaneActive) {
+          this.flybyAnchorEl.classList.add('visible');
+        }
+      });
+    });
   }
 
   hideFlybyCard() {
     this.currentFlybySpot = null;
+    if (this.flybyAnchorEl) {
+      this.flybyAnchorEl.classList.remove('visible');
+    }
     if (this.flybyAnchorMarker) {
       this.flybyAnchorMarker.remove();
       this.flybyAnchorMarker = null;

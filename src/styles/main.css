@@ -841,12 +841,31 @@ button, input {
   pointer-events: auto;
   user-select: none;
   z-index: 50;
-  transform: translateY(0);
-  animation: geoPillBloom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.globe-flyby-anchor-pill.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.geo-pill-inner-anim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: bottom center;
+  animation: geoPillBloom 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 @keyframes geoPillBloom {
-  0% { transform: translateY(12px) scale(0.85); opacity: 0; }
+  0% { transform: translateY(10px) scale(0.88); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
