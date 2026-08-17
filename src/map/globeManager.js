@@ -996,10 +996,12 @@ export class GlobeManager {
     const badge = document.getElementById('center-flight-badge');
     if (!card || !spot) return;
 
+    const coverImg = document.getElementById('flyby-cover-img');
     const nameEl = document.getElementById('flyby-spot-name');
     const trackEl = document.getElementById('flyby-track-title');
     const tagEl = document.getElementById('flyby-tag');
 
+    if (coverImg) coverImg.src = spot.photos?.[0] || '';
     if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
     if (tagEl) {
       tagEl.textContent = this.currentLanguage === 'en' ? 'Traveling' : '旅行中';
