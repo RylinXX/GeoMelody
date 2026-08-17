@@ -169,16 +169,16 @@ export class GlobeManager {
   }
 
   async getResolvedStyle(skin) {
-    const targetSkin = skin || '01-dark';
+    const targetSkin = skin || '03-fast-blue';
 
-    // 1. 02 White Terrain High-Contrast Theme (白色陆地 · 灰色山脉 · 深蓝海洋)
-    if (targetSkin === 'white-terrain' || targetSkin === 'light' || targetSkin === '02-white-terrain') {
-      return await fetchWhiteTerrainStyle(MAPTILER_KEY, this.currentLanguage);
-    }
-
-    // 2. 03 Fast Deep Blue Theme (极速深海蓝 · 极轻量深蓝夜色 · 秒开加载)
+    // 1. 03 Fast Deep Blue Theme (极速深海蓝 · 极轻量深蓝夜色 · 秒开加载 - 默认推荐)
     if (targetSkin === '03-fast-blue' || targetSkin === '03-fast-dark' || targetSkin === 'fast-dark' || targetSkin === 'dataviz-dark' || targetSkin === 'fast-blue') {
       return await fetchFastDeepBlueStyle(MAPTILER_KEY, this.currentLanguage);
+    }
+
+    // 2. 02 White Terrain High-Contrast Theme (白色陆地 · 灰色山脉 · 深蓝海洋)
+    if (targetSkin === 'white-terrain' || targetSkin === 'light' || targetSkin === '02-white-terrain') {
+      return await fetchWhiteTerrainStyle(MAPTILER_KEY, this.currentLanguage);
     }
 
     // 3. 01 Classic Dark Streets Theme (01 经典深色街道 / 细腻路网与丰富地标)

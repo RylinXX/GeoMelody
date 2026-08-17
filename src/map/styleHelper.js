@@ -8,6 +8,21 @@
 
 const STYLE_CACHE = new Map();
 
+function getPersistedStyle(key) {
+  try {
+    const raw = sessionStorage.getItem(`gm_style_${key}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function persistStyle(key, data) {
+  try {
+    sessionStorage.setItem(`gm_style_${key}`, JSON.stringify(data));
+  } catch (_) {}
+}
+
 const FALLBACK_STYLES = {
   'fast-dark': 'https://tiles.openfreemap.org/styles/dark',
   'rich-dark': 'https://tiles.openfreemap.org/styles/dark',
@@ -43,6 +58,11 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
   const cacheKey = `${skin}-${language}-${showHillshade}`;
   if (STYLE_CACHE.has(cacheKey)) {
     return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
+  }
+  const persisted = getPersistedStyle(cacheKey);
+  if (persisted) {
+    STYLE_CACHE.set(cacheKey, persisted);
+    return JSON.parse(JSON.stringify(persisted));
   }
 
   const url = FALLBACK_STYLES[skin] || FALLBACK_STYLES['streets-dark'];
@@ -86,6 +106,7 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
     }
 
     STYLE_CACHE.set(cacheKey, styleJson);
+    persistStyle(cacheKey, styleJson);
     return JSON.parse(JSON.stringify(styleJson));
   } catch (error) {
     console.warn('[GeoMelody StyleHelper] Failed to localize style online, using direct URL', error);
@@ -103,6 +124,11 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
   const cacheKey = `white-terrain-${language}-${apiKey ? 'cloud' : 'local'}`;
   if (STYLE_CACHE.has(cacheKey)) {
     return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
+  }
+  const persisted = getPersistedStyle(cacheKey);
+  if (persisted) {
+    STYLE_CACHE.set(cacheKey, persisted);
+    return JSON.parse(JSON.stringify(persisted));
   }
 
   const url = apiKey
@@ -165,6 +191,7 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
     }
 
     STYLE_CACHE.set(cacheKey, styleJson);
+    persistStyle(cacheKey, styleJson);
     return JSON.parse(JSON.stringify(styleJson));
   } catch (err) {
     console.warn('[GeoMelody StyleHelper] Failed to fetch white terrain style, fallback to positron', err);
@@ -174,7 +201,7 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
 
 /**
  * Generates custom Ultra-Fast Deep Midnight Blue Theme (极速深海蓝)
- * - Ultra-lightweight Dataviz base (only ~40 layers, loads in ~100ms)
+ * - Ultra-lightweight Dataviz base (only ~30 layers, loads in ~100ms)
  * - Ocean / Water: Deep Midnight Blue (#051020)
  * - Land: Dark Oceanic Slate (#0E1D33)
  * - Borders: Muted Cyan Blue (#264973)
@@ -184,6 +211,11 @@ export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
   const cacheKey = `fast-deep-blue-${language}-${apiKey ? 'cloud' : 'local'}`;
   if (STYLE_CACHE.has(cacheKey)) {
     return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
+  }
+  const persisted = getPersistedStyle(cacheKey);
+  if (persisted) {
+    STYLE_CACHE.set(cacheKey, persisted);
+    return JSON.parse(JSON.stringify(persisted));
   }
 
   const url = apiKey
@@ -244,6 +276,7 @@ export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
     }
 
     STYLE_CACHE.set(cacheKey, styleJson);
+    persistStyle(cacheKey, styleJson);
     return JSON.parse(JSON.stringify(styleJson));
   } catch (err) {
     console.warn('[GeoMelody StyleHelper] Failed to fetch fast deep blue style, fallback to dark', err);

@@ -41,12 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let viewMode = '3d';
   let activeRegion = 'asia';
   let currentLanguage = getInitialLanguage();
-  let currentMapSkin = 'fast-dark';
+  let currentMapSkin = '03-fast-blue';
   try {
-    currentMapSkin = localStorage.getItem(THEME_STORAGE_KEY) || 'fast-dark';
+    currentMapSkin = localStorage.getItem(THEME_STORAGE_KEY) || currentSettings.mapSkin || '03-fast-blue';
   } catch {}
-  const validSkins = ['fast-dark', 'rich-dark', 'light'];
-  if (!validSkins.includes(currentMapSkin)) currentMapSkin = 'fast-dark';
+  const validSkins = ['03-fast-blue', '01-dark', 'white-terrain', 'fast-dark', 'rich-dark', 'light'];
+  if (!validSkins.includes(currentMapSkin)) currentMapSkin = '03-fast-blue';
   let currentTheme = currentMapSkin === 'light' ? 'light' : 'dark';
   let currentSettings = storage.getSettings();
   currentSettings.mapSkin = currentMapSkin;
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function syncSettingsInputs() {
     currentSettings = storage.getSettings();
-    if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '01-streets-dark';
+    if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '03-fast-blue';
     if (selectPlaneSkinInput) selectPlaneSkinInput.value = currentSettings.planeSkin || '01-airliner';
     if (toggleStarsInput) toggleStarsInput.checked = Boolean(currentSettings.showStars);
     if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
@@ -742,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetSettingsBtn?.addEventListener('click', () => {
     currentSettings = storage.resetSettings();
-    applyMapSkin('01-streets-dark');
+    applyMapSkin('03-fast-blue');
     applyAirplaneSkin('01-airliner');
     syncSettingsInputs();
     globeManager.applyMapSettings(currentSettings);

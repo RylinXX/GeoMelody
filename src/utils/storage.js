@@ -14,7 +14,7 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  mapSkin: '01-dark', // 默认经典深色街道 (01 Streets Dark)
+  mapSkin: '03-fast-blue', // 默认极速深海蓝 (Dataviz Blue · 极轻量秒速加载)
   planeSkin: '01-airliner', // 巡航航天飞行器模型皮肤
   showStars: true, // 深空点点星宿背景
   showHalo: false, // 3D 大气层微光晕 (默认关闭)
@@ -48,7 +48,7 @@ export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin, plane skin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
-    const skin = saved.mapSkin || '01-dark';
+    const skin = saved.mapSkin || '03-fast-blue';
     const planeSkin = saved.planeSkin || '01-airliner';
     return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin, planeSkin };
   },

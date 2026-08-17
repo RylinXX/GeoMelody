@@ -7,9 +7,13 @@
   <meta name="description" content="地球旋律（GeoMelody）是一款3D地理可视化沉浸式云旅游Web产品。旋转3D地球探索全球美景，沉浸式观看实景美景、聆听地域专属AI纯音乐与自然音效。">
   <meta name="keywords" content="地球旋律, GeoMelody, 3D地球, 云旅游, 白噪音, 地理可视化, AI音乐, 治愈, 专注, 冥想, 放松, 助眠">
   <link rel="icon" type="image/jpeg" href="/logo-128.jpg">
+  <link rel="preconnect" href="https://api.maptiler.com" crossorigin>
+  <link rel="dns-prefetch" href="https://api.maptiler.com">
+  <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+  <link rel="dns-prefetch" href="https://tiles.openfreemap.org">
   <script>
     try {
-      const skin = localStorage.getItem('geomelody-map-style') || 'fast-dark';
+      const skin = localStorage.getItem('geomelody-map-style') || '03-fast-blue';
       document.documentElement.dataset.theme = skin === 'light' ? 'light' : 'dark';
     } catch {}
   </script>
@@ -844,9 +848,9 @@
               <span class="setting-desc">经典深色街道 (01) 或 高对比度纯白立体地形主题</span>
             </div>
             <select class="setting-select" id="setting-select-mapskin" style="margin-top: 8px;">
-              <option value="01-dark" selected>🌌 01. 经典深色街道 (Streets Dark · 细腻路网与丰富地标)</option>
-              <option value="white-terrain">🏔️ 02. 白色立体地形 (纯白陆地 · 灰色山脉 · 深蓝海洋)</option>
-              <option value="03-fast-blue">🌊 03. 极速深海蓝 (Dataviz Blue · 极轻量秒速加载)</option>
+              <option value="03-fast-blue" selected>⚡ 01. 极速深海蓝 (Dataviz Blue · 极轻量秒速加载 · 默认推荐)</option>
+              <option value="01-dark">🌌 02. 经典深色街道 (Streets Dark · 细腻路网与丰富地标)</option>
+              <option value="white-terrain">🏔️ 03. 白色立体地形 (纯白陆地 · 灰色山脉 · 深蓝海洋)</option>
             </select>
           </div>
         </div>
