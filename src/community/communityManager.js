@@ -249,11 +249,83 @@ export class CommunityManager {
     this.renderLocationOptions();
     this.bindEvents();
     this.setActiveSpot(this.activeSpot);
+    this.updateUserNicknameDisplays();
+  }
+
+  updateUserNicknameDisplays() {
+    const nick = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    const pName = document.getElementById('player-user-name-display');
+    const cName = document.getElementById('community-user-name-display');
+    if (pName) pName.textContent = nick;
+    if (cName) cName.textContent = nick;
+  }
+
+  expandCommentForm(formType = 'player') {
+    const isPlayer = formType === 'player';
+    const compactBar = document.getElementById(isPlayer ? 'player-comment-compact-bar' : 'community-comment-compact-bar');
+    const expandedPanel = document.getElementById(isPlayer ? 'player-comment-expanded-panel' : 'community-comment-expanded-panel');
+    const textarea = document.getElementById(isPlayer ? 'player-comment-text-input' : 'community-comment-text-input');
+
+    this.updateUserNicknameDisplays();
+    if (compactBar) compactBar.style.display = 'none';
+    if (expandedPanel) {
+      expandedPanel.style.display = 'flex';
+    }
+    if (textarea) {
+      setTimeout(() => textarea.focus(), 50);
+    }
+  }
+
+  collapseCommentForm(formType = 'player') {
+    const isPlayer = formType === 'player';
+    const compactBar = document.getElementById(isPlayer ? 'player-comment-compact-bar' : 'community-comment-compact-bar');
+    const expandedPanel = document.getElementById(isPlayer ? 'player-comment-expanded-panel' : 'community-comment-expanded-panel');
+    const nicknameRow = document.getElementById(isPlayer ? 'player-nickname-edit-row' : 'community-nickname-edit-row');
+
+    if (expandedPanel) expandedPanel.style.display = 'none';
+    if (compactBar) compactBar.style.display = 'flex';
+    if (nicknameRow) nicknameRow.style.display = 'none';
+  }
+
+  toggleNicknameEdit(formType = 'player') {
+    const isPlayer = formType === 'player';
+    const nicknameRow = document.getElementById(isPlayer ? 'player-nickname-edit-row' : 'community-nickname-edit-row');
+    const authorInput = document.getElementById(isPlayer ? 'player-comment-author-input' : 'community-comment-author-input');
+    if (!nicknameRow) return;
+
+    const isVisible = nicknameRow.style.display === 'flex';
+    if (isVisible) {
+      nicknameRow.style.display = 'none';
+    } else {
+      nicknameRow.style.display = 'flex';
+      if (authorInput) {
+        authorInput.value = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+        setTimeout(() => {
+          authorInput.focus();
+          authorInput.select();
+        }, 50);
+      }
+    }
+  }
+
+  saveNickname(formType = 'player') {
+    const isPlayer = formType === 'player';
+    const authorInput = document.getElementById(isPlayer ? 'player-comment-author-input' : 'community-comment-author-input');
+    const nicknameRow = document.getElementById(isPlayer ? 'player-nickname-edit-row' : 'community-nickname-edit-row');
+    const val = String(authorInput?.value || '').trim();
+    if (val) {
+      storage.setUserNickname(val);
+      this.updateUserNicknameDisplays();
+      this.showToast(`已保存昵称为「${val}」`);
+    }
+    if (nicknameRow) nicknameRow.style.display = 'none';
   }
 
   setReplyTarget(target, formType = 'auto') {
     this.replyingTarget = target;
-    this.updateReplyingUI(formType);
+    const targetType = formType === 'player' ? 'player' : (formType === 'drawer' ? 'drawer' : (this.drawer?.classList.contains('open') ? 'drawer' : 'player'));
+    this.expandCommentForm(targetType);
+    this.updateReplyingUI(targetType);
   }
 
   cancelReply() {
@@ -267,7 +339,7 @@ export class CommunityManager {
 
     // 1. Community Drawer Replying Bar
     const drawerBar = document.getElementById('community-replying-bar');
-    const drawerTextarea = this.commentsForm?.querySelector('textarea[name="comment"]');
+    const drawerTextarea = document.getElementById('community-comment-text-input');
     if (drawerBar) {
       if (this.replyingTarget) {
         drawerBar.style.display = 'flex';
@@ -348,6 +420,41 @@ export class CommunityManager {
     document.getElementById('player-comments-btn')?.addEventListener('click', () => this.open('comments', this.activeSpot));
     document.getElementById('player-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
     document.getElementById('community-spot-like-btn')?.addEventListener('click', () => this.toggleSpotLike());
+
+    // Compact Trigger Bar Click Handlers (Expands form)
+    document.getElementById('player-compact-fake-input')?.addEventListener('click', () => this.expandCommentForm('player'));
+    document.getElementById('player-compact-trigger-btn')?.addEventListener('click', () => this.expandCommentForm('player'));
+    document.getElementById('community-compact-fake-input')?.addEventListener('click', () => this.expandCommentForm('drawer'));
+    document.getElementById('community-compact-trigger-btn')?.addEventListener('click', () => this.expandCommentForm('drawer'));
+
+    // Collapse Form Handlers
+    document.getElementById('btn-collapse-player-form')?.addEventListener('click', () => {
+      this.collapseCommentForm('player');
+      this.cancelReply();
+    });
+    document.getElementById('btn-collapse-community-form')?.addEventListener('click', () => {
+      this.collapseCommentForm('drawer');
+      this.cancelReply();
+    });
+
+    // Nickname User Chip and Save Handlers
+    document.getElementById('player-comment-user-chip')?.addEventListener('click', () => this.toggleNicknameEdit('player'));
+    document.getElementById('btn-save-player-nickname')?.addEventListener('click', () => this.saveNickname('player'));
+    document.getElementById('player-comment-author-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.saveNickname('player');
+      }
+    });
+
+    document.getElementById('community-comment-user-chip')?.addEventListener('click', () => this.toggleNicknameEdit('drawer'));
+    document.getElementById('btn-save-community-nickname')?.addEventListener('click', () => this.saveNickname('drawer'));
+    document.getElementById('community-comment-author-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.saveNickname('drawer');
+      }
+    });
 
     // Cancel reply triggers
     document.getElementById('btn-cancel-community-reply')?.addEventListener('click', () => this.cancelReply());
@@ -801,48 +908,9 @@ export class CommunityManager {
 
   addComment() {
     if (!this.activeSpot || !this.commentsForm) return;
-    const formData = new FormData(this.commentsForm);
-    const text = String(formData.get('comment') || '').trim();
-    const author = String(formData.get('author') || '').trim() || t('anonymousTraveler', this.getLanguage());
-    if (!text) return;
-
-    if (this.replyingTarget) {
-      storage.addReply(this.activeSpot.id, this.replyingTarget.rootId, {
-        id: `reply-${Date.now()}`,
-        author,
-        text,
-        replyToAuthor: this.replyingTarget.targetAuthor,
-        likes: 0,
-        liked: false,
-        isUser: true,
-        createdAt: new Date().toISOString()
-      });
-      this.cancelReply();
-    } else {
-      storage.addComment(this.activeSpot.id, {
-        id: `comment-${Date.now()}`,
-        author,
-        text,
-        likes: 0,
-        liked: false,
-        isUser: true,
-        createdAt: new Date().toISOString(),
-        replies: []
-      });
-    }
-
-    const textarea = this.commentsForm.querySelector('textarea[name="comment"]');
-    if (textarea) textarea.value = '';
-    this.renderComments();
-    this.showToast(t('commentAdded', this.getLanguage()));
-  }
-
-  addPlayerComment() {
-    if (!this.activeSpot) return;
-    const authorInput = document.getElementById('player-comment-author-input');
-    const textInput = document.getElementById('player-comment-text-input');
+    const textInput = document.getElementById('community-comment-text-input');
     const text = String(textInput?.value || '').trim();
-    const author = String(authorInput?.value || '').trim() || t('anonymousTraveler', this.getLanguage());
+    const author = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
     if (!text) return;
 
     if (this.replyingTarget) {
@@ -871,6 +939,45 @@ export class CommunityManager {
     }
 
     if (textInput) textInput.value = '';
+    this.collapseCommentForm('drawer');
+    this.renderComments();
+    this.showToast(t('commentAdded', this.getLanguage()));
+  }
+
+  addPlayerComment() {
+    if (!this.activeSpot) return;
+    const textInput = document.getElementById('player-comment-text-input');
+    const text = String(textInput?.value || '').trim();
+    const author = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    if (!text) return;
+
+    if (this.replyingTarget) {
+      storage.addReply(this.activeSpot.id, this.replyingTarget.rootId, {
+        id: `reply-${Date.now()}`,
+        author,
+        text,
+        replyToAuthor: this.replyingTarget.targetAuthor,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString()
+      });
+      this.cancelReply();
+    } else {
+      storage.addComment(this.activeSpot.id, {
+        id: `comment-${Date.now()}`,
+        author,
+        text,
+        likes: 0,
+        liked: false,
+        isUser: true,
+        createdAt: new Date().toISOString(),
+        replies: []
+      });
+    }
+
+    if (textInput) textInput.value = '';
+    this.collapseCommentForm('player');
     this.renderComments();
     this.showToast(t('commentAdded', this.getLanguage()));
   }

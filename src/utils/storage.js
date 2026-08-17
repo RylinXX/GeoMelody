@@ -63,6 +63,22 @@ export const storage = {
     return { ...DEFAULT_SETTINGS };
   },
 
+  // User Profile / Nickname
+  getUserNickname(fallback = '音乐旅人') {
+    try {
+      return localStorage.getItem('geomelody_user_nickname') || fallback;
+    } catch {
+      return fallback;
+    }
+  },
+
+  setUserNickname(name) {
+    if (!name || !name.trim()) return;
+    try {
+      localStorage.setItem('geomelody_user_nickname', name.trim());
+    } catch {}
+  },
+
   // Favorites
   getFavorites() {
     try {

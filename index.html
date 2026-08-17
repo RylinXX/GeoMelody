@@ -450,24 +450,55 @@
                 </div>
                 <button type="button" class="btn-cancel-reply" id="btn-cancel-player-reply" title="取消回复">✕</button>
               </div>
-              <div class="comment-author-row">
-                <span class="comment-avatar-preview" id="player-user-avatar">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </span>
-                <input type="text" id="player-comment-author-input" class="comment-author-input" maxlength="16" placeholder="你的昵称" data-i18n-placeholder="creatorPlaceholder">
-              </div>
-              <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下此时此刻的感受与留言…" data-i18n-placeholder="postCommentPlaceholder"></textarea>
-              <div class="comment-quick-tags" id="player-quick-tags">
-                <button type="button" class="quick-tag-chip" data-tag="极度舒适" data-i18n="tagComfortable">极度舒适</button>
-                <button type="button" class="quick-tag-chip" data-tag="身心治愈" data-i18n="tagHealing">身心治愈</button>
-                <button type="button" class="quick-tag-chip" data-tag="单曲循环" data-i18n="tagRepeat">单曲循环</button>
-                <button type="button" class="quick-tag-chip" data-tag="心驰神往" data-i18n="tagWantToGo">心驰神往</button>
-              </div>
-              <div class="comment-form-actions">
-                <button type="submit" class="comment-submit-btn">
-                  <span data-i18n="sendComment">发表评论</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+
+              <!-- 1. Normal/Collapsed State: Single Clean Capsule Bar -->
+              <div class="comment-compact-bar" id="player-comment-compact-bar">
+                <div class="comment-compact-input-fake" id="player-compact-fake-input">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="compact-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  <span class="compact-placeholder" id="player-compact-placeholder" data-i18n="postCommentPlaceholder">写下此时此刻的感受与留言…</span>
+                </div>
+                <button type="button" class="comment-compact-trigger-btn" id="player-compact-trigger-btn">
+                  <span data-i18n="sendComment">发表</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
+              </div>
+
+              <!-- 2. Expanded Interactive Form (Activated on click or reply) -->
+              <div class="comment-expanded-panel" id="player-comment-expanded-panel" style="display: none;">
+                <div class="comment-panel-header">
+                  <div class="comment-user-chip-wrap">
+                    <button type="button" class="comment-user-chip" id="player-comment-user-chip" title="点击修改昵称">
+                      <span class="comment-avatar-mini" id="player-user-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </span>
+                      <span class="comment-user-name" id="player-user-name-display">音乐旅人</span>
+                      <span class="comment-edit-hint">✎</span>
+                    </button>
+                  </div>
+                  <button type="button" class="btn-collapse-form" id="btn-collapse-player-form" title="收起">✕</button>
+                </div>
+
+                <!-- Nickname Quick Edit Row (Opens on chip click) -->
+                <div class="comment-nickname-edit-row" id="player-nickname-edit-row" style="display: none;">
+                  <input type="text" id="player-comment-author-input" class="comment-author-input" maxlength="16" placeholder="输入你的昵称" data-i18n-placeholder="creatorPlaceholder">
+                  <button type="button" class="btn-save-nickname" id="btn-save-player-nickname">确定</button>
+                </div>
+
+                <textarea id="player-comment-text-input" class="comment-textarea" rows="2" maxlength="200" required placeholder="写下此时此刻的感受与留言…" data-i18n-placeholder="postCommentPlaceholder"></textarea>
+                
+                <div class="comment-quick-tags" id="player-quick-tags">
+                  <button type="button" class="quick-tag-chip" data-tag="极度舒适" data-i18n="tagComfortable">极度舒适</button>
+                  <button type="button" class="quick-tag-chip" data-tag="身心治愈" data-i18n="tagHealing">身心治愈</button>
+                  <button type="button" class="quick-tag-chip" data-tag="单曲循环" data-i18n="tagRepeat">单曲循环</button>
+                  <button type="button" class="quick-tag-chip" data-tag="心驰神往" data-i18n="tagWantToGo">心驰神往</button>
+                </div>
+
+                <div class="comment-form-actions">
+                  <button type="submit" class="comment-submit-btn">
+                    <span data-i18n="sendComment">发表评论</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
               </div>
             </form>
           </aside>
@@ -835,12 +866,42 @@
               </div>
               <button type="button" class="btn-cancel-reply" id="btn-cancel-community-reply" title="取消回复">✕</button>
             </div>
-            <div class="comment-author-row">
-              <span class="comment-avatar-preview">💬</span>
-              <input name="author" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
+
+            <!-- Compact Single Bar -->
+            <div class="comment-compact-bar" id="community-comment-compact-bar">
+              <div class="comment-compact-input-fake" id="community-compact-fake-input">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="compact-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="compact-placeholder" id="community-compact-placeholder" data-i18n="commentPlaceholder">写下你听到的、想到的与旅行寄语…</span>
+              </div>
+              <button type="button" class="comment-compact-trigger-btn" id="community-compact-trigger-btn">
+                <span data-i18n="sendComment">发表</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
             </div>
-            <textarea name="comment" rows="3" maxlength="220" required class="modern-textarea" data-i18n-placeholder="commentPlaceholder" placeholder="写下你听到的、想到的与旅行寄语…"></textarea>
-            <button type="submit" class="comment-submit-btn" data-i18n="sendComment">发表评论</button>
+
+            <!-- Expanded Panel -->
+            <div class="comment-expanded-panel" id="community-comment-expanded-panel" style="display: none;">
+              <div class="comment-panel-header">
+                <div class="comment-user-chip-wrap">
+                  <button type="button" class="comment-user-chip" id="community-comment-user-chip" title="点击修改昵称">
+                    <span class="comment-avatar-mini">💬</span>
+                    <span class="comment-user-name" id="community-user-name-display">音乐旅人</span>
+                    <span class="comment-edit-hint">✎</span>
+                  </button>
+                </div>
+                <button type="button" class="btn-collapse-form" id="btn-collapse-community-form" title="收起">✕</button>
+              </div>
+
+              <div class="comment-nickname-edit-row" id="community-nickname-edit-row" style="display: none;">
+                <input name="author" id="community-comment-author-input" maxlength="24" class="comment-author-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的昵称">
+                <button type="button" class="btn-save-nickname" id="btn-save-community-nickname">确定</button>
+              </div>
+
+              <textarea name="comment" id="community-comment-text-input" rows="2" maxlength="220" required class="comment-textarea" data-i18n-placeholder="commentPlaceholder" placeholder="写下你听到的、想到的与旅行寄语…"></textarea>
+              <div class="comment-form-actions">
+                <button type="submit" class="comment-submit-btn" data-i18n="sendComment">发表评论</button>
+              </div>
+            </div>
           </form>
 
           <div class="community-comments-heading">
