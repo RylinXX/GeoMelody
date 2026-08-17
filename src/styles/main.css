@@ -690,20 +690,27 @@ button, input {
 
 .center-airplane-body {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
   transform: rotate(90deg); /* Cruising Eastwards across the globe */
-  filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+.airplane-skin-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .center-airplane-svg {
-  width: 44px;
-  height: 44px;
-  fill: #38bdf8;
-  color: #38bdf8;
+  width: 48px;
+  height: 48px;
+  display: block;
 }
 
 .center-airplane-afterburner {
@@ -717,6 +724,64 @@ button, input {
   background: linear-gradient(to bottom, #38bdf8, #f59e0b, #ef4444);
   filter: blur(2px);
   animation: centerAfterburner 0.28s ease-in-out infinite alternate;
+  transition: all 0.3s ease;
+}
+
+/* ==================== 4 Aircraft Skin Visual Profiles ==================== */
+/* Skin 1: Supersonic Airliner (Cyan/Sky-Blue) */
+[data-plane-skin="01-airliner"] .center-airplane-body {
+  filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
+}
+[data-plane-skin="01-airliner"] .center-airplane-afterburner {
+  background: linear-gradient(to bottom, #38bdf8, #f59e0b, #ef4444);
+}
+
+/* Skin 2: Stealth Fighter (Cyber Violet & Indigo) */
+[data-plane-skin="02-fighter"] .center-airplane-body {
+  filter: drop-shadow(0 10px 24px rgba(129, 140, 248, 0.95)) drop-shadow(0 0 20px rgba(167, 139, 250, 0.8));
+}
+[data-plane-skin="02-fighter"] .center-airplane-afterburner {
+  width: 14px;
+  height: 22px;
+  background: linear-gradient(to bottom, #c084fc, #818cf8, #3b82f6);
+  box-shadow: -6px 0 12px #a855f7, 6px 0 12px #38bdf8;
+}
+
+/* Skin 3: Quantum Graviton UFO (Emerald Core & Matrix Glow) */
+[data-plane-skin="03-ufo"] .center-airplane-body {
+  transform: rotate(0deg);
+  filter: drop-shadow(0 8px 24px rgba(52, 211, 153, 0.95)) drop-shadow(0 0 22px rgba(56, 189, 248, 0.8));
+}
+[data-plane-skin="03-ufo"] .airplane-skin-slot {
+  animation: ufoSpin 9s linear infinite;
+}
+[data-plane-skin="03-ufo"] .center-airplane-afterburner {
+  width: 24px;
+  height: 24px;
+  bottom: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.95) 0%, rgba(56, 189, 248, 0.4) 60%, transparent 85%);
+  filter: blur(3px);
+  animation: ufoPulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes ufoSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes ufoPulse {
+  0% { transform: translateX(-50%) scale(0.8); opacity: 0.6; }
+  100% { transform: translateX(-50%) scale(1.4); opacity: 1; }
+}
+
+/* Skin 4: Aurora Shuttle (Solar Flare Gold & Amber) */
+[data-plane-skin="04-shuttle"] .center-airplane-body {
+  filter: drop-shadow(0 10px 24px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 18px rgba(251, 191, 36, 0.7));
+}
+[data-plane-skin="04-shuttle"] .center-airplane-afterburner {
+  width: 12px;
+  height: 20px;
+  background: linear-gradient(to bottom, #fbbf24, #f97316, #dc2626);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
 }
 
 @keyframes centerAfterburner {

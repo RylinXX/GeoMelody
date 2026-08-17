@@ -10,6 +10,7 @@ import { storage, DEFAULT_SETTINGS } from './utils/storage.js';
 import { shareUtil } from './utils/share.js';
 import { shareCardManager } from './utils/shareCard.js';
 import { initGlobalImageFallback, getFallbackCover } from './utils/imageFallback.js';
+import { applyAirplaneSkin } from './map/airplaneSkin.js';
 import {
   LANGUAGES,
   applyTranslations,
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetSettingsBtn = document.getElementById('btn-reset-settings');
 
   const selectMapSkinInput = document.getElementById('setting-select-mapskin');
+  const selectPlaneSkinInput = document.getElementById('setting-select-planeskin');
   const toggleStarsInput = document.getElementById('setting-toggle-stars');
   const toggleHaloInput = document.getElementById('setting-toggle-halo');
   const toggleAutoSpinInput = document.getElementById('setting-toggle-autospin');
@@ -683,6 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncSettingsInputs() {
     currentSettings = storage.getSettings();
     if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '01-streets-dark';
+    if (selectPlaneSkinInput) selectPlaneSkinInput.value = currentSettings.planeSkin || '01-airliner';
     if (toggleStarsInput) toggleStarsInput.checked = Boolean(currentSettings.showStars);
     if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
     if (toggleAutoSpinInput) toggleAutoSpinInput.checked = Boolean(currentSettings.autoSpin);
@@ -719,12 +722,19 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast(t('settingsSaved', currentLanguage));
       return;
     }
+    if (key === 'planeSkin') {
+      applyAirplaneSkin(value);
+      storage.saveSettings({ planeSkin: value });
+      showToast(currentLanguage === 'en' ? 'Aircraft skin updated' : '已切换飞行器模型皮肤');
+      return;
+    }
     currentSettings = storage.saveSettings({ [key]: value });
     globeManager.applyMapSettings({ [key]: value });
     showToast(t('settingsSaved', currentLanguage));
   }
 
   selectMapSkinInput?.addEventListener('change', e => handleSettingChange('mapSkin', e.target.value));
+  selectPlaneSkinInput?.addEventListener('change', e => handleSettingChange('planeSkin', e.target.value));
   toggleStarsInput?.addEventListener('change', e => handleSettingChange('showStars', e.target.checked));
   toggleHaloInput?.addEventListener('change', e => handleSettingChange('showHalo', e.target.checked));
   toggleAutoSpinInput?.addEventListener('change', e => handleSettingChange('autoSpin', e.target.checked));
@@ -733,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
   resetSettingsBtn?.addEventListener('click', () => {
     currentSettings = storage.resetSettings();
     applyMapSkin('01-streets-dark');
+    applyAirplaneSkin('01-airliner');
     syncSettingsInputs();
     globeManager.applyMapSettings(currentSettings);
     showToast(t('settingsReset', currentLanguage));
@@ -1150,6 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateFavoriteBadge();
   syncSettingsInputs();
+  applyAirplaneSkin(currentSettings.planeSkin || '01-airliner');
   applyTheme(currentTheme, false);
   applyLanguage();
   globeManager.flyToRegion(MAP_REGIONS.find(region => region.id === activeRegion));

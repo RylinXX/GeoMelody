@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
 
 export const DEFAULT_SETTINGS = {
   mapSkin: '01-dark', // 默认经典深色街道 (01 Streets Dark)
+  planeSkin: '01-airliner', // 巡航航天飞行器模型皮肤
   showStars: true, // 深空点点星宿背景
   showHalo: false, // 3D 大气层微光晕 (默认关闭)
   autoSpin: true, // 闲置慢速自转
@@ -44,11 +45,12 @@ export function seedLikeCount(spotId = '') {
 }
 
 export const storage = {
-  // Settings (Map layers, geography labels, autoplay, autospin)
+  // Settings (Map layers, geography labels, autoplay, autospin, plane skin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
     const skin = saved.mapSkin || '01-dark';
-    return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin };
+    const planeSkin = saved.planeSkin || '01-airliner';
+    return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin, planeSkin };
   },
 
   saveSettings(settings) {

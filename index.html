@@ -133,13 +133,11 @@
     <div class="globe-tooltip-card" id="globe-tooltip"></div>
 
     <!-- Center Screen Standby / Roaming Airplane HUD Overlay -->
-    <div class="globe-center-flight-overlay hidden" id="globe-center-flight-overlay" aria-hidden="true">
+    <div class="globe-center-flight-overlay hidden" id="globe-center-flight-overlay" data-plane-skin="01-airliner" aria-hidden="true">
       <div class="center-airplane-rig">
-        <div class="center-airplane-body">
-          <svg class="center-airplane-svg" viewBox="0 0 24 24">
-            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-          </svg>
-          <div class="center-airplane-afterburner"></div>
+        <div class="center-airplane-body" id="center-airplane-body">
+          <div class="airplane-skin-slot" id="airplane-skin-slot"></div>
+          <div class="center-airplane-afterburner" id="center-airplane-afterburner"></div>
         </div>
 
         <div class="center-flight-badge" id="center-flight-badge">
@@ -849,6 +847,24 @@
               <option value="01-dark" selected>🌌 01. 经典深色街道 (Streets Dark · 细腻路网与丰富地标)</option>
               <option value="white-terrain">🏔️ 02. 白色立体地形 (纯白陆地 · 灰色山脉 · 深蓝海洋)</option>
               <option value="03-fast-blue">🌊 03. 极速深海蓝 (Dataviz Blue · 极轻量秒速加载)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section: Airplane Aircraft Skin -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">巡航小飞机飞行器皮肤</h3>
+          
+          <div class="setting-item setting-item-vertical">
+            <div class="setting-info">
+              <span class="setting-label">飞行器模型样式</span>
+              <span class="setting-desc">选择在地球巡航与漫游时的飞行器模型与尾焰光效</span>
+            </div>
+            <select class="setting-select" id="setting-select-planeskin" style="margin-top: 8px;">
+              <option value="01-airliner" selected>✈️ 选项 1：超音速客机 (经典流线 · 极光青蓝)</option>
+              <option value="02-fighter">🚀 选项 2：暗夜隐身战机 (三角翼科幻 · 赛博紫蓝)</option>
+              <option value="03-ufo">🛸 选项 3：量子星舰飞碟 (能量力场 · 翡翠极光)</option>
+              <option value="04-shuttle">🛰️ 选项 4：极光天宫轨道器 (航天穿梭机 · 太阳金耀)</option>
             </select>
           </div>
         </div>
