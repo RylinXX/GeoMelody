@@ -336,7 +336,6 @@ export class CommunityManager {
   updateReplyingUI(focusedFormType = 'auto') {
     const language = this.getLanguage();
     const author = this.replyingTarget?.targetAuthor;
-    const snippet = this.replyingTarget?.textSnippet ? `“${this.replyingTarget.textSnippet}”` : '';
 
     // 1. Community Drawer Replying Bar
     const drawerBar = document.getElementById('community-replying-bar');
@@ -345,9 +344,7 @@ export class CommunityManager {
       if (this.replyingTarget) {
         drawerBar.style.display = 'flex';
         const nameEl = drawerBar.querySelector('.replying-name');
-        const snippetEl = drawerBar.querySelector('.replying-snippet');
         if (nameEl) nameEl.textContent = `@${author}`;
-        if (snippetEl) snippetEl.textContent = snippet;
         if (drawerTextarea) {
           drawerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
         }
@@ -366,9 +363,7 @@ export class CommunityManager {
       if (this.replyingTarget) {
         playerBar.style.display = 'flex';
         const nameEl = playerBar.querySelector('.replying-name');
-        const snippetEl = playerBar.querySelector('.replying-snippet');
         if (nameEl) nameEl.textContent = `@${author}`;
-        if (snippetEl) snippetEl.textContent = snippet;
         if (playerTextarea) {
           playerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
         }
@@ -472,18 +467,6 @@ export class CommunityManager {
     });
 
     // Quick Feeling Tags in Player
-    document.getElementById('player-quick-tags')?.addEventListener('click', event => {
-      const chip = event.target.closest('.quick-tag-chip');
-      if (!chip) return;
-      const tagText = chip.textContent.trim();
-      const textarea = document.getElementById('player-comment-text-input');
-      if (textarea) {
-        if (textarea.value) textarea.value += ` ${tagText}`;
-        else textarea.value = `${tagText}，`;
-        textarea.focus();
-      }
-    });
-
     this.form?.addEventListener('submit', event => {
       event.preventDefault();
       this.publishPost();
@@ -538,7 +521,6 @@ export class CommunityManager {
       if (subReplyBtn || (subItem && !event.target.closest('button'))) {
         const rootId = subReplyBtn ? subReplyBtn.dataset.subReplyRoot : subItem?.querySelector('[data-sub-reply-root]')?.dataset.subReplyRoot;
         const author = subReplyBtn ? subReplyBtn.dataset.subReplyAuthor : (subItem?.querySelector('.sub-comment-author, .player-sub-author')?.textContent.trim() || '');
-        const textSnippet = (subItem?.querySelector('.sub-comment-text, .player-sub-text')?.textContent.trim() || '').slice(0, 24);
         const formType = (event.target.closest('#player-comments-list')) ? 'player' : 'drawer';
 
         if (rootId && author) {
@@ -546,7 +528,7 @@ export class CommunityManager {
           subItem?.classList.add('highlight-reply-target');
           setTimeout(() => subItem?.classList.remove('highlight-reply-target'), 1800);
 
-          this.setReplyTarget({ rootId, targetAuthor: author, textSnippet }, formType);
+          this.setReplyTarget({ rootId, targetAuthor: author }, formType);
           return;
         }
       }
@@ -557,7 +539,6 @@ export class CommunityManager {
       if (replyButton || (commentCard && !event.target.closest('button'))) {
         const rootId = replyButton ? replyButton.dataset.commentReply : (commentCard?.querySelector('[data-comment-reply]')?.dataset.commentReply || '');
         const author = replyButton ? replyButton.dataset.author : (commentCard?.querySelector('strong, .comment-author-name')?.textContent.trim() || '');
-        const textSnippet = (commentCard?.querySelector('.comment-content, .comment-body')?.textContent.trim() || '').slice(0, 24);
         const formType = (event.target.closest('#player-comments-list')) ? 'player' : 'drawer';
 
         if (rootId && author) {
@@ -565,7 +546,7 @@ export class CommunityManager {
           commentCard?.classList.add('highlight-reply-target');
           setTimeout(() => commentCard?.classList.remove('highlight-reply-target'), 1800);
 
-          this.setReplyTarget({ rootId, targetAuthor: author, textSnippet }, formType);
+          this.setReplyTarget({ rootId, targetAuthor: author }, formType);
           return;
         }
       }
