@@ -92,3 +92,82 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
     return url;
   }
 }
+
+/**
+ * Generates custom White Terrain High-Contrast Theme
+ * - Earth Land: Pure White (#FFFFFF)
+ * - Mountains / Relief: Deep Slate Grey (#334155)
+ * - Ocean / Water: Deep Navy Blue (#081426)
+ */
+export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
+  const cacheKey = `white-terrain-${language}-${apiKey ? 'cloud' : 'local'}`;
+  if (STYLE_CACHE.has(cacheKey)) {
+    return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
+  }
+
+  const url = apiKey
+    ? `https://api.maptiler.com/maps/backdrop/style.json?key=${apiKey}`
+    : 'https://tiles.openfreemap.org/styles/positron';
+
+  try {
+    const res = await fetch(url);
+    const styleJson = await res.json();
+    const isChinese = language !== 'en';
+    const targetTextField = isChinese ? CHINESE_TEXT_FIELD : ENGLISH_TEXT_FIELD;
+
+    if (Array.isArray(styleJson.layers)) {
+      styleJson.layers.forEach(l => {
+        const id = l.id.toLowerCase();
+
+        // 1. Background / Ocean Base: Deep Navy Blue
+        if (l.type === 'background') {
+          l.paint = { ...(l.paint || {}), 'background-color': '#081426', 'background-opacity': 1 };
+        }
+        // 2. Land Surface: Pure Crisp White
+        else if (id.includes('land') && l.type === 'fill') {
+          l.paint = { ...(l.paint || {}), 'fill-color': '#ffffff', 'fill-opacity': 1 };
+        }
+        // 3. Mountain Hillshade: High-contrast Dark Slate Grey
+        else if (l.type === 'hillshade' || id.includes('hillshade')) {
+          l.paint = {
+            ...(l.paint || {}),
+            'hillshade-highlight-color': '#ffffff',
+            'hillshade-shadow-color': '#334155',
+            'hillshade-exaggeration': 0.85
+          };
+          l.layout = { ...(l.layout || {}), visibility: 'visible' };
+        }
+        // 4. Oceans, Seas, Lakes, Rivers: Deep Navy Blue
+        else if (id.includes('water') || id.includes('lake') || id.includes('river') || id.includes('ocean') || id.includes('sea')) {
+          if (l.type === 'fill') {
+            l.paint = { ...(l.paint || {}), 'fill-color': '#081426', 'fill-opacity': 1 };
+          } else if (l.type === 'line') {
+            l.paint = { ...(l.paint || {}), 'line-color': '#0a1d38' };
+          }
+        }
+        // 5. Borders: Subtle Slate Grey
+        else if (id.includes('border') || id.includes('boundary')) {
+          if (l.type === 'line') {
+            l.paint = { ...(l.paint || {}), 'line-color': '#64748b', 'line-opacity': 0.65 };
+          }
+        }
+        // 6. Labels: Dark slate with clean white halo
+        else if (l.type === 'symbol' && l.layout && l.layout['text-field']) {
+          l.layout = { ...l.layout, 'text-field': targetTextField };
+          l.paint = {
+            ...(l.paint || {}),
+            'text-color': '#0f172a',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 1.2
+          };
+        }
+      });
+    }
+
+    STYLE_CACHE.set(cacheKey, styleJson);
+    return JSON.parse(JSON.stringify(styleJson));
+  } catch (err) {
+    console.warn('[GeoMelody StyleHelper] Failed to fetch white terrain style, fallback to positron', err);
+    return 'https://tiles.openfreemap.org/styles/positron';
+  }
+}

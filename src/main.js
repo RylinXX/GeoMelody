@@ -756,8 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyMapSkin(skin) {
-    currentMapSkin = skin || '01-streets-dark';
-    const isLightSkin = ['10-dataviz-light', '11-base-light', '12-streets-light', '13-landscape-light', '14-voyager-light', '15-toner', 'dataviz-light', 'light'].includes(currentMapSkin);
+    currentMapSkin = skin || '01-dark';
+    const isLightSkin = currentMapSkin === 'white-terrain' || currentMapSkin === 'light' || currentMapSkin === '02-white-terrain';
     currentTheme = isLightSkin ? 'light' : 'dark';
     
     try {
@@ -777,11 +777,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.theme-option').forEach(opt => {
-      opt.classList.toggle('active', opt.dataset.skin === currentMapSkin);
+      const optSkin = opt.dataset.skin;
+      const isActive = optSkin === currentMapSkin || 
+        (optSkin === '01-dark' && (currentMapSkin === 'streets-dark' || currentMapSkin === '01-streets-dark' || currentMapSkin === 'dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'rich-dark')) ||
+        (optSkin === 'white-terrain' && (currentMapSkin === 'light' || currentMapSkin === '02-white-terrain'));
+      opt.classList.toggle('active', isActive);
     });
 
     if (selectMapSkinInput) {
-      selectMapSkinInput.value = currentMapSkin;
+      selectMapSkinInput.value = isLightSkin ? 'white-terrain' : '01-dark';
     }
   }
 
@@ -838,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const skin = opt.dataset.skin;
       if (skin && skin !== currentMapSkin) {
         applyMapSkin(skin);
-        let name = skin === 'light' ? '明亮地图' : (skin === 'rich-dark' ? '精致暗黑 · 经典街道' : '极速暗黑 · 秒速加载');
+        let name = (skin === 'white-terrain' || skin === 'light') ? '白色立体地形 (白陆 · 灰山 · 深蓝海)' : '经典深色街道 (01)';
         showToast(`已切换至 ${name}`);
       }
       closeAllThemeMenus();

@@ -10,7 +10,7 @@ import { CATEGORY_MAP } from '../data/categories.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 import { getSpotName } from '../utils/i18n.js';
 import { DEFAULT_SETTINGS } from '../utils/storage.js';
-import { fetchAndLocalizeStyle } from './styleHelper.js';
+import { fetchAndLocalizeStyle, fetchWhiteTerrainStyle } from './styleHelper.js';
 import { StarfieldEngine } from './starfield.js';
 
 const SPOT_SOURCE_ID = 'geomelody-spots';
@@ -167,83 +167,18 @@ export class GlobeManager {
   }
 
   async getResolvedStyle(skin) {
-    const targetSkin = skin || '01-streets-dark';
+    const targetSkin = skin || '01-dark';
+
+    // 1. 02 White Terrain High-Contrast Theme (白色陆地 · 灰色山脉 · 深蓝海洋)
+    if (targetSkin === 'white-terrain' || targetSkin === 'light' || targetSkin === '02-white-terrain') {
+      return await fetchWhiteTerrainStyle(MAPTILER_KEY, this.currentLanguage);
+    }
+
+    // 2. 01 Classic Dark Streets Theme (01 经典深色街道 / 深色主题)
     if (!this.usingMapTilerCloud) {
-      return await fetchAndLocalizeStyle(targetSkin, this.currentLanguage, false);
+      return await fetchAndLocalizeStyle('streets-dark', this.currentLanguage, false);
     }
-
-    switch (targetSkin) {
-      // 3 Main Presets
-      case 'fast-dark':
-        // 极速暗黑（默认）：极简轻量、超快加载 (编号 02 Dataviz Dark)
-        return MapStyle.DATAVIZ?.DARK ?? MapStyle.BASE?.DARK ?? MapStyle.BASIC?.DARK;
-      case 'rich-dark':
-        // 精致暗黑：经典深色街道、全量城市路网与丰富地标 (编号 01 Streets Dark)
-        return MapStyle.STREETS?.DARK ?? MapStyle.LANDSCAPE?.DARK;
-      case 'light':
-        // 明亮地图：极简明亮浅色 (编号 10 Dataviz Light)
-        return MapStyle.DATAVIZ?.LIGHT ?? MapStyle.BASE?.LIGHT;
-
-      // 01 - 09 Dark modes
-      case '01-streets-dark':
-      case 'streets-dark':
-        return MapStyle.STREETS?.DARK;
-      case '02-dataviz-dark':
-      case 'dataviz-dark':
-        return MapStyle.DATAVIZ?.DARK;
-      case '03-backdrop-dark':
-      case 'backdrop-dark':
-        return MapStyle.BACKDROP?.DARK;
-      case '04-landscape-dark':
-      case 'landscape-dark':
-        return MapStyle.LANDSCAPE?.DARK;
-      case '05-base-dark':
-      case 'base-dark':
-        return MapStyle.BASE?.DARK;
-      case '06-outdoor-dark':
-      case 'outdoor-dark':
-        return MapStyle.OUTDOOR?.DARK;
-      case '07-ocean-dark':
-      case 'ocean-dark':
-        return MapStyle.OCEAN?.DARK;
-      case '08-topo-dark':
-      case 'topo-dark':
-        return MapStyle.TOPO?.DARK;
-      case '09-aquarelle-dark':
-      case 'aquarelle-dark':
-        return MapStyle.AQUARELLE?.DARK;
-
-      // 10 - 15 Light modes
-      case '10-dataviz-light':
-      case 'dataviz-light':
-        return MapStyle.DATAVIZ?.LIGHT;
-      case '11-base-light':
-      case 'base-light':
-        return MapStyle.BASE?.LIGHT;
-      case '12-streets-light':
-      case 'streets-light':
-        return MapStyle.STREETS?.DEFAULT;
-      case '13-landscape-light':
-      case 'landscape-light':
-        return MapStyle.LANDSCAPE?.DEFAULT;
-      case '14-voyager-light':
-      case 'voyager-light':
-        return MapStyle.VOYAGER?.DEFAULT;
-      case '15-toner':
-      case 'toner':
-        return MapStyle.TONER?.DEFAULT;
-
-      // 16 - 17 Satellite modes
-      case '16-satellite':
-      case 'satellite':
-        return MapStyle.SATELLITE?.DEFAULT ?? MapStyle.SATELLITE;
-      case '17-hybrid':
-      case 'hybrid':
-        return MapStyle.HYBRID?.DEFAULT ?? MapStyle.HYBRID;
-
-      default:
-        return MapStyle.DATAVIZ?.DARK ?? MapStyle.STREETS?.DARK;
-    }
+    return MapStyle.STREETS?.DARK ?? MapStyle.BASE?.DARK;
   }
 
   handleStyleReady() {
@@ -425,7 +360,7 @@ export class GlobeManager {
     }
 
     this.mapSettings.mapSkin = skin;
-    const isLightSkin = ['10-dataviz-light', '11-base-light', '12-streets-light', '13-landscape-light', '14-voyager-light', '15-toner', 'dataviz-light', 'light'].includes(skin);
+    const isLightSkin = skin === 'white-terrain' || skin === 'light' || skin === '02-white-terrain';
     this.setTheme(isLightSkin ? 'light' : 'dark');
 
     this.styleReady = false;
@@ -446,8 +381,8 @@ export class GlobeManager {
       this.map.once('idle', onStyleReady);
     } catch (e) {
       console.warn('[GeoMelody map] Failed to load style for skin', skin, e);
-      if (skin !== 'fast-dark') {
-        this.setMapSkin('fast-dark');
+      if (skin !== '01-dark' && skin !== 'dark') {
+        this.setMapSkin('01-dark');
       } else {
         if (mapContainer) mapContainer.style.opacity = '1';
       }

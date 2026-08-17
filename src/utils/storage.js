@@ -14,7 +14,7 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  mapSkin: 'streets-dark', // 默认经典深色街道 (Streets Dark)
+  mapSkin: '01-dark', // 默认经典深色街道 (01 Streets Dark)
   showStars: true, // 深空点点星宿背景
   showHalo: false, // 3D 大气层微光晕 (默认关闭)
   autoSpin: true, // 闲置慢速自转
@@ -47,7 +47,7 @@ export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
-    const skin = saved.mapSkin || '01-streets-dark';
+    const skin = saved.mapSkin || '01-dark';
     return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin };
   },
 
