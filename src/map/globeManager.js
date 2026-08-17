@@ -53,13 +53,14 @@ function normalizeLongitude(value) {
 }
 
 export class GlobeManager {
-  constructor({ containerId, spots, onSpotSelect, onFlybyPlay, onMapClick, onRoamingChange, language = 'zh', theme = 'dark', settings = {} }) {
+  constructor({ containerId, spots, onSpotSelect, onFlybyPlay, onMapClick, onRoamingChange, onFlybySpotChange, language = 'zh', theme = 'dark', settings = {} }) {
     this.containerId = containerId;
     this.spots = spots;
     this.onSpotSelect = onSpotSelect;
     this.onFlybyPlay = onFlybyPlay;
     this.onMapClick = onMapClick;
     this.onRoamingChange = onRoamingChange;
+    this.onFlybySpotChange = onFlybySpotChange;
     this.currentLanguage = language || 'zh';
     this.currentTheme = theme;
     this.mapSettings = { ...DEFAULT_SETTINGS, ...settings };
@@ -948,21 +949,25 @@ export class GlobeManager {
     }
 
     if (nearbySpots.length > 0) {
-      // If there are multiple spots nearby (e.g. 2, 3, or more)
-      // Rotate every 3 seconds (3000ms) smoothly through the candidate spots!
-      if (now - this.lastFlybyRotationTime > 3000) {
+      // If there are multiple spots nearby (e.g. 6-7 spots in Beijing cluster):
+      // Rotate every 3.8 seconds through candidate spots in the current region!
+      const ROTATION_INTERVAL_MS = 3800;
+
+      if (now - this.lastFlybyRotationTime > ROTATION_INTERVAL_MS) {
         this.lastFlybyRotationTime = now;
         this.flybyCandidateIndex = (this.flybyCandidateIndex + 1) % nearbySpots.length;
         const nextSpot = nearbySpots[this.flybyCandidateIndex];
         this.currentFlybySpot = nextSpot;
-        this.showFlybyCard(nextSpot);
+        this.showFlybyCard(nextSpot, nearbySpots.length, this.flybyCandidateIndex);
+        this.onFlybySpotChange?.(nextSpot);
       } else if (!this.currentFlybySpot || !nearbySpots.some(s => s.id === this.currentFlybySpot?.id)) {
         // Current spot is no longer in nearby list or not initialized -> show first nearby spot
         this.flybyCandidateIndex = 0;
         const chosen = nearbySpots[0];
         this.currentFlybySpot = chosen;
         this.lastFlybyRotationTime = now;
-        this.showFlybyCard(chosen);
+        this.showFlybyCard(chosen, nearbySpots.length, 0);
+        this.onFlybySpotChange?.(chosen);
       }
     } else {
       // When there are no nearby spots (e.g. flying over ocean / sparse regions):
@@ -972,12 +977,13 @@ export class GlobeManager {
         const randomSpot = this.spots[Math.floor(Math.random() * this.spots.length)];
         this.currentFlybySpot = randomSpot;
         this.lastFlybyRotationTime = now;
-        this.showFlybyCard(randomSpot);
+        this.showFlybyCard(randomSpot, 1, 0);
+        this.onFlybySpotChange?.(randomSpot);
       }
     }
   }
 
-  showFlybyCard(spot) {
+  showFlybyCard(spot, clusterCount = 1, clusterIndex = 0) {
     const card = document.getElementById('center-flyby-card');
     const badge = document.getElementById('center-flight-badge');
     if (!card || !spot) return;
@@ -985,9 +991,17 @@ export class GlobeManager {
     const coverImg = document.getElementById('flyby-cover-img');
     const nameEl = document.getElementById('flyby-spot-name');
     const trackEl = document.getElementById('flyby-track-title');
+    const tagEl = document.getElementById('flyby-tag');
 
     if (coverImg) coverImg.src = spot.photos?.[0] || '';
     if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
+    if (tagEl) {
+      if (clusterCount > 1) {
+        tagEl.textContent = `📍 胜景 (${clusterIndex + 1}/${clusterCount})`;
+      } else {
+        tagEl.textContent = this.currentLanguage === 'en' ? 'Cruising' : '巡航探访';
+      }
+    }
     if (trackEl) {
       const track = getDemoTrack(spot);
       trackEl.textContent = track ? `${track.title} — ${track.creator}` : (spot.audioRecipe?.scale || '胜景专属乐曲');
