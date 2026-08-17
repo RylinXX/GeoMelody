@@ -789,7 +789,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.dataset.theme = currentTheme;
     document.documentElement.style.colorScheme = currentTheme;
     
-    globeManager.setMapSkin(currentMapSkin);
+    if (globeManager.map && globeManager.styleReady && globeManager.mapSettings.mapSkin !== currentMapSkin) {
+      globeManager.setMapSkin(currentMapSkin);
+    }
     
     const isLight = currentTheme === 'light';
     

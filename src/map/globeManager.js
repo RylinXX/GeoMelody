@@ -357,7 +357,7 @@ export class GlobeManager {
   }
 
   async setMapSkin(skin) {
-    if (!this.map || this.mapSettings.mapSkin === skin) return;
+    if (!this.map || !skin || this.mapSettings.mapSkin === skin) return;
 
     // Loading transition indicator
     const mapContainer = document.getElementById(this.containerId);

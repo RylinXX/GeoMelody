@@ -202,10 +202,10 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
 /**
  * Generates custom Ultra-Fast Deep Midnight Blue Theme (极速深海蓝)
  * - Ultra-lightweight Dataviz base (only ~30 layers, loads in ~100ms)
- * - Ocean / Water: Deep Midnight Blue (#051020)
- * - Land: Dark Oceanic Slate (#0E1D33)
- * - Borders: Muted Cyan Blue (#264973)
- * - Labels: Celestial Blue (#93C5FD) with dark outline
+ * - Land Base / Continents: Deep Oceanic Slate (#0d1726)
+ * - Oceans / Water: Midnight Deep Abyss (#040a14)
+ * - Borders: Luminous Cyan Blue (#38bdf8)
+ * - Labels: Celestial Light Blue (#e2e8f0) with dark halo (#040a14)
  */
 export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
   const cacheKey = `fast-deep-blue-${language}-${apiKey ? 'cloud' : 'local'}`;
@@ -232,34 +232,34 @@ export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
       styleJson.layers.forEach(l => {
         const id = l.id.toLowerCase();
 
-        // 1. Background / Ocean Base: Deep Midnight Blue
+        // 1. Background / Continent Land Base: Deep Oceanic Slate
         if (l.type === 'background') {
-          l.paint = { ...(l.paint || {}), 'background-color': '#051020', 'background-opacity': 1 };
+          l.paint = { ...(l.paint || {}), 'background-color': '#0d1726', 'background-opacity': 1 };
         }
-        // 2. Water / Ocean / Lakes / Rivers: Deep Sea Blue
-        else if (id.includes('water') || id.includes('ocean') || id.includes('lake') || id.includes('sea')) {
+        // 2. Water / Ocean / Lakes / Rivers: Dark Midnight Abyss
+        else if (id.includes('water') || id.includes('ocean') || id.includes('sea')) {
           if (l.type === 'fill') {
-            l.paint = { ...(l.paint || {}), 'fill-color': '#051020', 'fill-opacity': 1 };
+            l.paint = { ...(l.paint || {}), 'fill-color': '#040a14', 'fill-opacity': 1 };
           } else if (l.type === 'line') {
             l.paint = { ...(l.paint || {}), 'line-color': '#07162b' };
           }
         }
-        // 3. Land Surface / Landuse: Dark Oceanic Slate
-        else if (id.includes('land') || id.includes('base') || id.includes('urban') || id.includes('crop') || id.includes('grass')) {
+        // 3. Land Surface / Landuse / Urban / Wood
+        else if (id.includes('land') || id.includes('urban') || id.includes('wood') || id.includes('park')) {
           if (l.type === 'fill') {
-            l.paint = { ...(l.paint || {}), 'fill-color': '#0e1d33', 'fill-opacity': 1 };
+            l.paint = { ...(l.paint || {}), 'fill-color': '#112036', 'fill-opacity': 1 };
           }
         }
         // 4. Borders & Boundaries: Luminous Muted Cyan Blue
         else if (id.includes('border') || id.includes('boundary')) {
           if (l.type === 'line') {
-            l.paint = { ...(l.paint || {}), 'line-color': '#264973', 'line-opacity': 0.75 };
+            l.paint = { ...(l.paint || {}), 'line-color': '#38bdf8', 'line-opacity': 0.7 };
           }
         }
-        // 5. Road / Transport: Dark Navy accent
-        else if (id.includes('road') || id.includes('tunnel') || id.includes('path') || id.includes('rail')) {
+        // 5. Road / Transport: Subtle Dark Navy accent
+        else if (id.includes('road') || id.includes('highway') || id.includes('tunnel') || id.includes('path') || id.includes('rail')) {
           if (l.type === 'line') {
-            l.paint = { ...(l.paint || {}), 'line-color': '#132845', 'line-opacity': 0.6 };
+            l.paint = { ...(l.paint || {}), 'line-color': '#132845', 'line-opacity': 0.4 };
           }
         }
         // 6. Labels: Crisp Celestial Blue with dark halo
@@ -267,8 +267,8 @@ export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
           l.layout = { ...l.layout, 'text-field': targetTextField };
           l.paint = {
             ...(l.paint || {}),
-            'text-color': '#93c5fd',
-            'text-halo-color': '#051020',
+            'text-color': '#e2e8f0',
+            'text-halo-color': '#040a14',
             'text-halo-width': 1.2
           };
         }
