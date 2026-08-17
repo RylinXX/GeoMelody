@@ -191,6 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
       hideSpotPreviewCard();
       playerManager.openSpot(spot, true);
     },
+    onRoamingChange: isRoaming => {
+      autoTourBtn?.classList.toggle('primary', isRoaming);
+      autoTourBtn?.setAttribute('aria-pressed', String(isRoaming));
+      if (autoTourText) {
+        autoTourText.textContent = isRoaming ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
+      }
+    },
     onMapClick: () => {
       hideSpotPreviewCard();
       if (globeManager.isRoaming) {

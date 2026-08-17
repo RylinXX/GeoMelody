@@ -53,12 +53,13 @@ function normalizeLongitude(value) {
 }
 
 export class GlobeManager {
-  constructor({ containerId, spots, onSpotSelect, onFlybyPlay, onMapClick, language = 'zh', theme = 'dark', settings = {} }) {
+  constructor({ containerId, spots, onSpotSelect, onFlybyPlay, onMapClick, onRoamingChange, language = 'zh', theme = 'dark', settings = {} }) {
     this.containerId = containerId;
     this.spots = spots;
     this.onSpotSelect = onSpotSelect;
     this.onFlybyPlay = onFlybyPlay;
     this.onMapClick = onMapClick;
+    this.onRoamingChange = onRoamingChange;
     this.currentLanguage = language || 'zh';
     this.currentTheme = theme;
     this.mapSettings = { ...DEFAULT_SETTINGS, ...settings };
@@ -909,6 +910,7 @@ export class GlobeManager {
     this.isRoaming = true;
     this.rotationPausedUntil = 0;
     this.showAirplane();
+    this.onRoamingChange?.(true);
     if (!this.rotationTimer) {
       this.startAutoRotation();
     }
@@ -916,8 +918,9 @@ export class GlobeManager {
 
   stopRoamingMode() {
     this.isRoaming = false;
-    this.pauseRotation(5000);
+    this.pauseRotation(20000);
     this.hideAirplane();
+    this.onRoamingChange?.(false);
   }
 
   checkFlyoverSpots(center) {
@@ -1051,14 +1054,15 @@ export class GlobeManager {
         return;
       }
 
-      // Only show airplane HUD when user has explicitly activated Roaming/Cruise mode
-      if (this.isRoaming) {
+      // Standby Auto-Cruise Trigger:
+      // When the globe starts rotating after standby idle timeout, automatically engage Cruise/Roaming mode!
+      if (!this.isRoaming && this.mapSettings.autoSpin) {
+        this.isRoaming = true;
+        this.showAirplane();
+        this.onRoamingChange?.(true);
+      } else if (this.isRoaming) {
         if (!this.isAirplaneActive) {
           this.showAirplane();
-        }
-      } else {
-        if (this.isAirplaneActive) {
-          this.hideAirplane();
         }
       }
       const center = this.map.getCenter();
