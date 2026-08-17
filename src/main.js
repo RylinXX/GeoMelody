@@ -781,13 +781,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const isActive = optSkin === currentMapSkin || 
         (optSkin === '01-dark' && (currentMapSkin === 'streets-dark' || currentMapSkin === '01-streets-dark' || currentMapSkin === 'dark' || currentMapSkin === 'rich-dark')) ||
         (optSkin === 'white-terrain' && (currentMapSkin === 'light' || currentMapSkin === '02-white-terrain')) ||
-        (optSkin === '03-fast-dark' && (currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark'));
+        ((optSkin === '03-fast-blue' || optSkin === '03-fast-dark') && (currentMapSkin === '03-fast-blue' || currentMapSkin === '03-fast-dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark' || currentMapSkin === 'fast-blue'));
       opt.classList.toggle('active', isActive);
     });
 
     if (selectMapSkinInput) {
       if (isLightSkin) selectMapSkinInput.value = 'white-terrain';
-      else if (currentMapSkin === '03-fast-dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark') selectMapSkinInput.value = '03-fast-dark';
+      else if (currentMapSkin === '03-fast-blue' || currentMapSkin === '03-fast-dark' || currentMapSkin === 'fast-dark' || currentMapSkin === 'dataviz-dark' || currentMapSkin === 'fast-blue') selectMapSkinInput.value = '03-fast-blue';
       else selectMapSkinInput.value = '01-dark';
     }
   }
@@ -848,8 +848,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let name = '经典深色街道 (01)';
         if (skin === 'white-terrain' || skin === 'light') {
           name = '白色立体地形 (02)';
-        } else if (skin === '03-fast-dark' || skin === 'fast-dark') {
-          name = '极速轻量暗黑 (03)';
+        } else if (skin === '03-fast-blue' || skin === '03-fast-dark' || skin === 'fast-dark' || skin === 'fast-blue') {
+          name = '极速深海蓝 (03)';
         }
         showToast(`已切换至 ${name}`);
       }
