@@ -336,6 +336,7 @@ export class CommunityManager {
   updateReplyingUI(focusedFormType = 'auto') {
     const language = this.getLanguage();
     const author = this.replyingTarget?.targetAuthor;
+    const snippet = this.replyingTarget?.textSnippet ? `“${this.replyingTarget.textSnippet}”` : '';
 
     // 1. Community Drawer Replying Bar
     const drawerBar = document.getElementById('community-replying-bar');
@@ -344,7 +345,9 @@ export class CommunityManager {
       if (this.replyingTarget) {
         drawerBar.style.display = 'flex';
         const nameEl = drawerBar.querySelector('.replying-name');
+        const snippetEl = drawerBar.querySelector('.replying-snippet');
         if (nameEl) nameEl.textContent = `@${author}`;
+        if (snippetEl) snippetEl.textContent = snippet;
         if (drawerTextarea) {
           drawerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
         }
@@ -363,7 +366,9 @@ export class CommunityManager {
       if (this.replyingTarget) {
         playerBar.style.display = 'flex';
         const nameEl = playerBar.querySelector('.replying-name');
+        const snippetEl = playerBar.querySelector('.replying-snippet');
         if (nameEl) nameEl.textContent = `@${author}`;
+        if (snippetEl) snippetEl.textContent = snippet;
         if (playerTextarea) {
           playerTextarea.placeholder = `${t('replyTo', language, { name: author })}…`;
         }
@@ -509,27 +514,7 @@ export class CommunityManager {
         return;
       }
 
-      // 3. Reply to sub-comment
-      const subReplyBtn = event.target.closest('[data-sub-reply-root]');
-      if (subReplyBtn) {
-        const rootId = subReplyBtn.dataset.subReplyRoot;
-        const author = subReplyBtn.dataset.subReplyAuthor;
-        const formType = subReplyBtn.closest('#player-comments-list') ? 'player' : 'drawer';
-        this.setReplyTarget({ rootId, targetAuthor: author }, formType);
-        return;
-      }
-
-      // 4. Reply to root comment
-      const replyButton = event.target.closest('[data-comment-reply]');
-      if (replyButton) {
-        const rootId = replyButton.dataset.commentReply;
-        const author = replyButton.dataset.author;
-        const formType = replyButton.closest('#player-comments-list') ? 'player' : 'drawer';
-        this.setReplyTarget({ rootId, targetAuthor: author }, formType);
-        return;
-      }
-
-      // 5. Like sub-comment
+      // 3. Like sub-comment
       const subLikeBtn = event.target.closest('[data-sub-like-id]');
       if (subLikeBtn) {
         const rootId = subLikeBtn.dataset.subLikeRoot;
@@ -539,12 +524,50 @@ export class CommunityManager {
         return;
       }
 
-      // 6. Like root comment
-      const button = event.target.closest('[data-comment-like]');
-      if (button) {
-        storage.toggleCommentLike(this.activeSpot.id, button.dataset.commentLike);
+      // 4. Like root comment
+      const likeBtn = event.target.closest('[data-comment-like]');
+      if (likeBtn) {
+        storage.toggleCommentLike(this.activeSpot.id, likeBtn.dataset.commentLike);
         this.renderComments();
         return;
+      }
+
+      // 5. Reply to sub-comment (via reply button or clicking on sub-comment row)
+      const subItem = event.target.closest('.sub-comment-item, .player-sub-item');
+      const subReplyBtn = event.target.closest('[data-sub-reply-root]');
+      if (subReplyBtn || (subItem && !event.target.closest('button'))) {
+        const rootId = subReplyBtn ? subReplyBtn.dataset.subReplyRoot : subItem?.querySelector('[data-sub-reply-root]')?.dataset.subReplyRoot;
+        const author = subReplyBtn ? subReplyBtn.dataset.subReplyAuthor : (subItem?.querySelector('.sub-comment-author, .player-sub-author')?.textContent.trim() || '');
+        const textSnippet = (subItem?.querySelector('.sub-comment-text, .player-sub-text')?.textContent.trim() || '').slice(0, 24);
+        const formType = (event.target.closest('#player-comments-list')) ? 'player' : 'drawer';
+
+        if (rootId && author) {
+          document.querySelectorAll('.highlight-reply-target').forEach(el => el.classList.remove('highlight-reply-target'));
+          subItem?.classList.add('highlight-reply-target');
+          setTimeout(() => subItem?.classList.remove('highlight-reply-target'), 1800);
+
+          this.setReplyTarget({ rootId, targetAuthor: author, textSnippet }, formType);
+          return;
+        }
+      }
+
+      // 6. Reply to root comment (via reply button or clicking on comment content)
+      const commentCard = event.target.closest('.community-comment, .player-comment-card');
+      const replyButton = event.target.closest('[data-comment-reply]');
+      if (replyButton || (commentCard && !event.target.closest('button'))) {
+        const rootId = replyButton ? replyButton.dataset.commentReply : (commentCard?.querySelector('[data-comment-reply]')?.dataset.commentReply || '');
+        const author = replyButton ? replyButton.dataset.author : (commentCard?.querySelector('strong, .comment-author-name')?.textContent.trim() || '');
+        const textSnippet = (commentCard?.querySelector('.comment-content, .comment-body')?.textContent.trim() || '').slice(0, 24);
+        const formType = (event.target.closest('#player-comments-list')) ? 'player' : 'drawer';
+
+        if (rootId && author) {
+          document.querySelectorAll('.highlight-reply-target').forEach(el => el.classList.remove('highlight-reply-target'));
+          commentCard?.classList.add('highlight-reply-target');
+          setTimeout(() => commentCard?.classList.remove('highlight-reply-target'), 1800);
+
+          this.setReplyTarget({ rootId, targetAuthor: author, textSnippet }, formType);
+          return;
+        }
       }
     };
 

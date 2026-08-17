@@ -66,7 +66,14 @@ export const storage = {
   // User Profile / Nickname
   getUserNickname(fallback = '音乐旅人') {
     try {
-      return localStorage.getItem('geomelody_user_nickname') || fallback;
+      let nick = localStorage.getItem('geomelody_user_nickname');
+      if (!nick) {
+        // Generate a unique 4-digit traveler identity, e.g. 音乐旅人 #3824
+        const randId = Math.floor(1000 + Math.random() * 9000);
+        nick = `${fallback} #${randId}`;
+        localStorage.setItem('geomelody_user_nickname', nick);
+      }
+      return nick;
     } catch {
       return fallback;
     }
