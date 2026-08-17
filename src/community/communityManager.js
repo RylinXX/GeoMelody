@@ -238,15 +238,12 @@ export class CommunityManager {
     this.toggleButton = document.getElementById('btn-toggle-community');
     this.form = document.getElementById('community-publish-form');
     this.commentsForm = document.getElementById('community-comment-form');
-    this.locationSelect = document.getElementById('community-location-select');
     this.commentsList = document.getElementById('community-comments-list');
     this.playerCommentForm = document.getElementById('player-comment-form');
     this.playerCommentsList = document.getElementById('player-comments-list');
 
-    this.locationMode = 'current';
     this.currentLocationCoords = null;
 
-    this.renderLocationOptions();
     this.bindEvents();
     this.setActiveSpot(this.activeSpot);
     this.updateUserNicknameDisplays();
@@ -394,13 +391,6 @@ export class CommunityManager {
     this.toggleButton?.addEventListener('click', () => this.toggle('publish'));
     this.backdrop?.addEventListener('click', () => this.close());
     document.getElementById('btn-close-community-drawer')?.addEventListener('click', () => this.close());
-
-    // Location Mode Pills in Publish Form
-    document.getElementById('publish-loc-mode-pills')?.addEventListener('click', event => {
-      const button = event.target.closest('.loc-mode-pill');
-      if (!button) return;
-      this.setLocationMode(button.dataset.locMode);
-    });
 
     document.getElementById('btn-refresh-publish-loc')?.addEventListener('click', () => {
       this.fetchCurrentLocation(true);
@@ -563,24 +553,6 @@ export class CommunityManager {
     });
   }
 
-  setLocationMode(mode = 'current') {
-    this.locationMode = mode;
-    document.querySelectorAll('.loc-mode-pill').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.locMode === mode);
-    });
-    const panels = {
-      current: document.getElementById('loc-panel-current'),
-      preset: document.getElementById('loc-panel-preset'),
-      custom: document.getElementById('loc-panel-custom')
-    };
-    Object.keys(panels).forEach(key => {
-      if (panels[key]) panels[key].style.display = key === mode ? 'flex' : 'none';
-    });
-    if (mode === 'current') {
-      this.fetchCurrentLocation();
-    }
-  }
-
   fetchCurrentLocation(force = false) {
     const display = document.getElementById('current-loc-display');
     const dot = document.getElementById('current-loc-dot');
@@ -635,14 +607,6 @@ export class CommunityManager {
     if (element) element.textContent = file?.name || t('noFileSelected', this.getLanguage());
   }
 
-  renderLocationOptions() {
-    if (!this.locationSelect) return;
-    const language = this.getLanguage();
-    this.locationSelect.innerHTML = LOCATION_PRESETS.map(location => (
-      `<option value="${location.id}">${language === LANGUAGES.EN ? location.enName : location.name}</option>`
-    )).join('');
-  }
-
   open(tab = 'publish', spot = this.activeSpot) {
     this.onBeforeOpen?.();
     if (spot) this.setActiveSpot(spot);
@@ -652,7 +616,7 @@ export class CommunityManager {
     this.drawer?.setAttribute('aria-hidden', 'false');
     this.toggleButton?.classList.add('active');
     this.toggleButton?.setAttribute('aria-expanded', 'true');
-    if (tab === 'publish' && this.locationMode === 'current') {
+    if (tab === 'publish') {
       this.fetchCurrentLocation();
     }
   }
@@ -997,38 +961,10 @@ export class CommunityManager {
     const audioFile = formData.get('audio');
     if (!title || !description) return;
 
-    let lat = 30.2428;
-    let lng = 120.1504;
-    let locationName = '中国 · 杭州西湖';
-    let country = '中国';
-
-    if (this.locationMode === 'current') {
-      lat = parseFloat(formData.get('currentLat')) || this.currentLocationCoords?.lat || 30.2428;
-      lng = parseFloat(formData.get('currentLng')) || this.currentLocationCoords?.lng || 120.1504;
-      locationName = `当前坐标 · ${lng.toFixed(2)}°E, ${lat.toFixed(2)}°N`;
-      country = '当前位置';
-    } else if (this.locationMode === 'preset') {
-      const presetId = formData.get('locationPreset');
-      const preset = LOCATION_PRESETS.find(item => item.id === presetId) || LOCATION_PRESETS[0];
-      lat = preset.lat;
-      lng = preset.lng;
-      locationName = preset.name;
-      country = preset.country;
-    } else if (this.locationMode === 'custom') {
-      const customName = String(formData.get('customLocationName') || '').trim();
-      locationName = customName || '自定义地点';
-      const customCoordsStr = String(formData.get('customCoords') || '').trim();
-      if (customCoordsStr) {
-        const parts = customCoordsStr.split(/[,，\s]+/).map(Number);
-        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-          lng = parts[0];
-          lat = parts[1];
-        }
-      } else if (this.currentLocationCoords) {
-        lat = this.currentLocationCoords.lat;
-        lng = this.currentLocationCoords.lng;
-      }
-    }
+    const lat = parseFloat(formData.get('currentLat')) || this.currentLocationCoords?.lat || 30.2428;
+    const lng = parseFloat(formData.get('currentLng')) || this.currentLocationCoords?.lng || 120.1504;
+    const locationName = `📍 坐标 · ${lng.toFixed(2)}°E, ${lat.toFixed(2)}°N`;
+    const country = '当前位置';
 
     let coverDataUrl = null;
     let coverUrl = FALLBACK_COVER;
@@ -1086,7 +1022,6 @@ export class CommunityManager {
     this.form.reset();
     this.updateFileLabel('community-cover-file-name');
     this.updateFileLabel('community-audio-file-name');
-    this.setLocationMode('current');
     this.onPublish?.(spot);
     this.setActiveSpot(spot);
     this.open('comments', spot);
