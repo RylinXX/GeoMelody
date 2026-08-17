@@ -1257,7 +1257,7 @@
   transform: scale(1.1);
 }
 
-.player-secondary-btn.active,
+.player-secondary-btn.active:not(#player-fav-btn),
 .player-action-btn.active[aria-pressed="true"]:not(#player-fav-btn) {
   color: var(--accent-cyan);
   border-color: rgba(56, 189, 248, 0.4);
@@ -1266,6 +1266,28 @@
 .player-secondary-btn svg {
   width: 18px;
   height: 18px;
+}
+
+.player-dock-fav-btn {
+  color: var(--text-secondary);
+  transition: all var(--trans-fast);
+}
+
+.player-dock-fav-btn:hover {
+  color: #fb7185;
+  transform: scale(1.15);
+}
+
+.player-dock-fav-btn.active,
+.player-dock-fav-btn[aria-pressed="true"] {
+  color: #fb7185;
+}
+
+.player-dock-fav-btn.active svg,
+.player-dock-fav-btn[aria-pressed="true"] svg {
+  fill: #fb7185;
+  stroke: #fb7185;
+  filter: drop-shadow(0 0 10px rgba(251, 113, 133, 0.7));
 }
 
 /* Volume Slider in Dock */
