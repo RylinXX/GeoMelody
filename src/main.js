@@ -198,14 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
         autoTourText.textContent = isRoaming ? t('touring', currentLanguage) : t('autoTour', currentLanguage);
       }
     },
-    onFlybySpotChange: spot => {
-      if (globeManager.isRoaming && soundEngine.isPlaying && spot) {
-        soundEngine.playSpot(spot);
-        updateMiniAudioIsland(spot, true);
-        if (playerManager.active && playerManager.currentSpot) {
-          playerManager.openSpot(spot, true);
-        }
-      }
+    onFlybySpotChange: () => {
+      // Recommendation card in cruise mode updates its visual preview smoothly.
+      // Playing audio is kept untouched and continues playing steadily!
     },
     onMapClick: () => {
       hideSpotPreviewCard();
