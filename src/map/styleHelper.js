@@ -115,13 +115,14 @@ export async function fetchAndLocalizeStyle(skin = 'streets-dark', language = 'z
 }
 
 /**
- * Generates custom White Terrain High-Contrast Theme
- * - Earth Land: Pure White (#FFFFFF)
- * - Mountains / Relief: Deep Slate Grey (#334155)
- * - Ocean / Water: Deep Navy Blue (#081426)
+ * Generates custom White Terrain High-Contrast Theme (白色立体地形)
+ * - Earth Land / Continents: Pure Crisp White (#FFFFFF)
+ * - Ocean / Water / Lakes: Deep Navy Blue (#0C2340)
+ * - Country Borders: Muted Slate Grey (#64748B)
+ * - Labels: Dark Slate (#0F172A) with clean white halo (#FFFFFF)
  */
 export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
-  const cacheKey = `white-terrain-${language}-${apiKey ? 'cloud' : 'local'}`;
+  const cacheKey = `white-terrain-v4-${language}-${apiKey ? 'cloud' : 'local'}`;
   if (STYLE_CACHE.has(cacheKey)) {
     return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
   }
@@ -145,47 +146,47 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
       styleJson.layers.forEach(l => {
         const id = l.id.toLowerCase();
 
-        // 1. Background / Ocean Base: Deep Navy Blue
+        // 1. Background / Continent Land Base: Pure Crisp White
         if (l.type === 'background') {
-          l.paint = { ...(l.paint || {}), 'background-color': '#081426', 'background-opacity': 1 };
+          l.paint = { ...(l.paint || {}), 'background-color': '#ffffff', 'background-opacity': 1 };
         }
-        // 2. Land Surface: Pure Crisp White
-        else if (id.includes('land') && l.type === 'fill') {
-          l.paint = { ...(l.paint || {}), 'fill-color': '#ffffff', 'fill-opacity': 1 };
-        }
-        // 3. Mountain Hillshade: High-contrast Dark Slate Grey
-        else if (l.type === 'hillshade' || id.includes('hillshade')) {
-          l.paint = {
-            ...(l.paint || {}),
-            'hillshade-highlight-color': '#ffffff',
-            'hillshade-shadow-color': '#334155',
-            'hillshade-exaggeration': 0.85
-          };
-          l.layout = { ...(l.layout || {}), visibility: 'visible' };
-        }
-        // 4. Oceans, Seas, Lakes, Rivers: Deep Navy Blue
-        else if (id.includes('water') || id.includes('lake') || id.includes('river') || id.includes('ocean') || id.includes('sea')) {
+        // 2. Water / Oceans / Seas / Lakes / Rivers: Deep Navy Blue
+        else if (id.includes('water') || id.includes('ocean') || id.includes('sea') || id.includes('lake')) {
           if (l.type === 'fill') {
-            l.paint = { ...(l.paint || {}), 'fill-color': '#081426', 'fill-opacity': 1 };
+            l.paint = { ...(l.paint || {}), 'fill-color': '#0c2340', 'fill-opacity': 1 };
           } else if (l.type === 'line') {
-            l.paint = { ...(l.paint || {}), 'line-color': '#0a1d38' };
+            l.paint = { ...(l.paint || {}), 'line-color': '#08192e' };
           }
         }
-        // 5. Borders: Subtle Slate Grey
+        // 3. Ice & Glacier
+        else if (id.includes('glacier') || id.includes('ice')) {
+          if (l.type === 'fill') {
+            l.paint = { ...(l.paint || {}), 'fill-color': '#f1f5f9', 'fill-opacity': 0.8 };
+          }
+        }
+        // 4. Country Borders & Boundaries: Muted Slate Grey
         else if (id.includes('border') || id.includes('boundary')) {
           if (l.type === 'line') {
-            l.paint = { ...(l.paint || {}), 'line-color': '#64748b', 'line-opacity': 0.65 };
+            l.paint = { ...(l.paint || {}), 'line-color': '#64748b', 'line-opacity': 0.75 };
           }
         }
-        // 6. Labels: Dark slate with clean white halo
+        // 5. Roads / Transport: Subtle Light Grey
+        else if (id.includes('road') || id.includes('highway') || id.includes('tunnel') || id.includes('rail')) {
+          if (l.type === 'line') {
+            l.paint = { ...(l.paint || {}), 'line-color': '#e2e8f0', 'line-opacity': 0.5 };
+          }
+        }
+        // 6. Labels: Dark Slate with clean white halo
         else if (l.type === 'symbol' && l.layout && l.layout['text-field']) {
           l.layout = { ...l.layout, 'text-field': targetTextField };
-          l.paint = {
-            ...(l.paint || {}),
-            'text-color': '#0f172a',
-            'text-halo-color': '#ffffff',
-            'text-halo-width': 1.2
-          };
+          if (l.paint && typeof l.paint === 'object') {
+            l.paint = {
+              ...l.paint,
+              'text-color': '#0f172a',
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 1.5
+            };
+          }
         }
       });
     }
@@ -202,13 +203,13 @@ export async function fetchWhiteTerrainStyle(apiKey, language = 'zh') {
 /**
  * Generates custom Ultra-Fast Deep Midnight Blue Theme (极速深海蓝)
  * - Ultra-lightweight Dataviz base (only ~30 layers, loads in ~100ms)
- * - Land Base / Continents: Deep Oceanic Slate (#0d1726)
- * - Oceans / Water: Midnight Deep Abyss (#040a14)
- * - Borders: Luminous Cyan Blue (#38bdf8)
- * - Labels: Celestial Light Blue (#e2e8f0) with dark halo (#040a14)
+ * - Land Base / Continents: Deep Oceanic Slate (#0D1726)
+ * - Oceans / Water: Midnight Deep Abyss (#040A14)
+ * - Borders: Luminous Cyan Blue (#38BDF8)
+ * - Labels: Celestial Light Blue (#E2E8F0) with dark halo (#040A14)
  */
 export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
-  const cacheKey = `fast-deep-blue-${language}-${apiKey ? 'cloud' : 'local'}`;
+  const cacheKey = `fast-deep-blue-v4-${language}-${apiKey ? 'cloud' : 'local'}`;
   if (STYLE_CACHE.has(cacheKey)) {
     return JSON.parse(JSON.stringify(STYLE_CACHE.get(cacheKey)));
   }
@@ -265,12 +266,14 @@ export async function fetchFastDeepBlueStyle(apiKey, language = 'zh') {
         // 6. Labels: Crisp Celestial Blue with dark halo
         else if (l.type === 'symbol' && l.layout && l.layout['text-field']) {
           l.layout = { ...l.layout, 'text-field': targetTextField };
-          l.paint = {
-            ...(l.paint || {}),
-            'text-color': '#e2e8f0',
-            'text-halo-color': '#040a14',
-            'text-halo-width': 1.2
-          };
+          if (l.paint && typeof l.paint === 'object') {
+            l.paint = {
+              ...l.paint,
+              'text-color': '#e2e8f0',
+              'text-halo-color': '#040a14',
+              'text-halo-width': 1.2
+            };
+          }
         }
       });
     }
