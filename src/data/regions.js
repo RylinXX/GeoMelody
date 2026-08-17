@@ -68,6 +68,16 @@ export const MAP_REGIONS = [
     lng: 25,
     globeDistance: 198,
     mapZoom: 2.8
+  },
+  {
+    id: 'oceans',
+    name: '神秘大洋',
+    enName: 'Oceans',
+    icon: '🚩',
+    lat: 0,
+    lng: -140,
+    globeDistance: 205,
+    mapZoom: 2.5
   }
 ];
 

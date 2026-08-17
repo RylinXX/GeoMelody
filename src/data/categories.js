@@ -6,7 +6,8 @@ export const CATEGORIES = [
   { id: 'desert', name: '西北大漠', enName: 'Deserts', icon: 'sun', color: '#fbbf24' },
   { id: 'forest', name: '森林秘境', enName: 'Forests', icon: 'trees', color: '#4ade80' },
   { id: 'city', name: '城市夜景', enName: 'City Nights', icon: 'building-2', color: '#f472b6' },
-  { id: 'lake', name: '湖泊湿地', enName: 'Lakes', icon: 'waves', color: '#60a5fa' }
+  { id: 'lake', name: '湖泊湿地', enName: 'Lakes', icon: 'waves', color: '#60a5fa' },
+  { id: 'unclaimed', name: '待认领秘境', enName: 'Unclaimed', icon: 'flag', color: '#ef4444' }
 ];
 
 export const CATEGORY_MAP = CATEGORIES.reduce((acc, cat) => {

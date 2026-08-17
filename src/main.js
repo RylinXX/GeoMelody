@@ -121,10 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const storyEl = document.getElementById('spot-preview-story');
     const trackTitleEl = document.getElementById('spot-preview-track-title');
 
+    const isUnclaimed = spot.category === 'unclaimed';
     if (coverEl) coverEl.src = spot.photos?.[0] || '';
     if (catEl) {
       const cat = CATEGORY_MAP[spot.category];
       catEl.textContent = getCategoryName(cat, currentLanguage);
+      catEl.classList.toggle('unclaimed', isUnclaimed);
     }
     if (nameEl) nameEl.textContent = getSpotName(spot, currentLanguage);
     if (locEl) locEl.textContent = `${getSpotLocation(spot, currentLanguage)} · ${spot.lat.toFixed(2)}°, ${spot.lng.toFixed(2)}°`;
@@ -132,6 +134,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (trackTitleEl) {
       const track = getDemoTrack(spot);
       trackTitleEl.textContent = track ? `${track.title} — ${track.creator}` : (spot.audioRecipe?.scale || '');
+    }
+
+    if (btnSpotPreviewEnter) {
+      btnSpotPreviewEnter.classList.toggle('unclaimed', isUnclaimed);
+      const btnTextEl = btnSpotPreviewEnter.querySelector('span');
+      if (btnTextEl) {
+        btnTextEl.textContent = isUnclaimed
+          ? (currentLanguage === 'en' ? 'Claim & Explore' : '抢先认领 · 探索')
+          : (currentLanguage === 'en' ? 'Enter' : '进入');
+      }
     }
 
     miniIsland?.classList.remove('visible');

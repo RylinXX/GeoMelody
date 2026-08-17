@@ -702,14 +702,19 @@ export class GlobeManager {
     const location = this.currentLanguage === 'en'
       ? (spot.enLocation || spot.location)
       : spot.location;
-    const hint = this.currentLanguage === 'en' ? 'Click to listen' : '点击聆听 ➔';
+    const isUnclaimed = spot.category === 'unclaimed';
+    const tagHtml = isUnclaimed ? `<span class="globe-tooltip-unclaimed-tag">${this.currentLanguage === 'en' ? '🚩 Unclaimed Territory' : '🚩 待认领秘境'}</span>` : '';
+    const hint = isUnclaimed
+      ? (this.currentLanguage === 'en' ? 'Click to Claim & Explore ➔' : '点击抢先认领 / 探索 ➔')
+      : (this.currentLanguage === 'en' ? 'Click to listen' : '点击聆听 ➔');
     const photo = spot.photos?.[0];
     this.tooltip.innerHTML = `
       ${photo ? `<img class="globe-tooltip-thumb" src="${escapeHtml(photo)}" alt="" loading="lazy" decoding="async">` : ''}
       <span class="globe-tooltip-content">
+        ${tagHtml}
         <span class="globe-tooltip-title">${escapeHtml(name)}</span>
         <span class="globe-tooltip-loc">${escapeHtml(location)}</span>
-        <span class="globe-tooltip-hint">${hint}</span>
+        <span class="globe-tooltip-hint" style="${isUnclaimed ? 'color:#f87171;' : ''}">${hint}</span>
       </span>`;
     const container = this.map.getContainer();
     const tooltipWidth = 220;
@@ -1011,26 +1016,34 @@ export class GlobeManager {
     // Hide during coordinate repositioning to prevent any top-left flash
     this.flybyAnchorEl.classList.remove('visible');
 
+    const isUnclaimed = spot.category === 'unclaimed';
+    const tagText = isUnclaimed
+      ? (this.currentLanguage === 'en' ? '🚩 Unclaimed' : '🚩 待认领秘境')
+      : (this.currentLanguage === 'en' ? 'Nearby' : '胜景');
+    const playBtnText = isUnclaimed
+      ? (this.currentLanguage === 'en' ? 'Claim' : '抢先认领')
+      : (this.currentLanguage === 'en' ? 'Play' : '听这首');
+
     this.flybyAnchorEl.innerHTML = `
       <div class="geo-pill-inner-anim">
-        <div class="geo-pill-card" role="button" title="点击直接进入播放">
+        <div class="geo-pill-card ${isUnclaimed ? 'unclaimed' : ''}" role="button" title="${isUnclaimed ? '点击探索并认领' : '点击直接进入播放'}">
           <div class="geo-pill-cover-wrap">
             <img class="geo-pill-cover-img" src="${coverSrc}" alt="${spotName}">
           </div>
           <div class="geo-pill-info">
             <div class="geo-pill-title-row">
-              <span class="geo-pill-tag">${this.currentLanguage === 'en' ? 'Nearby' : '胜景'}</span>
+              <span class="geo-pill-tag ${isUnclaimed ? 'unclaimed' : ''}">${tagText}</span>
               <strong class="geo-pill-spot-name">${spotName}</strong>
             </div>
             <span class="geo-pill-track-name">♫ ${trackText}</span>
           </div>
-          <button type="button" class="geo-pill-play-btn" title="点击听这首">
+          <button type="button" class="geo-pill-play-btn ${isUnclaimed ? 'unclaimed' : ''}" title="${isUnclaimed ? '点击认领' : '点击听这首'}">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>${this.currentLanguage === 'en' ? 'Play' : '听这首'}</span>
+            <span>${playBtnText}</span>
           </button>
         </div>
-        <div class="geo-pill-pointer">
-          <div class="geo-pill-beacon-dot"></div>
+        <div class="geo-pill-pointer ${isUnclaimed ? 'unclaimed' : ''}">
+          <div class="geo-pill-beacon-dot ${isUnclaimed ? 'unclaimed' : ''}"></div>
         </div>
       </div>
     `;

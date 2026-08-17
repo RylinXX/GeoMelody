@@ -3259,6 +3259,634 @@ export const SCENIC_SPOTS = [
       naturalSound: 'wind',
       prompt: '南极洲极地纯净空灵音乐、水晶清音与冰川长风、纯白无瑕、净化心灵'
     }
+  },
+
+  // ==================== 15. 全球大洋待认领秘境 (Unclaimed Ocean & Remote Mysteries) ====================
+  {
+    id: 'mariana-trench',
+    name: '马里亚纳海沟 · 挑战者深渊',
+    enName: 'Mariana Trench · Challenger Deep',
+    location: '西太平洋 · 万米海渊 (-11,034米)',
+    country: '西太平洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 11.3493,
+    lng: 142.1996,
+    description: '【待认领秘境】地球的最深处，万米幽暗深渊。这里承受着超过1000倍的大气压，寂静无光的世界中，水声回荡在幽蓝海沟深处，等待勇敢者的声呐探索与图文认领。',
+    tags: ['待认领', '挑战者深渊', '地球极深处', '神秘海沟', '深海探索'],
+    photos: [
+      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'deep_ocean_ambient',
+      bpm: 52,
+      scale: 'Deep Abyss Drone · 432Hz',
+      instruments: '深海水听器共鸣 · 极低频波纹 · 鲸歌远鸣',
+      naturalSound: 'waves',
+      prompt: '深海万米深渊环境音、水下低频共振、神秘鲸鸣、深邃治愈助眠'
+    }
+  },
+  {
+    id: 'point-nemo',
+    name: '尼莫点 · 太平洋海洋难抵极',
+    enName: 'Point Nemo · Oceanic Pole of Inaccessibility',
+    location: '南太平洋 · 航天器重返墓地',
+    country: '南太平洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -48.8767,
+    lng: -123.3933,
+    description: '【待认领秘境】地球上距离任何陆地最遥远的点（2,688公里）。最近的人类往往是头顶400公里呼啸而过的国际空间站宇航员。万籁俱寂的浩瀚大洋，等待探险者留下足迹。',
+    tags: ['待认领', '海洋难抵极', '航天器坟场', '绝对孤独', '深洋绝境'],
+    photos: [
+      'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'deep_ocean_ambient',
+      bpm: 48,
+      scale: 'Infinite Solitude · 528Hz',
+      instruments: '微风泛音合成器 · 孤舟水波 · 远古潮汐',
+      naturalSound: 'waves',
+      prompt: '无垠太平洋、深邃孤寂、远方微弱海浪声、静心冥想与深度睡眠'
+    }
+  },
+  {
+    id: 'bermuda-triangle',
+    name: '百慕大神秘三角 · 罗盘静默海域',
+    enName: 'Bermuda Triangle · Sargasso Western Apex',
+    location: '北大西洋 · 萨尔加斯海西界',
+    country: '北大西洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 25.0000,
+    lng: -71.0000,
+    description: '【待认领秘境】传说的迷航漩涡，磁暴与洋流交织的神秘水域。碧蓝的海水之下潜藏着无数失落的航船残骸与古代传说，星轨在深邃波涛中静默轮转。',
+    tags: ['待认领', '神秘三角', '大西洋传说', '罗盘失灵', '深蓝洋流'],
+    photos: [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 60,
+      scale: 'Atlantic Mystery · 432Hz',
+      instruments: '神秘流音管弦 · 潮汐鼓动 · 磁场脉冲晶音',
+      naturalSound: 'waves',
+      prompt: '大西洋神秘洋流、悠远深邃、潮水呼吸声、探索冥想氛围'
+    }
+  },
+  {
+    id: 'easter-island-abyss',
+    name: '复活节岛外海 · 摩艾巨石注视之海',
+    enName: 'Easter Island Trench · Rapa Nui Seamount',
+    location: '东南太平洋 · 拉帕努伊海盆',
+    country: '东南太平洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -27.1127,
+    lng: -109.3497,
+    description: '【待认领秘境】孤悬于浩瀚太平洋中央的神秘孤岛，千万年来数百座石雕摩艾像静静注视着无垠的海平面，海浪拍击火山礁岩，诉说着古波利尼西亚的航海史诗。',
+    tags: ['待认领', '摩艾石像', '孤绝之岛', '星空航海', '古老图腾'],
+    photos: [
+      'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 64,
+      scale: 'Polynesian Winds · 432Hz',
+      instruments: '木排箫 · 土著鼓点轻击 · 礁岩浪花',
+      naturalSound: 'waves',
+      prompt: '太平洋古老海岛风情、木箫悠扬、火山海浪拍打、治愈心灵'
+    }
+  },
+  {
+    id: 'galapagos-rift',
+    name: '加拉帕戈斯深海热泉 · 地心黑烟囱',
+    enName: 'Galapagos Hydrothermal Rift',
+    location: '东太平洋 · 赤道热泉深渊 (-2,600米)',
+    country: '东太平洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 0.8000,
+    lng: -90.9000,
+    description: '【待认领秘境】太平洋海底板块碰撞交汇处，喷涌着300°C矿脉热液的海底烟囱，孕育着地球上最不可思议的嗜热生物圈，仿佛异星球的外星地貌。',
+    tags: ['待认领', '海底烟囱', '深海热泉', '达尔文秘境', '地心生命'],
+    photos: [
+      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'deep_ocean_ambient',
+      bpm: 54,
+      scale: 'Thermal Vent Pulse · 432Hz',
+      instruments: '地热气泡声 · 深海回音合成器 · 恒定低频',
+      naturalSound: 'waves',
+      prompt: '深海热泉环境音、地热气泡律动、低频放松、科幻氛围纯音乐'
+    }
+  },
+  {
+    id: 'tahiti-blue-hole',
+    name: '大溪地与波利尼西亚 · 琉璃蓝洞',
+    enName: 'Tahiti & Polynesia · Coral Blue Hole',
+    location: '南太平洋 · 法属波利尼西亚深海',
+    country: '南太平洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -17.6509,
+    lng: -149.4260,
+    description: '【待认领秘境】深邃如蓝宝石般的环礁深坑，阳光穿透透明度极高的琉璃海水，五彩斑斓的珊瑚与鳐鱼在百米深蓝中翱翔，大洋深处的梦幻伊甸园。',
+    tags: ['待认领', '深海蓝洞', '玻璃海水', '珊瑚环礁', '南太平洋之珠'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'tropical_chill',
+      bpm: 66,
+      scale: 'Turquoise Lagoon · 432Hz',
+      instruments: '钢舌鼓 · 尤克里里微泛音 · 清透波浪',
+      naturalSound: 'waves',
+      prompt: '大溪地海风微波、清澈阳光、舒缓空灵钢舌鼓、假日放松'
+    }
+  },
+  {
+    id: 'mauritius-underwater-waterfall',
+    name: '毛里求斯 · 印度洋海底瀑布',
+    enName: 'Mauritius · Underwater Waterfall',
+    location: '西南印度洋 · 勒莫恩半岛海域',
+    country: '印度洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -20.4717,
+    lng: 57.3175,
+    description: '【待认领秘境】大自然最震撼的视觉奇迹。海面之下细沙和淤泥顺着大陆架断崖奔流跌入4000米深海，勾勒出如同海底奔腾瀑布般的壮丽奇观。',
+    tags: ['待认领', '海底瀑布', '大陆架断崖', '印度洋秘境', '地质奇迹'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 70,
+      scale: 'Cascading Abyss · 432Hz',
+      instruments: '竖琴流连 · 弦乐潮涌 · 远洋水声',
+      naturalSound: 'waves',
+      prompt: '海底瀑布流动质感、舒缓优美竖琴、深海回响、空灵浩瀚'
+    }
+  },
+  {
+    id: 'java-trench',
+    name: '爪哇海沟 · 巽他深渊',
+    enName: 'Java Trench · Sunda Deep Abyss',
+    location: '东印度洋 · 巽他海沟 (-7,450米)',
+    country: '东印度洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -10.3167,
+    lng: 105.9833,
+    description: '【待认领秘境】印度洋最深的海沟，欧亚板块与印度-澳洲板块的俯冲前沿。海水在万米重压下宛如深黑水晶，深海发光生物在暗夜波涛中闪烁点点星火。',
+    tags: ['待认领', '印度洋极深', '巽他深渊', '发光生物', '板块俯冲'],
+    photos: [
+      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'deep_ocean_ambient',
+      bpm: 50,
+      scale: 'Sunda Trench Echo · 432Hz',
+      instruments: '深水共鸣器 · 空间合成器 · 缓流低音',
+      naturalSound: 'waves',
+      prompt: '印度洋深渊冥想音、水流回旋、暗夜星光、深沉宁静'
+    }
+  },
+  {
+    id: 'drake-passage',
+    name: '德雷克海峡 · 魔鬼西风漂流带',
+    enName: 'Drake Passage · Furious Fifties Sea',
+    location: '南大洋 · 合恩角南侧西风漂流带',
+    country: '南大洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -58.5000,
+    lng: -65.0000,
+    description: '【待认领秘境】世界上最汹涌危险的海峡，大西洋与太平洋狂暴碰撞之所。滔天巨浪奔腾在咆哮的西风带中，信天翁振翅滑翔于苍茫冰冷的大洋之上。',
+    tags: ['待认领', '咆哮西风带', '狂暴巨浪', '南极门户', '极限航海'],
+    photos: [
+      'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 58,
+      scale: 'Furious Winds · 432Hz',
+      instruments: '低音大提琴 · 暴风雨海浪 · 悠长长笛',
+      naturalSound: 'wind',
+      prompt: '极地风暴与怒涛、大提琴苍茫旋律、震撼壮美、航海史诗'
+    }
+  },
+  {
+    id: 'azores-rift',
+    name: '亚速尔大西洋洋中脊 · 抹香鲸领地',
+    enName: 'Mid-Atlantic Ridge · Azores Whale Territory',
+    location: '北大西洋 · 洋中脊地质断裂带',
+    country: '北大西洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 37.7412,
+    lng: -25.6756,
+    description: '【待认领秘境】地球最大的海底山脉——大西洋洋中脊露出海面的火山群岛。地热温泉与翡翠火山湖交相辉映，深海抹香鲸常年在此巡游繁衍。',
+    tags: ['待认领', '大西洋洋中脊', '抹香鲸圣地', '火山温泉', '深海裂谷'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 62,
+      scale: 'Atlantic Cetacean · 432Hz',
+      instruments: '清脆钢琴 · 鲸语声纳 · 潮汐和声',
+      naturalSound: 'waves',
+      prompt: '大西洋抹香鲸呼唤、钢琴纯音乐、潮水轻拂、治愈放松'
+    }
+  },
+  {
+    id: 'north-pole-abyss',
+    name: '北极极点冰海 · 永夜极光之洋',
+    enName: 'North Pole Arctic Abyss · Aurora Ocean',
+    location: '北冰洋 · 地球地理北极点 (-4,261米)',
+    country: '北冰洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 89.9000,
+    lng: 0.0000,
+    description: '【待认领秘境】所有经线汇聚的尽头，冰封千里的极地浮冰世界。厚重的极地冰盖下方是4000米深的深寒海盆，极光在永夜星空中如绿色丝带般轻盈舞动。',
+    tags: ['待认领', '地理北极', '极夜冰盖', '北极光', '地球尽头'],
+    photos: [
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'polar_ambient',
+      bpm: 50,
+      scale: 'Northern Lights · 432Hz',
+      instruments: '极光合成器 · 冰晶清音 · 极地微风',
+      naturalSound: 'wind',
+      prompt: '北极极光漫舞、纯净冰雪氛围、空灵空境、冥想安神'
+    }
+  },
+  {
+    id: 'ross-sea-shelf',
+    name: '罗斯海陆架 · 极寒冰山漂流带',
+    enName: 'Ross Sea Ice Shelf · Drifting Icebergs',
+    location: '南极洲 · 罗斯海冰架前缘',
+    country: '南大洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -75.0000,
+    lng: 175.0000,
+    description: '【待认领秘境】地球上最纯净原始的海洋，巨大的蓝色冰山崩解漂流在幽暗深海。虎鲸与帝企鹅在这片极寒荒野中繁衍生息，南极大陆架在此沉入深渊。',
+    tags: ['待认领', '南极冰架', '虎鲸领地', '极寒冰洋', '纯净秘境'],
+    photos: [
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'polar_ambient',
+      bpm: 52,
+      scale: 'Antarctic Shelf · 432Hz',
+      instruments: '冰川共振大提琴 · 空灵女声哼唱 · 寒潮轻抚',
+      naturalSound: 'wind',
+      prompt: '南极洲极寒冰洋、纯白圣洁、低沉大提琴、治愈心灵'
+    }
+  },
+  {
+    id: 'tristan-da-cunha',
+    name: '特里斯坦-达库尼亚 · 世界最孤立海岛',
+    enName: 'Tristan da Cunha · Most Remote Island',
+    location: '南大西洋 · 孤绝火山岛',
+    country: '南大西洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -37.1052,
+    lng: -12.2777,
+    description: '【待认领秘境】远离任何大陆超过2400公里的孤绝火山岛，常年被南大洋的风暴与云雾笼罩，黑沙滩与狂暴的海浪守卫着这片与世隔绝的海角天涯。',
+    tags: ['待认领', '世界最孤立', '黑沙滩', '南大西洋', '避世秘境'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 60,
+      scale: 'Tristan Solitude · 432Hz',
+      instruments: '木吉他轻拂 · 海风长吟 · 潮水起落',
+      naturalSound: 'waves',
+      prompt: '世界尽头孤岛、温暖木吉他、海风浪涌、宁静致远'
+    }
+  },
+  {
+    id: 'eye-of-the-sahara',
+    name: '撒哈拉之眼 · 理查特同心圆地质奇观',
+    enName: 'Eye of the Sahara · Richat Structure',
+    location: '非洲 · 毛里塔尼亚撒哈拉腹地',
+    country: '毛里塔尼亚',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 21.1269,
+    lng: -11.4016,
+    description: '【待认领秘境】宇航员从太空俯瞰地球的地标级同心圆地质奇观。直径达40公里的巨大同心圆圈，被誉为地球最神秘的巨型图腾，传说中亚特兰蒂斯的遗迹假说之地。',
+    tags: ['待认领', '撒哈拉之眼', '地质奇观', '太空地标', '古老谜题'],
+    photos: [
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_ambient',
+      bpm: 64,
+      scale: 'Sahara Mystery · 432Hz',
+      instruments: '乌德琴 · 撒哈拉热风 · 远古颂钵',
+      naturalSound: 'wind',
+      prompt: '撒哈拉沙漠苍茫神秘、乌德琴轻拨、热风滚滚、宇宙俯瞰感'
+    }
+  },
+  {
+    id: 'danakil-depression',
+    name: '达纳基尔凹地 · 地狱之门硫磺幻境',
+    enName: 'Danakil Depression · Acidic Sulfur Springs',
+    location: '非洲 · 埃塞俄比亚阿法尔三角 (-125米)',
+    country: '埃塞俄比亚',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 14.2417,
+    lng: 40.5000,
+    description: '【待认领秘境】低于海平面125米的地球最热极端秘境。色彩斑斓的酸性硫磺泉、盐结晶梯田与滚烫的熔岩湖交织，宛如火星表面的残酷超现实绝景。',
+    tags: ['待认领', '地球地狱之门', '硫磺泉', '火星地貌', '极端探险'],
+    photos: [
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_ambient',
+      bpm: 58,
+      scale: 'Volcanic Acid · 432Hz',
+      instruments: '实验电子合成器 · 地壳微鸣 · 原始鼓韵',
+      naturalSound: 'wind',
+      prompt: '外星地貌神秘音乐、硫磺泉地热回响、科幻史诗、张力与放松'
+    }
+  },
+  {
+    id: 'socotra-archipelago',
+    name: '索科特拉岛 · 外星龙血树方舟',
+    enName: 'Socotra Archipelago · Dragon Blood Realm',
+    location: '阿拉伯海 · 索科特拉深海台地',
+    country: '阿拉伯海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 12.4634,
+    lng: 53.8237,
+    description: '【待认领秘境】印度洋上的外星植物方舟。造型奇特如飞碟般的龙血树矗立在白沙悬崖之巅，蔚蓝深海与原始红白相间的岩石海岸构成不可思议的梦境世界。',
+    tags: ['待认领', '龙血树', '外星植物方舟', '阿拉伯海', '遗世孤岛'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'ocean_mystery',
+      bpm: 66,
+      scale: 'Dragon Blood Tree · 432Hz',
+      instruments: '阿拉伯短笛 · 柔和手碟 · 碧海轻波',
+      naturalSound: 'waves',
+      prompt: '索科特拉异域梦境、手碟空灵、微风海浪、奇幻治愈'
+    }
+  },
+  {
+    id: 'hawaii-seamount',
+    name: '夏威夷海岭 · 太平洋海底火山链',
+    enName: 'Hawaiian Ridge Seamount · Hotspot Chain',
+    location: '中太平洋 · 夏威夷海底火山热点',
+    country: '中太平洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 21.3069,
+    lng: -157.8583,
+    description: '【待认领秘境】从太平洋底6000米平原拔地而起的巨型海底火山脉。炽热地幔柱喷涌出的炽热岩浆与冰冷深海激荡，孕育了太平洋最壮丽的岛弧链。',
+    tags: ['待认领', '海底火山', '热点地质', '深洋海岭', '太平洋之冠'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'tropical_chill',
+      bpm: 68,
+      scale: 'Pacific Hotspot · 432Hz',
+      instruments: '滑音吉他 · 尤克里里 · 太平洋暖流',
+      naturalSound: 'waves',
+      prompt: '夏威夷暖洋海浪、清爽滑音吉他、舒缓放松、海边阳光'
+    }
+  },
+  {
+    id: 'palau-dropoff',
+    name: '帕劳大断崖 · 黄金水母湖与万米深蓝',
+    enName: 'Palau Big Drop-off & Jellyfish Lake',
+    location: '西太平洋 · 密克罗尼西亚深渊',
+    country: '帕劳',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 7.5149,
+    lng: 134.5825,
+    description: '【待认领秘境】从一米浅礁瞬间坠入上千米深渊的无底大断崖。深蓝海水清澈见底，数以万计的无毒黄金水母在隐秘盐水湖中随日落光影缓慢起舞。',
+    tags: ['待认领', '无底断崖', '黄金水母湖', '七彩珊瑚', '潜水圣殿'],
+    photos: [
+      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'tropical_chill',
+      bpm: 60,
+      scale: 'Golden Jellyfish · 432Hz',
+      instruments: '水下钟琴 · 柔润气泡泛音 · 暖流水声',
+      naturalSound: 'waves',
+      prompt: '水母优雅起舞、轻柔水下钟琴、清澈晶莹、沉浸式解压'
+    }
+  },
+  {
+    id: 'cook-islands-atoll',
+    name: '库克群岛 · 艾图塔基绿松石泄湖',
+    enName: 'Cook Islands · Aitutaki Coral Lagoon',
+    location: '南太平洋 · 艾图塔基环礁',
+    country: '库克群岛',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -21.2367,
+    lng: -159.7777,
+    description: '【待认领秘境】南太平洋最清澈的绿松石泄湖，巨大珊瑚环礁如同一串珍珠散落在深邃的南太平洋怀抱中，微风轻拂椰林，海浪低语宛如天籁。',
+    tags: ['待认领', '绿松石泄湖', '南太平洋环礁', '治愈海浪', '世外桃源'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'tropical_chill',
+      bpm: 64,
+      scale: 'Turquoise Atoll · 432Hz',
+      instruments: '海风木吉他 · 温柔海潮 · 鸟鸣清脆',
+      naturalSound: 'waves',
+      prompt: '南太平洋海岛清晨、木吉他微风、浪涛拍岸、心灵净化'
+    }
+  },
+  {
+    id: 'weddell-sea-abyss',
+    name: '威德尔海 · 坚忍号传奇沉睡之海',
+    enName: 'Weddell Sea Abyss · Endurance Resting Deep',
+    location: '南大洋 · 坚忍号沉船海域 (-3,000米)',
+    country: '南大洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -72.0000,
+    lng: -45.0000,
+    description: '【待认领秘境】南大洋深处著名的常年封冻海域，沙克尔顿男爵“坚忍号”传奇沉没百年的安息之地。海水透明度达到极致，冰山在极昼阳光下折射出幽蓝冷光。',
+    tags: ['待认领', '坚忍号传奇', '透明冰洋', '南极风暴', '极地探险'],
+    photos: [
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'polar_ambient',
+      bpm: 50,
+      scale: 'Endurance Legend · 432Hz',
+      instruments: '深沉大提琴 · 极地冰层微裂回响 · 远方呼啸',
+      naturalSound: 'wind',
+      prompt: '极地探险史诗、坚忍不拔的深沉大提琴、冰风凛冽、浩然致敬'
+    }
+  },
+  {
+    id: 'simpson-desert',
+    name: '辛普森沙漠 · 澳洲红色千垄沙原',
+    enName: 'Simpson Desert · Red Dune Field',
+    location: '澳洲内陆 · 红色大沙丘阵',
+    country: '澳大利亚',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -24.5700,
+    lng: 137.4300,
+    description: '【待认领秘境】世界上最辽阔的平行红色沙丘群。超过1100道鲜红沙垄自南向北延绵数百公里，夕阳下整片荒野燃烧如火焰海洋，寂静空旷至极。',
+    tags: ['待认领', '红色沙丘', '澳洲红土荒原', '平行沙垄', '内陆秘境'],
+    photos: [
+      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'desert_ambient',
+      bpm: 62,
+      scale: 'Red Earth Dreamtime · 432Hz',
+      instruments: '迪吉里杜管共鸣 · 荒原微风 · 原野打击乐',
+      naturalSound: 'wind',
+      prompt: '澳洲红土地、迪吉里杜管深沉原生态低音、大漠旷野、广袤冥想'
+    }
+  },
+  {
+    id: 'kamchatka-volcanoes',
+    name: '堪察加半岛 · 冰火交织火山带',
+    enName: 'Kamchatka Volcanoes · Pacific Ring of Fire',
+    location: '俄罗斯远东 · 环太平洋火山地震带',
+    country: '俄罗斯',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 55.5000,
+    lng: 158.5000,
+    description: '【待认领秘境】冰与火交织的远东秘境。数十座高耸入云的活火山终年喷吐着白色蒸汽，间歇泉在积雪深谷中奔腾，棕熊在未被人类踏足的原始河谷中捕食马哈鱼。',
+    tags: ['待认领', '冰与火之歌', '活火山链', '远东旷野', '地热间歇泉'],
+    photos: [
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'mountain_harp',
+      bpm: 65,
+      scale: 'Volcano & Ice · 432Hz',
+      instruments: '大提琴 · 间歇泉蒸汽声 · 冰川长笛',
+      naturalSound: 'wind',
+      prompt: '冰火交织的火山高原、雄浑深沉旋律、风声水响、心旷神怡'
+    }
+  },
+  {
+    id: 'sargasso-sea',
+    name: '马尾藻海 · 大西洋无岸之海',
+    enName: 'Sargasso Sea · Shoreless Ocean Gyre',
+    location: '北大西洋 · 环流中央无岸海',
+    country: '北大西洋公海',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: 28.0000,
+    lng: -40.0000,
+    description: '【待认领秘境】地球上唯一没有陆地海岸线的“洋中之海”。四大洋流环绕出的宁静风眼，漂浮着数百万吨金黄色的马尾藻，鳗鱼跨越数千公里在此产卵繁殖。',
+    tags: ['待认领', '无岸之海', '马尾藻森林', '大西洋风眼', '自然奇观'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'deep_ocean_ambient',
+      bpm: 56,
+      scale: 'Sargasso Drift · 432Hz',
+      instruments: '静谧电钢琴 · 浮游生物水泡音 · 缓慢洋流',
+      naturalSound: 'waves',
+      prompt: '无岸之海慢速漂流、清澈电钢琴、舒缓洋流白噪音、安神助眠'
+    }
+  },
+  {
+    id: 'seychelles-amirante',
+    name: '塞舌尔阿米兰特 · 印度洋珊瑚孤礁',
+    enName: 'Seychelles Amirante · Granite Abyss',
+    location: '西印度洋 · 花岗岩孤礁海域',
+    country: '塞舌尔',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -5.5000,
+    lng: 53.3000,
+    description: '【待认领秘境】西印度洋辽阔的碧蓝海面，古老的花岗岩巨石从深海拔地而起，巨龟在无人珊瑚沙洲上缓缓踱步，海水呈现梦幻般的层级渐变蓝。',
+    tags: ['待认领', '花岗岩海岛', '印度洋珍珠', '渐变蓝海水', '巨龟乐园'],
+    photos: [
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'tropical_chill',
+      bpm: 64,
+      scale: 'Indian Ocean Breeze · 432Hz',
+      instruments: '手碟温润音 · 浪花漱石 · 暖风低语',
+      naturalSound: 'waves',
+      prompt: '印度洋温暖海风、手碟治愈纯音、海浪轻抚珊瑚沙滩、放松身心'
+    }
+  },
+  {
+    id: 'kerguelen-islands',
+    name: '克尔格伦群岛 · 南印度洋绝望荒岛',
+    enName: 'Kerguelen Islands · Desolation Archipelago',
+    location: '南印度洋 · 法属南部与南极领地',
+    country: '南印度洋',
+    category: 'unclaimed',
+    isUnclaimed: true,
+    lat: -49.3500,
+    lng: 69.5800,
+    description: '【待认领秘境】被称为“荒凉之岛”的南印度洋孤岛。常年被50节烈风与暴雨冰雪洗礼，峡湾纵横交错，象海豹群与企鹅在黑色玄武岩海岸繁衍生息。',
+    tags: ['待认领', '荒凉之岛', '南极辐合带', '狂风暴雨', '玄武岩峡湾'],
+    photos: [
+      'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1920&q=85',
+      'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=1920&q=85'
+    ],
+    audioRecipe: {
+      style: 'polar_ambient',
+      bpm: 54,
+      scale: 'Desolation Fjord · 432Hz',
+      instruments: '大提琴 solo · 暴风雨海潮 · 苍凉号角',
+      naturalSound: 'wind',
+      prompt: '南印度洋狂风海峡、苍凉大提琴、冰冷海浪撞击、旷世孤独'
+    }
   }
 ];
 
