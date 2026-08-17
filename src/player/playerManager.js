@@ -16,6 +16,14 @@ import {
   t
 } from '../utils/i18n.js';
 import { getFallbackCover } from '../utils/imageFallback.js';
+import { getSpotLyrics } from '../data/lyricsData.js';
+
+function formatTime(seconds = 0) {
+  if (isNaN(seconds) || seconds < 0) return '00:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
 export class PlayerManager {
   constructor({ spots, onSpotChange, onExit, showToast, getLanguage = () => LANGUAGES.ZH }) {
@@ -26,6 +34,8 @@ export class PlayerManager {
     this.getLanguage = getLanguage;
 
     this.currentSpot = null;
+    this.currentLyrics = [];
+    this.currentLyricIndex = -1;
     this.currentPhotoIndex = 0;
     this.photoTimer = null;
     this.isAutoTourActive = false;
@@ -132,6 +142,69 @@ export class PlayerManager {
     galleryBackdrop?.addEventListener('click', () => this.closeGallery());
 
     this.initGalleryUpload();
+
+    // ==================== Progress Bar Seeking & Audio Events ====================
+    const progressTrack = document.getElementById('player-progress-track');
+    const handleSeek = (e) => {
+      if (!progressTrack) return;
+      const rect = progressTrack.getBoundingClientRect();
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches?.[0]?.clientX ?? 0);
+      const clickX = clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      const duration = soundEngine.getDuration();
+      if (duration > 0) {
+        soundEngine.seek(ratio * duration);
+      }
+    };
+
+    if (progressTrack) {
+      let isDragging = false;
+      progressTrack.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        handleSeek(e);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging) handleSeek(e);
+      });
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      progressTrack.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        handleSeek(e);
+      }, { passive: true });
+      window.addEventListener('touchmove', (e) => {
+        if (isDragging) handleSeek(e);
+      }, { passive: true });
+      window.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+    }
+
+    const miniProgress = document.getElementById('mini-island-progress');
+    miniProgress?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = miniProgress.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      const duration = soundEngine.getDuration();
+      if (duration > 0) {
+        soundEngine.seek(ratio * duration);
+      }
+    });
+
+    // Subscribe to sound engine events
+    soundEngine.subscribe((event, data) => {
+      if (event === 'timeUpdate') {
+        this.updateProgress(data);
+        this.updateLyrics(data.currentTime);
+      } else if (event === 'playStateChange') {
+        this.updatePlayButton(data.isPlaying);
+      } else if (event === 'trackEnded') {
+        this.nextSpot();
+      }
+    });
 
     const closeBtn = document.getElementById('player-close-btn');
     const mobileBackBtn = document.getElementById('player-mobile-back-btn');
@@ -275,6 +348,78 @@ export class PlayerManager {
       dockSongTitle.textContent = track.title;
       dockSongArtist.textContent = track.creator;
     }
+
+    // Render NetEase Cloud Style Subtitle Lyrics
+    this.renderLyrics(spot, track);
+  }
+
+  renderLyrics(spot, track) {
+    const container = document.getElementById('player-lyrics-scroll-wrap');
+    if (!container) return;
+    const lyrics = getSpotLyrics(spot, track);
+    this.currentLyrics = lyrics;
+    this.currentLyricIndex = -1;
+
+    container.innerHTML = lyrics.map((line, index) => {
+      return `<p class="lyric-line ${index === 0 ? 'active' : ''}" data-time="${line.time}" data-index="${index}">${line.text}</p>`;
+    }).join('');
+
+    // Clicking any lyric line jumps directly to that timestamp
+    container.querySelectorAll('.lyric-line').forEach(lineEl => {
+      lineEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const time = parseFloat(lineEl.dataset.time || '0');
+        soundEngine.seek(time);
+      });
+    });
+  }
+
+  updateLyrics(currentTime) {
+    if (!this.currentLyrics || !this.currentLyrics.length) return;
+    let activeIndex = 0;
+    for (let i = 0; i < this.currentLyrics.length; i++) {
+      if (this.currentLyrics[i].time <= currentTime) {
+        activeIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    if (activeIndex !== this.currentLyricIndex) {
+      this.currentLyricIndex = activeIndex;
+      const lyricsContainer = document.getElementById('player-lyrics-container');
+      const lines = lyricsContainer?.querySelectorAll('.lyric-line');
+      if (lines && lines.length) {
+        lines.forEach((line, i) => {
+          line.classList.toggle('active', i === activeIndex);
+        });
+        const activeEl = lines[activeIndex];
+        if (activeEl && lyricsContainer) {
+          const containerHeight = lyricsContainer.clientHeight;
+          const lineTop = activeEl.offsetTop;
+          const lineHeight = activeEl.clientHeight;
+          lyricsContainer.scrollTo({
+            top: lineTop - (containerHeight / 2) + (lineHeight / 2),
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }
+
+  updateProgress({ currentTime = 0, duration = 0, progress = 0 } = {}) {
+    const curTimeEl = document.getElementById('player-time-current');
+    const totalTimeEl = document.getElementById('player-time-total');
+    const fillEl = document.getElementById('player-progress-fill');
+    const thumbEl = document.getElementById('player-progress-thumb');
+    const miniFillEl = document.getElementById('mini-progress-fill');
+
+    if (curTimeEl) curTimeEl.textContent = formatTime(currentTime);
+    if (totalTimeEl && duration > 0) totalTimeEl.textContent = formatTime(duration);
+    const pct = Math.max(0, Math.min(100, (progress || 0) * 100));
+    if (fillEl) fillEl.style.width = `${pct}%`;
+    if (thumbEl) thumbEl.style.left = `${pct}%`;
+    if (miniFillEl) miniFillEl.style.width = `${pct}%`;
   }
 
   renderPhotos() {

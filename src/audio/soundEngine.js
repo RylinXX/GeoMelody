@@ -81,8 +81,48 @@ class SoundEngine {
     this.masterGain.connect(this.analyser);
     this.analyser.connect(this.ctx.destination);
 
+    // Audio Progress & Time Update Bindings
+    this.referenceAudio.addEventListener('timeupdate', () => this.handleTimeUpdate());
+    this.referenceAudio.addEventListener('loadedmetadata', () => this.handleTimeUpdate());
+    this.referenceAudio.addEventListener('durationchange', () => this.handleTimeUpdate());
+    this.referenceAudio.addEventListener('ended', () => {
+      this.notify('trackEnded', { spot: this.currentSpot, track: this.currentTrack });
+    });
+
     // Initialize ambient generators
     this.initAmbientGenerators();
+  }
+
+  handleTimeUpdate() {
+    if (!this.referenceAudio) return;
+    const currentTime = this.referenceAudio.currentTime || 0;
+    const duration = isFinite(this.referenceAudio.duration) ? (this.referenceAudio.duration || 0) : 0;
+    const progress = duration > 0 ? currentTime / duration : 0;
+    this.notify('timeUpdate', {
+      currentTime,
+      duration,
+      progress,
+      spot: this.currentSpot,
+      track: this.currentTrack
+    });
+  }
+
+  getCurrentTime() {
+    return this.referenceAudio?.currentTime || 0;
+  }
+
+  getDuration() {
+    return isFinite(this.referenceAudio?.duration) ? (this.referenceAudio?.duration || 0) : 0;
+  }
+
+  seek(timeInSeconds) {
+    if (!this.referenceAudio) return;
+    const duration = this.getDuration();
+    const target = Math.max(0, Math.min(duration || 9999, timeInSeconds));
+    try {
+      this.referenceAudio.currentTime = target;
+      this.handleTimeUpdate();
+    } catch (_) {}
   }
 
   subscribe(callback) {
@@ -91,7 +131,13 @@ class SoundEngine {
   }
 
   notify(event, data) {
-    this.listeners.forEach(cb => cb(event, data));
+    this.listeners.forEach(cb => {
+      try {
+        cb(event, data);
+      } catch (err) {
+        console.error('[GeoMelody Audio] Event listener error:', err);
+      }
+    });
   }
 
   async resumeContext() {
@@ -131,26 +177,39 @@ class SoundEngine {
   toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.masterGain && this.ctx) {
-      const target = this.isMuted ? 0 : this.volumes.master;
-      this.masterGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.05);
+      this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volumes.master, this.ctx.currentTime, 0.05);
     }
-    this.notify('muteChange', this.isMuted);
+    this.notify('muteChange', { isMuted: this.isMuted });
     return this.isMuted;
   }
 
   // ==================== Playback Lifecycle ====================
-  async playSpot(spot) {
+  async playSpot(spot, resetTime = false) {
     await this.resumeContext();
+
+    const track = getDemoTrack(spot);
+    const isSameSpot = this.currentSpot?.id === spot?.id;
+    const isSameTrack = this.currentTrack?.id === track?.id || this.currentTrack?.url === track?.url;
+
+    // If resuming the same spot and track (and resetTime is false), resume from exact paused position!
+    if (isSameSpot && isSameTrack && this.referenceAudio && !resetTime && this.referenceAudio.currentTime > 0) {
+      this.isPlaying = true;
+      try {
+        await this.referenceAudio.play();
+      } catch (_) {}
+      this.notify('playStateChange', { isPlaying: true, spot, track: this.currentTrack });
+      return;
+    }
+
     this.currentSpot = spot;
-    this.stopMusic();
+    this.stopMusic(false);
 
     const style = spot.audioRecipe?.style || 'lake_zen';
     this.currentStyle = style;
     this.isPlaying = true;
 
     // Exclusively play user-provided authentic MP3 songs
-    const track = getDemoTrack(spot);
-    await this.playReferenceTrack(track);
+    await this.playReferenceTrack(track, true);
 
     // Keep ambient noise generators completely off
     this.muteAllAmbient();
@@ -161,14 +220,16 @@ class SoundEngine {
   pause() {
     if (!this.isPlaying) return;
     this.isPlaying = false;
-    this.stopMusic();
+    if (this.referenceAudio) {
+      this.referenceAudio.pause();
+    }
     this.muteAllAmbient();
-    this.notify('playStateChange', { isPlaying: false, spot: this.currentSpot });
+    this.notify('playStateChange', { isPlaying: false, spot: this.currentSpot, currentTime: this.getCurrentTime() });
   }
 
   resume() {
     if (!this.currentSpot) return;
-    this.playSpot(this.currentSpot);
+    this.playSpot(this.currentSpot, false);
   }
 
   togglePlay(spot) {
@@ -176,14 +237,14 @@ class SoundEngine {
       this.pause();
     } else {
       if (spot) {
-        this.playSpot(spot);
+        this.playSpot(spot, false);
       } else if (this.currentSpot) {
         this.resume();
       }
     }
   }
 
-  stopMusic() {
+  stopMusic(resetPosition = true) {
     this.musicTimers.forEach(t => clearTimeout(t));
     this.musicTimers = [];
 
@@ -197,14 +258,18 @@ class SoundEngine {
 
     if (this.referenceAudio) {
       this.referenceAudio.pause();
-      try {
-        this.referenceAudio.currentTime = 0;
-      } catch (_) {}
+      if (resetPosition) {
+        try {
+          this.referenceAudio.currentTime = 0;
+        } catch (_) {}
+      }
     }
-    this.currentTrack = null;
+    if (resetPosition) {
+      this.currentTrack = null;
+    }
   }
 
-  async playReferenceTrack(track) {
+  async playReferenceTrack(track, resetTime = false) {
     if (!track?.url) return false;
     if (!this.ctx) this.init();
 
@@ -212,8 +277,12 @@ class SoundEngine {
       if (!this.referenceAudio.src.endsWith(track.url)) {
         this.referenceAudio.src = track.url;
         this.referenceAudio.load();
+        if (resetTime) {
+          this.referenceAudio.currentTime = 0;
+        }
+      } else if (resetTime) {
+        this.referenceAudio.currentTime = 0;
       }
-      this.referenceAudio.currentTime = 0;
       await this.referenceAudio.play();
       this.currentTrack = track;
       this.notify('trackChange', { track, spot: this.currentSpot });

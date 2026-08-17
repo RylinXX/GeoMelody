@@ -263,6 +263,11 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
+
+      <!-- Mini Progress Line (Bottom edge of island) -->
+      <div class="mini-island-progress" id="mini-island-progress" title="播放进度">
+        <div class="mini-progress-fill" id="mini-progress-fill" style="width: 0%;"></div>
+      </div>
     </div>
 
     <!-- ==================== Spot Preview & Guide Bottom Card ==================== -->
@@ -403,6 +408,13 @@
                 <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
               </svg>
             </button>
+          </div>
+        </div>
+
+        <!-- ==================== NetEase Cloud Style Semi-Transparent Floating Scrolling Lyrics ==================== -->
+        <div class="player-lyrics-container" id="player-lyrics-container" aria-label="实时歌词字幕">
+          <div class="player-lyrics-scroll-wrap" id="player-lyrics-scroll-wrap">
+            <!-- Dynamic lyric lines inserted here -->
           </div>
         </div>
 
@@ -587,16 +599,28 @@
 
         <!-- Bottom Center Audiovisual Control Dock (Wide Horizontal Modern Audio Bar) -->
         <div class="player-control-island" id="player-control-island">
-          <!-- Left: Track Name & Artist Info -->
-          <div class="dock-track-info" id="player-dock-track-info">
-            <div class="dock-music-disc">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          <!-- Interactive Seek Progress Bar (Top of Island) -->
+          <div class="player-progress-bar-wrap" id="player-progress-wrap">
+            <span class="player-time-text" id="player-time-current">00:00</span>
+            <div class="player-progress-track" id="player-progress-track" role="slider" aria-label="播放进度" tabindex="0">
+              <div class="player-progress-fill" id="player-progress-fill" style="width: 0%;"></div>
+              <div class="player-progress-thumb" id="player-progress-thumb" style="left: 0%;"></div>
             </div>
-            <div class="dock-track-details">
-              <span class="dock-track-title" id="player-dock-song-title">半岛铁盒</span>
-              <span class="dock-track-artist" id="player-dock-song-artist">周杰伦</span>
-            </div>
+            <span class="player-time-text" id="player-time-total">00:00</span>
           </div>
+
+          <!-- Bottom Control Row -->
+          <div class="player-control-bottom-row">
+            <!-- Left: Track Name & Artist Info -->
+            <div class="dock-track-info" id="player-dock-track-info">
+              <div class="dock-music-disc">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="dock-track-details">
+                <span class="dock-track-title" id="player-dock-song-title">半岛铁盒</span>
+                <span class="dock-track-artist" id="player-dock-song-artist">周杰伦</span>
+              </div>
+            </div>
 
           <!-- Center: Playback Controls -->
           <div class="dock-center-controls">
@@ -619,14 +643,15 @@
             </button>
           </div>
 
-          <!-- Right: Volume Slider -->
-          <div class="dock-volume-group">
-            <button class="player-secondary-btn" id="player-btn-mute" title="静音切换" data-i18n-title="mute" aria-pressed="false">
-              <svg id="volume-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-              </svg>
-            </button>
-            <input type="range" min="0" max="1" step="0.02" value="0.8" class="dock-volume-slider" id="player-volume-slider" title="调节音量" data-i18n-title="volume">
+            <!-- Right: Volume Slider -->
+            <div class="dock-volume-group">
+              <button class="player-secondary-btn" id="player-btn-mute" title="静音切换" data-i18n-title="mute" aria-pressed="false">
+                <svg id="volume-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                </svg>
+              </button>
+              <input type="range" min="0" max="1" step="0.02" value="0.8" class="dock-volume-slider" id="player-volume-slider" title="调节音量" data-i18n-title="volume">
+            </div>
           </div>
         </div>
       </div>

@@ -957,26 +957,174 @@
 }
 
 /* --- Bottom Center: Audiovisual Control Dock (Wide Horizontal Modern Bar) --- */
+/* ==================== NetEase Cloud Style Semi-Transparent Floating Scrolling Lyrics ==================== */
+.player-lyrics-container {
+  position: absolute;
+  top: calc(max(14px, env(safe-area-inset-top)) + 76px);
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 148px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  pointer-events: auto;
+  z-index: 25;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 1) 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 1) 80%, transparent 100%);
+  padding: 110px 0;
+  box-sizing: border-box;
+}
+
+.player-lyrics-container::-webkit-scrollbar {
+  display: none;
+}
+
+.player-lyrics-scroll-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.lyric-line {
+  margin: 0;
+  padding: 6px 18px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  max-width: 90%;
+  word-break: break-word;
+}
+
+.lyric-line:hover {
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lyric-line.active {
+  font-size: 21px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.75), 0 2px 10px rgba(0, 0, 0, 0.8);
+  transform: scale(1.06);
+  background: rgba(56, 189, 248, 0.09);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
 .player-control-island {
   position: absolute;
   bottom: max(14px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: min(680px, calc(100vw - 32px));
-  height: 56px;
-  padding: 0 18px;
-  background: rgba(15, 23, 42, 0.92);
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: min(700px, calc(100vw - 32px));
+  height: 78px;
+  padding: 8px 18px;
+  background: rgba(15, 23, 42, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
+  border-radius: 20px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.08);
   pointer-events: auto;
   z-index: 50;
   box-sizing: border-box;
+}
+
+.player-progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.player-time-text {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  min-width: 34px;
+  user-select: none;
+}
+
+.player-time-text#player-time-current {
+  text-align: right;
+  color: #94a3b8;
+}
+
+.player-time-text#player-time-total {
+  text-align: left;
+}
+
+.player-progress-track {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  cursor: pointer;
+  touch-action: none;
+  transition: height 0.15s ease;
+}
+
+.player-progress-track:hover {
+  height: 8px;
+}
+
+.player-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.player-progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+  pointer-events: none;
+  transition: transform 0.1s ease;
+}
+
+.player-progress-track:hover .player-progress-thumb {
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.player-control-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .dock-track-info {
