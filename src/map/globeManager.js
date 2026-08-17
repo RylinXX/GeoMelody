@@ -907,11 +907,43 @@ export class GlobeManager {
     }
   }
 
+  getSpotsSortedByDistance(lat, lng) {
+    const cLng = normalizeLongitude(lng);
+    return this.spots.map(s => ({
+      spot: s,
+      dist: calculateDistanceKm(lat, cLng, s.lat, s.lng)
+    })).sort((a, b) => a.dist - b.dist);
+  }
+
+  getNearbySpots(lat, lng, maxRadiusKm = 1200) {
+    const sorted = this.getSpotsSortedByDistance(lat, lng);
+    // Find all spots within local/regional radius (e.g. 1200km)
+    const local = sorted.filter(item => item.dist <= maxRadiusKm).map(item => item.spot);
+    if (local.length > 0) return local;
+    // If center is in a sparse area, return the top 5 closest spots to this coordinate
+    return sorted.slice(0, 5).map(item => item.spot);
+  }
+
   startRoamingMode() {
     this.isRoaming = true;
     this.rotationPausedUntil = 0;
     this.showAirplane();
     this.onRoamingChange?.(true);
+
+    // 1. Anchor strictly to current map center coordinates
+    const center = this.map ? this.map.getCenter() : INITIAL_CAMERA.center;
+    const nearby = this.getNearbySpots(center.lat, center.lng);
+
+    // 2. Immediately recommend the closest spot to the current position!
+    if (nearby.length > 0) {
+      this.flybyCandidateIndex = 0;
+      const initialSpot = nearby[0];
+      this.currentFlybySpot = initialSpot;
+      this.lastFlybyRotationTime = Date.now();
+      this.showFlybyCard(initialSpot, nearby.length, 0);
+      this.onFlybySpotChange?.(initialSpot);
+    }
+
     if (!this.rotationTimer) {
       this.startAutoRotation();
     }
@@ -932,25 +964,12 @@ export class GlobeManager {
 
     const cLng = normalizeLongitude(center.lng);
     const cLat = center.lat;
-
-    const zoom = this.map?.getZoom() ?? 2.2;
-    // Scale detection range based on zoom level:
-    const zoomScale = Math.pow(2, Math.min(0, 2.2 - zoom));
-    const enterRadiusKm = Math.max(5, 500 * zoomScale);
     const now = Date.now();
 
-    // Find all spots within flyby detection range
-    const nearbySpots = [];
-    for (const spot of this.spots) {
-      const dist = calculateDistanceKm(cLat, cLng, spot.lat, spot.lng);
-      if (dist < enterRadiusKm) {
-        nearbySpots.push(spot);
-      }
-    }
+    // Get nearby spots strictly relevant to current coordinates (sorted by proximity)
+    const nearbySpots = this.getNearbySpots(cLat, cLng);
 
     if (nearbySpots.length > 0) {
-      // If there are multiple spots nearby (e.g. 6-7 spots in Beijing cluster):
-      // Rotate every 3.8 seconds through candidate spots in the current region!
       const ROTATION_INTERVAL_MS = 3800;
 
       if (now - this.lastFlybyRotationTime > ROTATION_INTERVAL_MS) {
@@ -961,24 +980,13 @@ export class GlobeManager {
         this.showFlybyCard(nextSpot, nearbySpots.length, this.flybyCandidateIndex);
         this.onFlybySpotChange?.(nextSpot);
       } else if (!this.currentFlybySpot || !nearbySpots.some(s => s.id === this.currentFlybySpot?.id)) {
-        // Current spot is no longer in nearby list or not initialized -> show first nearby spot
+        // Current spot is no longer in nearby list or not initialized -> show nearest spot
         this.flybyCandidateIndex = 0;
         const chosen = nearbySpots[0];
         this.currentFlybySpot = chosen;
         this.lastFlybyRotationTime = now;
         this.showFlybyCard(chosen, nearbySpots.length, 0);
         this.onFlybySpotChange?.(chosen);
-      }
-    } else {
-      // When there are no nearby spots (e.g. flying over ocean / sparse regions):
-      // Keep displaying the previously shown song (一直显示之前的一首歌儿)!
-      // If none was ever displayed, pick a random spot from the global library:
-      if (!this.currentFlybySpot) {
-        const randomSpot = this.spots[Math.floor(Math.random() * this.spots.length)];
-        this.currentFlybySpot = randomSpot;
-        this.lastFlybyRotationTime = now;
-        this.showFlybyCard(randomSpot, 1, 0);
-        this.onFlybySpotChange?.(randomSpot);
       }
     }
   }
@@ -997,9 +1005,9 @@ export class GlobeManager {
     if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
     if (tagEl) {
       if (clusterCount > 1) {
-        tagEl.textContent = `📍 胜景 (${clusterIndex + 1}/${clusterCount})`;
+        tagEl.textContent = `📍 附近胜景 (${clusterIndex + 1}/${clusterCount})`;
       } else {
-        tagEl.textContent = this.currentLanguage === 'en' ? 'Cruising' : '巡航探访';
+        tagEl.textContent = this.currentLanguage === 'en' ? 'Nearby Spot' : '📍 附近胜景';
       }
     }
     if (trackEl) {
