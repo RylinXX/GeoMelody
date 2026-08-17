@@ -992,55 +992,80 @@ export class GlobeManager {
   }
 
   showFlybyCard(spot) {
-    const card = document.getElementById('center-flyby-card');
+    if (!spot || !this.map) return;
+
     const badge = document.getElementById('center-flight-badge');
-    if (!card || !spot) return;
+    const centerCard = document.getElementById('center-flyby-card');
+    if (centerCard) centerCard.style.display = 'none'; // Center HUD stays clean
+    if (badge && this.isAirplaneActive) badge.style.display = 'inline-flex';
 
-    const coverImg = document.getElementById('flyby-cover-img');
-    const nameEl = document.getElementById('flyby-spot-name');
-    const trackEl = document.getElementById('flyby-track-title');
-    const tagEl = document.getElementById('flyby-tag');
+    const spotName = getSpotName(spot, this.currentLanguage);
+    const track = getDemoTrack(spot);
+    const trackText = track ? `${track.title} · ${track.creator}` : (spot.audioRecipe?.scale || '胜景专属乐曲');
+    const coverSrc = spot.photos?.[0] || '';
 
-    if (coverImg) coverImg.src = spot.photos?.[0] || '';
-    if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
-    if (tagEl) {
-      tagEl.textContent = this.currentLanguage === 'en' ? 'Traveling' : '旅行中';
-    }
-    if (trackEl) {
-      const track = getDemoTrack(spot);
-      trackEl.textContent = track ? `${track.title} — ${track.creator}` : (spot.audioRecipe?.scale || '胜景专属乐曲');
+    // Create or update 3D geo-anchored marker on the actual spot coordinate!
+    if (!this.flybyAnchorEl) {
+      this.flybyAnchorEl = document.createElement('div');
+      this.flybyAnchorEl.className = 'globe-flyby-anchor-pill';
     }
 
-    if (badge) badge.style.display = 'none';
-    card.style.display = 'flex';
+    this.flybyAnchorEl.innerHTML = `
+      <div class="geo-pill-card" role="button" title="点击直接进入播放">
+        <div class="geo-pill-cover-wrap">
+          <img class="geo-pill-cover-img" src="${coverSrc}" alt="${spotName}">
+        </div>
+        <div class="geo-pill-info">
+          <div class="geo-pill-title-row">
+            <span class="geo-pill-tag">${this.currentLanguage === 'en' ? 'Nearby' : '胜景'}</span>
+            <strong class="geo-pill-spot-name">${spotName}</strong>
+          </div>
+          <span class="geo-pill-track-name">♫ ${trackText}</span>
+        </div>
+        <button type="button" class="geo-pill-play-btn" title="点击听这首">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>${this.currentLanguage === 'en' ? 'Play' : '听这首'}</span>
+        </button>
+      </div>
+      <div class="geo-pill-pointer">
+        <div class="geo-pill-beacon-dot"></div>
+      </div>
+    `;
 
-    // 1. Left side click: Smoothly fly the camera to this spot's exact location!
-    const leftSide = document.getElementById('flyby-left-side');
-    if (leftSide) {
-      leftSide.onclick = (e) => {
-        e.stopPropagation();
-        this.pauseRotation(6000);
-        this.flyToSpot(spot, this.viewMode === '3d' ? 5.8 : 7.5);
-      };
-    }
+    // Re-trigger animation on change
+    this.flybyAnchorEl.style.animation = 'none';
+    this.flybyAnchorEl.offsetHeight; // reflow
+    this.flybyAnchorEl.style.animation = 'geoPillBloom 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
 
-    // 2. Right "听这首" button click: Immediately open the player and start music!
-    const playBtn = document.getElementById('btn-flyby-play');
-    if (playBtn) {
-      playBtn.onclick = (e) => {
-        e.stopPropagation();
-        this.pauseRotation(15000);
-        if (this.onFlybyPlay) {
-          this.onFlybyPlay(spot);
-        } else {
-          this.onSpotSelect?.(spot);
-        }
-      };
+    this.flybyAnchorEl.onclick = (e) => {
+      e.stopPropagation();
+      this.pauseRotation(15000);
+      if (this.onFlybyPlay) {
+        this.onFlybyPlay(spot);
+      } else {
+        this.onSpotSelect?.(spot);
+      }
+    };
+
+    if (!this.flybyAnchorMarker) {
+      this.flybyAnchorMarker = new Marker({
+        element: this.flybyAnchorEl,
+        anchor: 'bottom',
+        offset: [0, -10]
+      })
+        .setLngLat([spot.lng, spot.lat])
+        .addTo(this.map);
+    } else {
+      this.flybyAnchorMarker.setLngLat([spot.lng, spot.lat]);
     }
   }
 
   hideFlybyCard() {
     this.currentFlybySpot = null;
+    if (this.flybyAnchorMarker) {
+      this.flybyAnchorMarker.remove();
+      this.flybyAnchorMarker = null;
+    }
     const card = document.getElementById('center-flyby-card');
     const badge = document.getElementById('center-flight-badge');
     if (card) card.style.display = 'none';
