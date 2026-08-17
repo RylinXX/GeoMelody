@@ -776,8 +776,8 @@ button, input {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px 5px 5px;
+  gap: 10px;
+  padding: 6px 10px 6px 14px;
   background: rgba(15, 23, 42, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
@@ -802,7 +802,7 @@ button, input {
   gap: 8px;
   cursor: pointer;
   border-radius: 99px;
-  padding: 2px 6px 2px 2px;
+  padding: 2px 4px;
   min-width: 0;
   flex: 1 1 auto;
   transition: background var(--trans-fast), transform var(--trans-fast);

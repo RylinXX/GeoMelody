@@ -991,24 +991,18 @@ export class GlobeManager {
     }
   }
 
-  showFlybyCard(spot, clusterCount = 1, clusterIndex = 0) {
+  showFlybyCard(spot) {
     const card = document.getElementById('center-flyby-card');
     const badge = document.getElementById('center-flight-badge');
     if (!card || !spot) return;
 
-    const coverImg = document.getElementById('flyby-cover-img');
     const nameEl = document.getElementById('flyby-spot-name');
     const trackEl = document.getElementById('flyby-track-title');
     const tagEl = document.getElementById('flyby-tag');
 
-    if (coverImg) coverImg.src = spot.photos?.[0] || '';
     if (nameEl) nameEl.textContent = getSpotName(spot, this.currentLanguage);
     if (tagEl) {
-      if (clusterCount > 1) {
-        tagEl.textContent = `📍 附近胜景 (${clusterIndex + 1}/${clusterCount})`;
-      } else {
-        tagEl.textContent = this.currentLanguage === 'en' ? 'Nearby Spot' : '📍 附近胜景';
-      }
+      tagEl.textContent = this.currentLanguage === 'en' ? 'Traveling' : '旅行中';
     }
     if (trackEl) {
       const track = getDemoTrack(spot);
