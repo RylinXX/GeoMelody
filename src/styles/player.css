@@ -1499,9 +1499,9 @@
   }
 
   .player-view-switcher-dock {
-    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 58px);
-    padding: 3px;
-    gap: 3px;
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 104px);
+    padding: 3px 6px;
+    gap: 4px;
     max-width: calc(100vw - 20px);
   }
 
@@ -1750,49 +1750,141 @@
     font-size: 11.5px;
     padding: 4px 9px;
   }
+  /* Mobile Bottom Audiovisual Control Island (Expanded, High-Tech, All Buttons Fit Comfortably) */
   .player-control-island {
-    bottom: max(12px, env(safe-area-inset-bottom));
+    bottom: max(14px, env(safe-area-inset-bottom));
     width: calc(100vw - 20px);
-    max-width: 440px;
-    height: 54px;
-    padding: 0 12px;
-    border-radius: 14px;
+    max-width: 480px;
+    height: auto;
+    min-height: 88px;
+    padding: 10px 14px 12px 14px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 8px;
+    box-sizing: border-box;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 24px rgba(56, 189, 248, 0.12);
   }
-  .dock-volume-group {
-    display: none;
+
+  .player-progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2px;
   }
+
+  .player-time-text {
+    font-size: 11px;
+    min-width: 32px;
+  }
+
+  .player-progress-track {
+    height: 5px;
+  }
+
+  .player-progress-thumb {
+    width: 13px;
+    height: 13px;
+  }
+
+  .player-control-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+  }
+
   .dock-track-info {
-    flex: 1 1 auto;
-  }
-  .dock-music-disc {
-    width: 28px;
-    height: 28px;
-  }
-  .dock-track-title {
-    font-size: 12.5px;
-  }
-  .dock-track-artist {
-    font-size: 10px;
-  }
-  .dock-center-controls {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 130px;
   }
+
+  .dock-music-disc {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+  .dock-track-details {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .dock-track-title {
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dock-track-artist {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dock-center-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
   .player-main-play-btn {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
   }
+
   .player-main-play-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
   }
+
   .player-secondary-btn {
     padding: 6px;
   }
+
   .player-secondary-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
+
+  .dock-volume-group {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .dock-volume-slider {
+    display: none !important;
+  }
+
+  .player-dock-fav-btn,
+  #player-btn-mute {
+    display: flex !important;
+    padding: 6px;
+  }
+
   .scenery-photo-dots {
     right: 8px;
     gap: 6px;
@@ -1817,44 +1909,37 @@
     max-width: calc(100vw - 120px);
   }
   .player-spot-title {
-    font-size: 17px;
+    font-size: 18px;
   }
   .player-top-actions {
     display: flex;
     gap: 4px;
   }
   .player-action-btn {
-    width: 32px;
-    height: 32px;
-  }
-  .player-control-island {
-    bottom: max(10px, env(safe-area-inset-bottom));
-    width: calc(100vw - 16px);
-    height: 52px;
-    padding: 0 10px;
-    gap: 6px;
-  }
-  .player-mobile-pills-bar {
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 58px);
-    gap: 6px;
-    max-width: calc(100vw - 12px);
-  }
-  .mobile-pill-btn {
-    padding: 5px 10px;
-    font-size: 11.5px;
-    gap: 4px;
-  }
-  .player-main-play-btn {
     width: 36px;
     height: 36px;
   }
-  .player-main-play-btn svg {
-    width: 16px;
-    height: 16px;
+  .player-control-island {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: calc(100vw - 16px);
+    min-height: 86px;
+    height: auto;
+    padding: 8px 12px 10px 12px;
+    gap: 6px;
   }
-  .player-secondary-btn svg {
-    width: 15px;
-    height: 15px;
+  .dock-track-info {
+    max-width: 105px;
+  }
+  .dock-center-controls {
+    gap: 6px;
+  }
+  .player-main-play-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .player-main-play-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
