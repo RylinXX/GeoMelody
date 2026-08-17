@@ -230,6 +230,16 @@ export class PlayerManager {
         this.updateLyrics(data.currentTime);
       } else if (event === 'playStateChange') {
         this.updatePlayButton(data.isPlaying);
+      } else if (event === 'trackChange') {
+        if (data.track) {
+          const dockSongTitle = document.getElementById('player-dock-song-title');
+          const dockSongArtist = document.getElementById('player-dock-song-artist');
+          if (dockSongTitle && dockSongArtist) {
+            dockSongTitle.textContent = data.track.title;
+            dockSongArtist.textContent = data.track.creator;
+          }
+          this.renderLyrics(data.spot || this.currentSpot, data.track);
+        }
       } else if (event === 'trackEnded') {
         this.nextSpot();
       }

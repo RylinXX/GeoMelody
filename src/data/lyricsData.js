@@ -133,7 +133,24 @@ export const LYRICS_DATABASE = {
  * Returns formatted subtitle lines for any spot or demo track
  */
 export function getSpotLyrics(spot, track) {
-  const trackId = track?.id || spot?.audioTrack?.id;
+  let trackId = track?.id || spot?.audioTrack?.id;
+  
+  if (!trackId && track?.url) {
+    const match = track.url.match(/\/([^/]+)\.(?:mp3|ogg|m4a|wav)$/);
+    if (match) trackId = match[1];
+  }
+  if (!trackId && spot?.audioTrack?.url) {
+    const match = spot.audioTrack.url.match(/\/([^/]+)\.(?:mp3|ogg|m4a|wav)$/);
+    if (match) trackId = match[1];
+  }
+
+  // Check matching by title
+  if (!trackId && (track?.title || spot?.audioTrack?.title)) {
+    const title = track?.title || spot?.audioTrack?.title;
+    const item = Object.entries(LYRICS_DATABASE).find(([k, v]) => v[0]?.text?.includes(title));
+    if (item) trackId = item[0];
+  }
+
   if (trackId && LYRICS_DATABASE[trackId]) {
     return LYRICS_DATABASE[trackId];
   }
@@ -145,17 +162,17 @@ export function getSpotLyrics(spot, track) {
 
   const list = [
     { time: 0, text: `${spotName} · 专属意境音景` },
-    { time: 4.5, text: `📍 ${spot?.location || spotName}` }
+    { time: 4.0, text: `📍 ${spot?.location || spotName}` }
   ];
 
-  let currentTime = 9.0;
+  let currentTime = 8.0;
   for (const sentence of sentences) {
     list.push({ time: currentTime, text: sentence.trim() });
-    currentTime += 8.5;
+    currentTime += 7.5;
   }
 
   list.push({ time: currentTime, text: '闭上双眼，在专属旋律中感受天地之美' });
-  list.push({ time: currentTime + 10, text: 'GeoMelody 视听漫游，记录每一段心灵旅程' });
+  list.push({ time: currentTime + 9.0, text: 'GeoMelody 视听漫游，记录每一段心灵旅程' });
 
   return list;
 }
