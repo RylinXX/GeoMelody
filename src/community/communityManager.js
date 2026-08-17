@@ -253,8 +253,10 @@ export class CommunityManager {
     const nick = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
     const pName = document.getElementById('player-user-name-display');
     const cName = document.getElementById('community-user-name-display');
+    const pubAuthorInput = document.getElementById('community-publish-author-input');
     if (pName) pName.textContent = nick;
     if (cName) cName.textContent = nick;
+    if (pubAuthorInput && !pubAuthorInput.value) pubAuthorInput.placeholder = nick;
   }
 
   expandCommentForm(formType = 'player') {
@@ -954,9 +956,9 @@ export class CommunityManager {
     if (!this.form) return;
     const formData = new FormData(this.form);
     const title = String(formData.get('title') || '').trim();
-    const author = String(formData.get('author') || '').trim() || (this.getLanguage() === LANGUAGES.EN ? 'Traveler' : '旅人');
+    const defaultNick = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    const author = String(formData.get('author') || '').trim() || defaultNick;
     const description = String(formData.get('description') || '').trim();
-    const category = String(formData.get('category') || 'waterTown');
     const coverFile = formData.get('cover');
     const audioFile = formData.get('audio');
     if (!title || !description) return;
@@ -992,11 +994,11 @@ export class CommunityManager {
       enName: title,
       location: locationName,
       country: country,
-      category: category,
+      category: 'waterTown',
       lat,
       lng,
       description,
-      tags: ['用户投稿', 'Community', category],
+      tags: ['用户投稿', 'Community'],
       photos: [coverUrl],
       author,
       isCommunity: true,

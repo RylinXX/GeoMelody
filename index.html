@@ -767,29 +767,16 @@
               </div>
             </div>
 
-            <!-- Step 4: Metadata & Author -->
+            <!-- Step 4: Author -->
             <div class="form-step-section">
               <div class="step-label-row">
                 <span class="step-num">04</span>
-                <span class="step-name">分类标签与作者</span>
+                <span class="step-name">创作者署名</span>
               </div>
-              <div class="form-fields-grid">
-                <label class="step-input-group">
-                  <span class="input-label">胜景分类</span>
-                  <select name="category" class="modern-select" id="community-category-select">
-                    <option value="waterTown">🏮 江南水乡 / 古镇</option>
-                    <option value="mountains">🏔️ 雪山高山 / 峡谷</option>
-                    <option value="islands">🏝️ 暖阳海岛 / 沿海</option>
-                    <option value="forests">🌲 森林旷野 / 露营</option>
-                    <option value="cities">🌃 城市夜景 / 都市</option>
-                    <option value="deserts">🏜️ 西北大漠 / 丝路</option>
-                  </select>
-                </label>
-                <label class="step-input-group">
-                  <span class="input-label" data-i18n="creatorName">创作者昵称</span>
-                  <input name="author" type="text" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的署名昵称">
-                </label>
-              </div>
+              <label class="step-input-group">
+                <span class="input-label" data-i18n="creatorName">创作者昵称</span>
+                <input name="author" id="community-publish-author-input" type="text" maxlength="24" class="modern-input" data-i18n-placeholder="creatorPlaceholder" placeholder="你的署名昵称（例如：姑苏听雨客 / 音乐旅人）">
+              </label>
             </div>
 
             <button class="community-publish-btn" type="submit">
