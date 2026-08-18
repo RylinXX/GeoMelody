@@ -989,6 +989,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const locateBtn = document.getElementById('dock-btn-locate-me');
   locateBtn?.addEventListener('click', async () => {
     exitRoamingMode();
+
+    // If already located and active, clicking again clears the marker so it never blocks spot points!
+    if (globeManager.getUserLocation() && locateBtn.classList.contains('active')) {
+      globeManager.clearUserLocation();
+      locateBtn.classList.remove('active');
+      locateBtn.setAttribute('aria-pressed', 'false');
+      showToast(currentLanguage === 'en' ? 'Location marker cleared' : '已清除定位标记');
+      return;
+    }
+
     locateBtn.classList.add('loading');
     showToast(currentLanguage === 'en' ? 'Locating your position...' : '正在定位您的位置…');
 
@@ -997,8 +1007,10 @@ document.addEventListener('DOMContentLoaded', () => {
       locateBtn.classList.remove('loading');
       if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
         globeManager.setUserLocation({ lng: loc.lng, lat: loc.lat, accuracy: loc.accuracy });
+        locateBtn.classList.add('active');
+        locateBtn.setAttribute('aria-pressed', 'true');
         const cityDesc = loc.city ? ` · ${loc.city}` : '';
-        showToast(currentLanguage === 'en' ? `Located successfully${cityDesc}` : `定位成功${cityDesc}`);
+        showToast(currentLanguage === 'en' ? `Located successfully${cityDesc} (Click again to reset)` : `定位成功${cityDesc}（再次点击可重置清除）`);
       } else {
         showToast(t('locateError', currentLanguage));
       }

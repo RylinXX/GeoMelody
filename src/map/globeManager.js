@@ -1201,6 +1201,16 @@ export class GlobeManager {
     return this.userLocation;
   }
 
+  clearUserLocation() {
+    if (this.userMarker) {
+      try {
+        this.userMarker.remove();
+      } catch (_) {}
+      this.userMarker = null;
+    }
+    this.userLocation = null;
+  }
+
   flyToUserLocation() {
     if (!this.map || !this.userLocation) return;
     this.pauseRotation(10000);
