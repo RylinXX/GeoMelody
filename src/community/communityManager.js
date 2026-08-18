@@ -1008,20 +1008,39 @@ export class CommunityManager {
       }
     };
 
-    // Save to local storage and IndexedDB for persistent retention across sessions
+    let publishedSpot = spot;
+
+    // Asynchronously push to Central Cloud Server API for global multi-user sync
+    try {
+      fetch('/api/community/publish', {
+        method: 'POST',
+        body: formData
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.success && data.spot) {
+            // Update local spot with server-hosted media URLs
+            Object.assign(publishedSpot, data.spot);
+            storage.saveCommunityPost(publishedSpot);
+          }
+        })
+        .catch(err => console.warn('[GeoMelody Community] Server API sync notice:', err));
+    } catch (e) {}
+
+    // Save to local storage and IndexedDB for instant offline retention
     storage.saveCommunityPost(spot, {
       coverDataUrl,
       audioDataUrl,
       audioBlob: audioFile instanceof File ? audioFile : null
     });
 
-    this.spots.unshift(spot);
+    this.spots.unshift(publishedSpot);
     this.form.reset();
     this.updateFileLabel('community-cover-file-name');
     this.updateFileLabel('community-audio-file-name');
-    this.setActiveSpot(spot);
+    this.setActiveSpot(publishedSpot);
     this.close();
-    this.onPublish?.(spot);
+    this.onPublish?.(publishedSpot);
     this.showToast(t('publishedSuccess', this.getLanguage(), { name: title }));
   }
 }

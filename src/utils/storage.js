@@ -207,6 +207,25 @@ export const storage = {
   },
 
   async loadCommunityPostsWithMedia(existingSpots = []) {
+    // 1. Fetch live community spots from Cloud Server API so all visitors share all uploaded spots!
+    try {
+      const resp = await fetch('/api/community/spots', { cache: 'no-store' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json.success && Array.isArray(json.spots)) {
+          json.spots.forEach(serverSpot => {
+            const idx = existingSpots.findIndex(s => s.id === serverSpot.id);
+            if (idx >= 0) {
+              existingSpots[idx] = { ...existingSpots[idx], ...serverSpot };
+            } else {
+              existingSpots.unshift(serverSpot);
+            }
+          });
+        }
+      }
+    } catch (_) {}
+
+    // 2. Also merge local offline IndexedDB posts
     const posts = this.getCommunityPosts();
     for (const post of posts) {
       try {
@@ -231,9 +250,11 @@ export const storage = {
       if (existing) {
         if (post.audioTrack && post.audioTrack.url) existing.audioTrack = post.audioTrack;
         if (post.photos && post.photos.length) existing.photos = post.photos;
+      } else {
+        existingSpots.unshift(post);
       }
     }
-    return posts;
+    return existingSpots;
   },
 
   saveCommunityPost(post, rawMedia = {}) {
