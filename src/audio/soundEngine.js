@@ -42,55 +42,49 @@ class SoundEngine {
     this.listeners = new Set();
   }
 
-  // Initialize Web Audio Context on first user interaction
+  // Initialize Audio engine on first user interaction
   init() {
-    if (this.ctx) return;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioContextClass();
+    if (AudioContextClass && !this.ctx) {
+      try {
+        this.ctx = new AudioContextClass();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(this.volumes.master, this.ctx.currentTime);
 
-    // Master bus
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.setValueAtTime(this.volumes.master, this.ctx.currentTime);
+        this.analyser = this.ctx.createAnalyser();
+        this.analyser.fftSize = 64;
+        this.analyser.smoothingTimeConstant = 0.8;
+        this.masterGain.connect(this.analyser);
+        this.analyser.connect(this.ctx.destination);
+      } catch (_) {}
+    }
 
-    // Visualizer Analyser Node
-    this.analyser = this.ctx.createAnalyser();
-    this.analyser.fftSize = 64;
-    this.analyser.smoothingTimeConstant = 0.8;
+    // Direct, 100% reliable HTML5 Audio element for crystal-clear sound on all devices & platforms
+    if (!this.referenceAudio) {
+      this.referenceAudio = new Audio();
+      this.referenceAudio.preload = 'auto';
+      this.referenceAudio.loop = true;
+      this.syncAudioVolume();
 
-    // Music sub-bus
-    this.musicGain = this.ctx.createGain();
-    this.musicGain.gain.setValueAtTime(this.volumes.music, this.ctx.currentTime);
-    this.musicGain.connect(this.masterGain);
-
-    // Ambient sub-bus
-    this.ambientGain = this.ctx.createGain();
-    this.ambientGain.gain.setValueAtTime(this.volumes.ambient, this.ctx.currentTime);
-    this.ambientGain.connect(this.masterGain);
-
-    // Real reference music used by the prototype. It runs through the same
-    // music bus and analyser as the procedural fallback.
-    this.referenceAudio = new Audio();
-    // Tracks are several megabytes each, so only fetch one after the listener
-    // explicitly opens a place and starts playback.
-    this.referenceAudio.preload = 'none';
-    this.referenceAudio.loop = true;
-    this.referenceAudioSource = this.ctx.createMediaElementSource(this.referenceAudio);
-    this.referenceAudioSource.connect(this.musicGain);
-
-    // Connect to Master & Speakers
-    this.masterGain.connect(this.analyser);
-    this.analyser.connect(this.ctx.destination);
-
-    // Audio Progress & Time Update Bindings
-    this.referenceAudio.addEventListener('timeupdate', () => this.handleTimeUpdate());
-    this.referenceAudio.addEventListener('loadedmetadata', () => this.handleTimeUpdate());
-    this.referenceAudio.addEventListener('durationchange', () => this.handleTimeUpdate());
-    this.referenceAudio.addEventListener('ended', () => {
-      this.notify('trackEnded', { spot: this.currentSpot, track: this.currentTrack });
-    });
+      this.referenceAudio.addEventListener('timeupdate', () => this.handleTimeUpdate());
+      this.referenceAudio.addEventListener('loadedmetadata', () => this.handleTimeUpdate());
+      this.referenceAudio.addEventListener('durationchange', () => this.handleTimeUpdate());
+      this.referenceAudio.addEventListener('ended', () => {
+        this.notify('trackEnded', { spot: this.currentSpot, track: this.currentTrack });
+      });
+      this.referenceAudio.addEventListener('error', (err) => {
+        console.warn('[GeoMelody Audio] Audio element notice:', err);
+      });
+    }
 
     // Initialize ambient generators
     this.initAmbientGenerators();
+  }
+
+  syncAudioVolume() {
+    if (!this.referenceAudio) return;
+    const targetVol = this.isMuted ? 0 : (this.volumes.master * this.volumes.music);
+    this.referenceAudio.volume = Math.max(0, Math.min(1, targetVol));
   }
 
   handleTimeUpdate() {
@@ -153,6 +147,7 @@ class SoundEngine {
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volumes.master, this.ctx.currentTime, 0.05);
     }
+    this.syncAudioVolume();
     this.notify('volumeChange', { type: 'master', value: this.volumes.master });
   }
 
@@ -161,6 +156,7 @@ class SoundEngine {
     if (this.musicGain && this.ctx) {
       this.musicGain.gain.setTargetAtTime(this.volumes.music, this.ctx.currentTime, 0.05);
     }
+    this.syncAudioVolume();
     this.notify('volumeChange', { type: 'music', value: this.volumes.music });
   }
 
@@ -179,6 +175,7 @@ class SoundEngine {
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : this.volumes.master, this.ctx.currentTime, 0.05);
     }
+    this.syncAudioVolume();
     this.notify('muteChange', { isMuted: this.isMuted });
     return this.isMuted;
   }
@@ -271,10 +268,14 @@ class SoundEngine {
 
   async playReferenceTrack(track, resetTime = false) {
     if (!track?.url) return false;
-    if (!this.ctx) this.init();
+    if (!this.referenceAudio) this.init();
 
     try {
-      if (!this.referenceAudio.src.endsWith(track.url)) {
+      this.syncAudioVolume();
+      const currentSrc = this.referenceAudio.src || '';
+      const isDifferent = !currentSrc.endsWith(track.url) && currentSrc !== track.url;
+
+      if (isDifferent) {
         this.referenceAudio.src = track.url;
         this.referenceAudio.load();
         if (resetTime) {
@@ -283,6 +284,7 @@ class SoundEngine {
       } else if (resetTime) {
         this.referenceAudio.currentTime = 0;
       }
+
       await this.referenceAudio.play();
       this.currentTrack = track;
       this.notify('trackChange', { track, spot: this.currentSpot });
@@ -298,7 +300,7 @@ class SoundEngine {
         window.removeEventListener('keydown', onFirstInteract);
         if (this.isPlaying && this.currentTrack?.url === track.url) {
           try {
-            await this.resumeContext();
+            this.syncAudioVolume();
             await this.referenceAudio.play();
           } catch (_) {}
         }

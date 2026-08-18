@@ -278,6 +278,23 @@ document.addEventListener('DOMContentLoaded', () => {
     getLanguage: () => currentLanguage
   });
 
+  const syncGlobalCommunitySpots = async () => {
+    try {
+      const prevLen = SCENIC_SPOTS.length;
+      await storage.loadCommunityPostsWithMedia(SCENIC_SPOTS);
+      globeManager.spots = SCENIC_SPOTS;
+      globeManager.renderLightDotMarkers();
+      if (communityManager) communityManager.spots = SCENIC_SPOTS;
+      if (playerManager) playerManager.spots = SCENIC_SPOTS;
+    } catch (_) {}
+  };
+
+  // Initial sync once globe is ready
+  syncGlobalCommunitySpots();
+
+  // Real-time Cloud multi-user auto-sync every 8s
+  setInterval(syncGlobalCommunitySpots, 8000);
+
   function renderRegionNavigation() {
     if (!regionNavigation) return;
     regionNavigation.innerHTML = '';

@@ -178,42 +178,51 @@ class GeoMelodyHandler(BaseHTTPRequestHandler):
             audio_url = ''
             audio_title = ''
 
-            if ctype == 'multipart/form-data':
-                pdict['boundary'] = bytes(pdict['boundary'], 'utf-8')
-                pdict['CONTENT-LENGTH'] = int(self.headers.get('Content-Length', 0))
-                form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD': 'POST', 'CONTENT_TYPE': self.headers['Content-Type']})
-
-                title = form.getvalue('title', '').strip()
-                author = form.getvalue('author', '').strip() or '音乐旅人'
-                description = form.getvalue('description', '').strip()
-                category = form.getvalue('category', 'town').strip()
-                
+            if 'multipart/form-data' in ctype:
                 try:
-                    lat = float(form.getvalue('currentLat') or form.getvalue('lat') or 30.2428)
-                    lng = float(form.getvalue('currentLng') or form.getvalue('lng') or 120.1504)
-                except ValueError:
-                    lat, lng = 30.2428, 120.1504
+                    pdict['boundary'] = bytes(pdict.get('boundary', ''), 'utf-8') if isinstance(pdict.get('boundary'), str) else pdict.get('boundary', b'')
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    pdict['CONTENT-LENGTH'] = content_length
+                    env = {
+                        'REQUEST_METHOD': 'POST',
+                        'CONTENT_TYPE': self.headers.get('Content-Type', ''),
+                        'CONTENT_LENGTH': str(content_length)
+                    }
+                    form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=env)
 
-                # Handle Cover Image File
-                if 'cover' in form and form['cover'].filename:
-                    cover_item = form['cover']
-                    ext = os.path.splitext(cover_item.filename)[1].lower() or '.jpg'
-                    fname = f"{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
-                    fpath = os.path.join(UPLOADS_COVERS, fname)
-                    with open(fpath, 'wb') as f:
-                        f.write(cover_item.file.read())
-                    cover_url = f"/uploads/covers/{fname}"
+                    title = form.getvalue('title', '').strip() if form.getvalue('title') else ''
+                    author = form.getvalue('author', '').strip() if form.getvalue('author') else '音乐旅人'
+                    description = form.getvalue('description', '').strip() if form.getvalue('description') else ''
+                    category = form.getvalue('category', 'town').strip() if form.getvalue('category') else 'town'
+                    
+                    try:
+                        lat = float(form.getvalue('currentLat') or form.getvalue('lat') or 30.2428)
+                        lng = float(form.getvalue('currentLng') or form.getvalue('lng') or 120.1504)
+                    except (ValueError, TypeError):
+                        lat, lng = 30.2428, 120.1504
 
-                # Handle Audio File
-                if 'audio' in form and form['audio'].filename:
-                    audio_item = form['audio']
-                    ext = os.path.splitext(audio_item.filename)[1].lower() or '.mp3'
-                    fname = f"{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
-                    fpath = os.path.join(UPLOADS_AUDIO, fname)
-                    with open(fpath, 'wb') as f:
-                        f.write(audio_item.file.read())
-                    audio_url = f"/uploads/audio/{fname}"
-                    audio_title = os.path.splitext(audio_item.filename)[0]
+                    # Handle Cover Image File
+                    if 'cover' in form and getattr(form['cover'], 'filename', None):
+                        cover_item = form['cover']
+                        ext = os.path.splitext(cover_item.filename)[1].lower() or '.jpg'
+                        fname = f"{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
+                        fpath = os.path.join(UPLOADS_COVERS, fname)
+                        with open(fpath, 'wb') as f:
+                            f.write(cover_item.file.read())
+                        cover_url = f"/uploads/covers/{fname}"
+
+                    # Handle Audio File
+                    if 'audio' in form and getattr(form['audio'], 'filename', None):
+                        audio_item = form['audio']
+                        ext = os.path.splitext(audio_item.filename)[1].lower() or '.mp3'
+                        fname = f"{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
+                        fpath = os.path.join(UPLOADS_AUDIO, fname)
+                        with open(fpath, 'wb') as f:
+                            f.write(audio_item.file.read())
+                        audio_url = f"/uploads/audio/{fname}"
+                        audio_title = os.path.splitext(audio_item.filename)[0]
+                except Exception as parse_err:
+                    print(f"Error parsing multipart form: {parse_err}")
 
             elif ctype == 'application/json':
                 length = int(self.headers.get('Content-Length', 0))

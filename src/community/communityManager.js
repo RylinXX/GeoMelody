@@ -1010,31 +1010,32 @@ export class CommunityManager {
 
     let publishedSpot = spot;
 
-    // Asynchronously push to Central Cloud Server API for global multi-user sync
+    // Push to Central Cloud Server API for global multi-user sync
     try {
-      fetch('/api/community/publish', {
+      const resp = await fetch('/api/community/publish', {
         method: 'POST',
         body: formData
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data && data.success && data.spot) {
-            // Update local spot with server-hosted media URLs
-            Object.assign(publishedSpot, data.spot);
-            storage.saveCommunityPost(publishedSpot);
-          }
-        })
-        .catch(err => console.warn('[GeoMelody Community] Server API sync notice:', err));
-    } catch (e) {}
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.success && data.spot) {
+          publishedSpot = { ...spot, ...data.spot };
+        }
+      }
+    } catch (e) {
+      console.warn('[GeoMelody Community] Server API sync notice:', e);
+    }
 
     // Save to local storage and IndexedDB for instant offline retention
-    storage.saveCommunityPost(spot, {
+    storage.saveCommunityPost(publishedSpot, {
       coverDataUrl,
       audioDataUrl,
       audioBlob: audioFile instanceof File ? audioFile : null
     });
 
-    this.spots.unshift(publishedSpot);
+    if (!this.spots.some(s => s.id === publishedSpot.id)) {
+      this.spots.unshift(publishedSpot);
+    }
     this.form.reset();
     this.updateFileLabel('community-cover-file-name');
     this.updateFileLabel('community-audio-file-name');
