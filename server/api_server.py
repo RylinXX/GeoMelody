@@ -155,6 +155,39 @@ class GeoMelodyHandler(BaseHTTPRequestHandler):
             self._send_json({'success': True, 'comments': comments})
             return
 
+        elif path == '/api/locate':
+            forwarded = self.headers.get('X-Forwarded-For', '')
+            client_ip = forwarded.split(',')[0].strip() if forwarded else self.client_address[0]
+            
+            loc_data = {
+                'success': True,
+                'ip': client_ip,
+                'lat': 30.2428,
+                'lng': 120.1504,
+                'city': '杭州',
+                'country': '中国',
+                'accuracy': 8000,
+                'source': 'server-ip'
+            }
+            
+            try:
+                import urllib.request
+                req_url = f"http://ip-api.com/json/{client_ip}?lang=zh-CN" if client_ip and client_ip not in ['127.0.0.1', 'localhost', '::1'] else "http://ip-api.com/json/?lang=zh-CN"
+                req = urllib.request.Request(req_url, headers={'User-Agent': 'GeoMelody/1.0'})
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    if resp.status == 200:
+                        ip_json = json.loads(resp.read().decode('utf-8'))
+                        if ip_json.get('status') == 'success' and isinstance(ip_json.get('lat'), (int, float)):
+                            loc_data['lat'] = ip_json['lat']
+                            loc_data['lng'] = ip_json['lon']
+                            loc_data['city'] = ip_json.get('city') or ip_json.get('regionName') or '所在城市'
+                            loc_data['country'] = ip_json.get('country') or '中国'
+            except Exception as _:
+                pass
+                
+            self._send_json(loc_data)
+            return
+
         elif path == '/api/health':
             self._send_json({'status': 'ok', 'timestamp': int(time.time())})
             return

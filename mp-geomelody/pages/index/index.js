@@ -12,12 +12,24 @@ Page({
   onLoad(options) {
     console.log('[GeoMelody MP] Index Loaded with query:', options);
     
-    // Support direct spot deep-linking via query ?spot=wuzhen
-    if (options && options.spot) {
-      this.setData({
-        webUrl: `https://etgq.com?spot=${options.spot}&from=miniprogram`
-      });
-    }
+    let spotParam = options && options.spot ? `&spot=${options.spot}` : '';
+    
+    // Request WeChat Native High-Accuracy Location
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        console.log('[GeoMelody MP] WeChat GPS Location resolved:', res);
+        this.setData({
+          webUrl: `https://etgq.com?lat=${res.latitude}&lng=${res.longitude}&from=miniprogram${spotParam}`
+        });
+      },
+      fail: (err) => {
+        console.warn('[GeoMelody MP] WeChat GPS fail, using default/IP:', err);
+        this.setData({
+          webUrl: `https://etgq.com?from=miniprogram${spotParam}`
+        });
+      }
+    });
   },
 
   // Handle messages posted from Web page via wx.miniProgram.postMessage

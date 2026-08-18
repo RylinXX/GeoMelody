@@ -1,9 +1,10 @@
 /**
  * Ultra-Robust Multi-Tier Geolocation Resolver for GeoMelody
- * 1. High-accuracy GPS/WiFi (4s)
- * 2. Standard-accuracy browser geolocation (3.5s)
- * 3. High-speed IP-based network location APIs (ipwho.is / open IP endpoints)
- * 4. Stored last-known location fallback
+ * 1. Query parameters / WeChat Bridge GPS (?lat=...&lng=...)
+ * 2. Dedicated Backend IP Locator (/api/locate)
+ * 3. Browser High-Accuracy GPS / WiFi
+ * 4. Public High-Speed IP Network APIs
+ * 5. Stored Last-Known Fallback
  */
 
 const STORAGE_KEY_LAST_LOC = 'geomelody_last_known_location';
@@ -32,7 +33,57 @@ function saveStoredLocation(loc) {
   } catch {}
 }
 
-async function fetchIpLocation() {
+/** Check if location coordinates were injected via MiniProgram or URL query */
+function getUrlParamLocation() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const latStr = urlParams.get('lat');
+    const lngStr = urlParams.get('lng');
+    const city = urlParams.get('city') || '';
+    if (latStr && lngStr) {
+      const lat = parseFloat(latStr);
+      const lng = parseFloat(lngStr);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return {
+          lat,
+          lng,
+          city,
+          country: '中国',
+          accuracy: 50,
+          source: 'miniprogram-gps'
+        };
+      }
+    }
+  } catch {}
+  return null;
+}
+
+/** 1. High-speed backend IP geolocation */
+async function fetchBackendLocation() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch('/api/locate', { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success && typeof data.lat === 'number' && typeof data.lng === 'number') {
+        return {
+          lat: data.lat,
+          lng: data.lng,
+          city: data.city || '',
+          country: data.country || '中国',
+          accuracy: data.accuracy || 5000,
+          source: 'server-ip'
+        };
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+/** 2. Public IP network geolocation fallback */
+async function fetchPublicIpLocation() {
   const endpoints = [
     {
       url: 'https://ipwho.is/',
@@ -71,7 +122,7 @@ async function fetchIpLocation() {
   for (const ep of endpoints) {
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 3500);
+      const timer = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(ep.url, { signal: controller.signal });
       clearTimeout(timer);
       if (res.ok) {
@@ -103,44 +154,41 @@ function tryBrowserPosition(options) {
 }
 
 export async function resolveUserLocation({ onProgress } = {}) {
-  // 1. Try Browser High Accuracy (5s timeout)
+  // 0. MiniProgram / URL Injection Check
+  const urlLoc = getUrlParamLocation();
+  if (urlLoc) {
+    saveStoredLocation(urlLoc);
+    return urlLoc;
+  }
+
+  // 1. Try Browser High Accuracy GPS (3.5s timeout)
   onProgress?.('gps-high');
   try {
     const highPos = await tryBrowserPosition({
       enableHighAccuracy: true,
-      timeout: 4500,
+      timeout: 3500,
       maximumAge: 30000
     });
     saveStoredLocation(highPos);
     return highPos;
   } catch (err1) {
-    console.warn('[GeoLocator] High accuracy failed, retrying standard accuracy...', err1);
+    console.warn('[GeoLocator] Browser GPS failed or permission not granted, falling back to server IP...', err1);
   }
 
-  // 2. Try Browser Low Accuracy (4s timeout)
-  onProgress?.('gps-low');
-  try {
-    const lowPos = await tryBrowserPosition({
-      enableHighAccuracy: false,
-      timeout: 3500,
-      maximumAge: 120000
-    });
-    saveStoredLocation(lowPos);
-    return lowPos;
-  } catch (err2) {
-    console.warn('[GeoLocator] Browser geolocation unavailable, falling back to IP network geolocation...', err2);
+  // 2. High-Speed Server-Side IP Locator (/api/locate)
+  onProgress?.('server-ip');
+  const serverLoc = await fetchBackendLocation();
+  if (serverLoc) {
+    saveStoredLocation(serverLoc);
+    return serverLoc;
   }
 
-  // 3. Try IP Network Geolocation (3.5s timeout)
+  // 3. Public IP APIs Fallback
   onProgress?.('ip-network');
-  try {
-    const ipPos = await fetchIpLocation();
-    if (ipPos) {
-      saveStoredLocation(ipPos);
-      return ipPos;
-    }
-  } catch (err3) {
-    console.warn('[GeoLocator] IP network geolocation failed...', err3);
+  const publicIpLoc = await fetchPublicIpLocation();
+  if (publicIpLoc) {
+    saveStoredLocation(publicIpLoc);
+    return publicIpLoc;
   }
 
   // 4. Stored Last-Known Location
