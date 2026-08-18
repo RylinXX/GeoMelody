@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
   storage.getCommunityPosts().forEach(post => {
     if (!SCENIC_SPOTS.some(spot => spot.id === post.id)) SCENIC_SPOTS.unshift(post);
   });
+  // Asynchronously restore full audio and covers from IndexedDB
+  storage.loadCommunityPostsWithMedia(SCENIC_SPOTS).catch(() => {});
 
   const regionNavigation = document.getElementById('region-navigation');
   const searchInput = document.getElementById('spot-search-input');
@@ -253,6 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleLeaderboardDrawer(false);
     },
     onPublish: spot => {
+      if (!SCENIC_SPOTS.some(s => s.id === spot.id)) {
+        SCENIC_SPOTS.unshift(spot);
+      }
       globeManager.renderLightDotMarkers();
       playerManager.openSpot(spot, true);
     }

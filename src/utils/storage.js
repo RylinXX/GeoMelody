@@ -40,6 +40,68 @@ function writeJson(key, value) {
   }
 }
 
+// IndexedDB for storing full user uploaded songs and high-res photos
+const IDB_NAME = 'geomelody_media_db';
+const IDB_VERSION = 1;
+const IDB_STORE = 'community_media';
+
+function getIDB() {
+  return new Promise(resolve => {
+    if (typeof window === 'undefined' || !window.indexedDB) return resolve(null);
+    try {
+      const req = window.indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+export async function persistCommunityMedia(id, { cover, audio, audioTrack }) {
+  const db = await getIDB();
+  if (!db) return;
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+      store.put({
+        id,
+        cover,
+        audio,
+        audioTrack,
+        updatedAt: Date.now()
+      });
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+export async function restoreCommunityMedia(id) {
+  const db = await getIDB();
+  if (!db) return null;
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
 export function seedLikeCount(spotId = '') {
   return [...String(spotId)].reduce((sum, char) => (sum * 33 + char.charCodeAt(0)) % 10000, 5381) % 4200 + 480;
 }
@@ -144,10 +206,72 @@ export const storage = {
     return readJson(STORAGE_KEYS.COMMUNITY_POSTS, []);
   },
 
-  saveCommunityPost(post) {
+  async loadCommunityPostsWithMedia(existingSpots = []) {
     const posts = this.getCommunityPosts();
-    posts.unshift(post);
-    writeJson(STORAGE_KEYS.COMMUNITY_POSTS, posts.slice(0, 40));
+    for (const post of posts) {
+      try {
+        const media = await restoreCommunityMedia(post.id);
+        if (media) {
+          if (media.audio && (!post.audioTrack || !post.audioTrack.url)) {
+            post.audioTrack = media.audioTrack || {
+              id: `upload-${post.id}`,
+              title: post.name,
+              creator: post.author,
+              url: media.audio,
+              license: '用户上传'
+            };
+          }
+          if (media.cover && (!post.photos || !post.photos[0] || post.photos[0].includes('placeholder'))) {
+            post.photos = [media.cover];
+          }
+        }
+      } catch (e) {}
+
+      const existing = existingSpots.find(s => s.id === post.id);
+      if (existing) {
+        if (post.audioTrack && post.audioTrack.url) existing.audioTrack = post.audioTrack;
+        if (post.photos && post.photos.length) existing.photos = post.photos;
+      }
+    }
+    return posts;
+  },
+
+  saveCommunityPost(post, rawMedia = {}) {
+    const posts = this.getCommunityPosts();
+    const idx = posts.findIndex(p => p.id === post.id);
+    
+    // Serializable version for localStorage (keep Data URL if under 2.5MB, otherwise persist in IndexedDB)
+    const storedPost = {
+      ...post,
+      audioTrack: post.audioTrack ? {
+        id: post.audioTrack.id,
+        title: post.audioTrack.title,
+        creator: post.audioTrack.creator,
+        url: (post.audioTrack.url && post.audioTrack.url.startsWith('data:') && post.audioTrack.url.length < 2.5 * 1024 * 1024)
+          ? post.audioTrack.url
+          : (post.audioTrack.url && !post.audioTrack.url.startsWith('blob:') ? post.audioTrack.url : ''),
+        license: post.audioTrack.license
+      } : null
+    };
+
+    if (idx >= 0) {
+      posts[idx] = storedPost;
+    } else {
+      posts.unshift(storedPost);
+    }
+    writeJson(STORAGE_KEYS.COMMUNITY_POSTS, posts.slice(0, 50));
+
+    // Save full audio file & cover in IndexedDB
+    const audioToPersist = rawMedia.audioDataUrl || (post.audioTrack?.url && post.audioTrack.url.startsWith('data:') ? post.audioTrack.url : null);
+    const coverToPersist = rawMedia.coverDataUrl || post.photos?.[0];
+    if (audioToPersist || coverToPersist || post.audioTrack) {
+      persistCommunityMedia(post.id, {
+        cover: coverToPersist,
+        audio: audioToPersist,
+        audioTrack: post.audioTrack
+      });
+    }
+
     return posts;
   },
 

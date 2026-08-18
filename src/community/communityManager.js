@@ -975,13 +975,18 @@ export class CommunityManager {
       coverUrl = coverDataUrl || URL.createObjectURL(coverFile);
     }
 
-    let audioTrack;
+    let audioTrack = null;
+    let audioDataUrl = null;
     if (audioFile instanceof File && audioFile.size > 0) {
+      try {
+        audioDataUrl = await fileToDataUrl(audioFile);
+      } catch (e) {}
+      const audioBlobUrl = URL.createObjectURL(audioFile);
       audioTrack = {
         id: `upload-${Date.now()}`,
         title: audioFile.name.replace(/\.[^.]+$/, ''),
         creator: author,
-        url: URL.createObjectURL(audioFile),
+        url: audioDataUrl || audioBlobUrl,
         license: t('userUpload', this.getLanguage()),
         sourceUrl: ''
       };
@@ -994,7 +999,7 @@ export class CommunityManager {
       enName: title,
       location: locationName,
       country: country,
-      category: 'waterTown',
+      category: 'town',
       lat,
       lng,
       description,
@@ -1006,18 +1011,17 @@ export class CommunityManager {
       audioRecipe: {
         style: 'regional_acoustic',
         bpm: 72,
-        scale: '用户自选专属音景',
-        instruments: audioTrack ? audioTrack.title : '经典原声音乐 · 专属意境',
+        scale: '用户专属原声音景',
+        instruments: audioTrack ? audioTrack.title : '专属上传原声音乐',
         naturalSound: 'wind'
       }
     };
 
-    // Save to local storage for persistent retention across sessions
-    storage.saveCommunityPost({
-      ...spot,
-      photos: [coverDataUrl || FALLBACK_COVER],
-      audioTrack: null,
-      storedAudioName: audioFile instanceof File ? audioFile.name : ''
+    // Save to local storage and IndexedDB for persistent retention across sessions
+    storage.saveCommunityPost(spot, {
+      coverDataUrl,
+      audioDataUrl,
+      audioBlob: audioFile instanceof File ? audioFile : null
     });
 
     this.spots.unshift(spot);

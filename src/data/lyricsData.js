@@ -156,23 +156,26 @@ export function getSpotLyrics(spot, track) {
   }
 
   // Generate poetic contextual lyrics for any custom or scenic spot
+  const isCustomUserTrack = spot?.isCommunity || spot?.audioTrack?.license?.includes('用户') || spot?.author;
   const spotName = spot?.name || '胜景之地';
+  const trackTitle = track?.title || spot?.audioTrack?.title || (isCustomUserTrack ? '用户专属上传乐曲' : '专属意境音景');
+  const creatorName = spot?.author || track?.creator || '音乐旅人';
   const desc = spot?.description || '山川辽阔，琴音回荡。';
   const sentences = desc.split(/[，。！？；\n]+/).filter(s => s.trim().length > 0);
 
   const list = [
-    { time: 0, text: `${spotName} · 专属意境音景` },
-    { time: 4.0, text: `📍 ${spot?.location || spotName}` }
+    { time: 0, text: `${spotName} · ${trackTitle}` },
+    { time: 3.5, text: `🎵 创作者：${creatorName} · ${spot?.location || spotName}` }
   ];
 
-  let currentTime = 8.0;
+  let currentTime = 7.0;
   for (const sentence of sentences) {
     list.push({ time: currentTime, text: sentence.trim() });
-    currentTime += 7.5;
+    currentTime += 7.0;
   }
 
   list.push({ time: currentTime, text: '闭上双眼，在专属旋律中感受天地之美' });
-  list.push({ time: currentTime + 9.0, text: 'GeoMelody 视听漫游，记录每一段心灵旅程' });
+  list.push({ time: currentTime + 8.5, text: 'GeoMelody 视听漫游，记录每一段心灵旅程' });
 
   return list;
 }
