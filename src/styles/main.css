@@ -92,10 +92,13 @@ button, input {
 .brand-logo-img {
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--border-medium);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.45));
+  transition: transform var(--trans-fast);
+}
+
+.nav-brand:hover .brand-logo-img {
+  transform: scale(1.08) rotate(-2deg);
 }
 
 .brand-title {
