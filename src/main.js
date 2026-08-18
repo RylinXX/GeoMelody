@@ -125,10 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackTitleEl = document.getElementById('spot-preview-track-title');
 
     const isUnclaimed = spot.category === 'unclaimed';
+    const isCommunity = Boolean(spot.isCommunity);
     if (coverEl) coverEl.src = spot.photos?.[0] || '';
     if (catEl) {
-      const cat = CATEGORY_MAP[spot.category];
-      catEl.textContent = getCategoryName(cat, currentLanguage);
+      if (isCommunity) {
+        catEl.textContent = currentLanguage === 'en' ? '🌟 User Pinned' : '🌟 我的打卡点位';
+        catEl.style.color = '#fbbf24';
+      } else {
+        const cat = CATEGORY_MAP[spot.category];
+        catEl.textContent = getCategoryName(cat, currentLanguage);
+        catEl.style.color = '';
+      }
       catEl.classList.toggle('unclaimed', isUnclaimed);
     }
     if (nameEl) nameEl.textContent = getSpotName(spot, currentLanguage);
@@ -259,8 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!SCENIC_SPOTS.some(s => s.id === spot.id)) {
         SCENIC_SPOTS.unshift(spot);
       }
+      globeManager.spots = SCENIC_SPOTS;
       globeManager.renderLightDotMarkers();
-      playerManager.openSpot(spot, true);
+      globeManager.flyToSpot(spot, 6.2, true);
+      showSpotPreviewCard(spot);
     }
   });
 

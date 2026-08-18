@@ -431,7 +431,10 @@ export class GlobeManager {
   getVisibleSpots() {
     const query = this.searchQuery.trim().toLowerCase();
     return this.spots.filter(spot => {
-      const categoryMatches = this.currentCategory === 'all' || spot.category === this.currentCategory;
+      // User community spots show when viewing 'all', 'town', or their designated category
+      const categoryMatches = this.currentCategory === 'all' || 
+        spot.category === this.currentCategory || 
+        (spot.isCommunity && (this.currentCategory === 'all' || this.currentCategory === 'town'));
       if (!categoryMatches) return false;
       if (!query) return true;
       return [spot.name, spot.enName, spot.location, spot.country, ...(spot.tags || [])]
@@ -451,7 +454,9 @@ export class GlobeManager {
         },
         properties: {
           id: spot.id,
-          color: CATEGORY_MAP[spot.category]?.color || '#38bdf8'
+          color: spot.isCommunity 
+            ? '#f59e0b' 
+            : (spot.category === 'unclaimed' ? '#ef4444' : (CATEGORY_MAP[spot.category]?.color || '#38bdf8'))
         }
       }))
     };
@@ -703,7 +708,13 @@ export class GlobeManager {
       ? (spot.enLocation || spot.location)
       : spot.location;
     const isUnclaimed = spot.category === 'unclaimed';
-    const tagHtml = isUnclaimed ? `<span class="globe-tooltip-unclaimed-tag">${this.currentLanguage === 'en' ? '🚩 Unclaimed Territory' : '🚩 待认领秘境'}</span>` : '';
+    const isCommunity = Boolean(spot.isCommunity);
+    let tagHtml = '';
+    if (isCommunity) {
+      tagHtml = `<span class="globe-tooltip-unclaimed-tag" style="background:rgba(245,158,11,0.22);border-color:rgba(245,158,11,0.55);color:#fde68a;">🌟 ${this.currentLanguage === 'en' ? 'User Pinned Spot' : '用户打卡点位'}</span>`;
+    } else if (isUnclaimed) {
+      tagHtml = `<span class="globe-tooltip-unclaimed-tag">${this.currentLanguage === 'en' ? '🚩 Unclaimed Territory' : '🚩 待认领秘境'}</span>`;
+    }
     const hint = isUnclaimed
       ? (this.currentLanguage === 'en' ? 'Click to Claim & Explore ➔' : '点击抢先认领 / 探索 ➔')
       : (this.currentLanguage === 'en' ? 'Click to listen' : '点击聆听 ➔');
@@ -714,7 +725,7 @@ export class GlobeManager {
         ${tagHtml}
         <span class="globe-tooltip-title">${escapeHtml(name)}</span>
         <span class="globe-tooltip-loc">${escapeHtml(location)}</span>
-        <span class="globe-tooltip-hint" style="${isUnclaimed ? 'color:#f87171;' : ''}">${hint}</span>
+        <span class="globe-tooltip-hint" style="${isUnclaimed ? 'color:#f87171;' : (isCommunity ? 'color:#fbbf24;' : '')}">${hint}</span>
       </span>`;
     const container = this.map.getContainer();
     const tooltipWidth = 220;

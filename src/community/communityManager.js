@@ -1019,9 +1019,9 @@ export class CommunityManager {
     this.form.reset();
     this.updateFileLabel('community-cover-file-name');
     this.updateFileLabel('community-audio-file-name');
-    this.onPublish?.(spot);
     this.setActiveSpot(spot);
-    this.open('comments', spot);
+    this.close();
+    this.onPublish?.(spot);
     this.showToast(t('publishedSuccess', this.getLanguage(), { name: title }));
   }
 }
