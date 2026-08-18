@@ -470,13 +470,12 @@ export class PlayerManager {
 
     photos.forEach((url, index) => {
       const img = document.createElement('img');
-      if (index === 0) img.src = url;
-      else img.dataset.src = url;
+      img.src = url;
       img.alt = getSpotName(this.currentSpot, this.getLanguage());
       img.className = `scenery-slide-img ${index === 0 ? 'visible' : ''}`;
-      img.loading = index === 0 ? 'eager' : 'lazy';
+      img.loading = 'eager';
       img.decoding = 'async';
-      img.fetchPriority = index === 0 ? 'high' : 'low';
+      img.fetchPriority = index === 0 ? 'high' : 'auto';
       img.onerror = () => {
         if (!img.dataset.fallbackApplied) {
           img.dataset.fallbackApplied = 'true';
