@@ -1,0 +1,59 @@
+<!-- pages/about/about.wxml - About GeoMelody -->
+<view class="about-container">
+  <view class="brand-hero">
+    <image class="brand-logo" src="/images/logo.png" mode="aspectFit"></image>
+    <text class="brand-name">GeoMelody</text>
+    <text class="brand-slogan">3D 沉浸式全球视听治愈体验</text>
+    <text class="brand-ver">Version 1.0.0</text>
+  </view>
+
+  <view class="features-card glass-card">
+    <view class="feature-item">
+      <text class="feature-icon">🌏</text>
+      <view class="feature-detail">
+        <text class="feature-title">3D 地球仪全景探索</text>
+        <text class="feature-desc">7 大洲 133+ 处全球胜景与海洋秘境，无缝旋转漫游</text>
+      </view>
+    </view>
+    
+    <view class="feature-item">
+      <text class="feature-icon">🎵</text>
+      <view class="feature-detail">
+        <text class="feature-title">地域专属 Suno 原创音乐</text>
+        <text class="feature-desc">每个景点专属量身定制的治愈纯音乐与真实自然白噪音</text>
+      </view>
+    </view>
+
+    <view class="feature-item">
+      <text class="feature-icon">🖼️</text>
+      <view class="feature-detail">
+        <text class="feature-title">全景 3 张超清胜景壁纸</text>
+        <text class="feature-desc">电影级画质轮播、图集画廊与一键分享海报</text>
+      </view>
+    </view>
+
+    <view class="feature-item">
+      <text class="feature-icon">✈️</text>
+      <view class="feature-detail">
+        <text class="feature-title">4 款高精 3D 飞行器巡航</text>
+        <text class="feature-desc">极光客机、幽灵隐身机、轨道穿梭机与量子引力星盘</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-card glass-card">
+    <view class="action-row" bindtap="handleCopyWebsite">
+      <text class="action-label">官方网站</text>
+      <text class="action-val">https://etgq.com 复制</text>
+    </view>
+    <view class="action-divider"></view>
+    <button class="contact-btn" open-type="feedback">
+      <text class="action-label">意见反馈 & 功能建议</text>
+      <text class="action-arrow">›</text>
+    </button>
+  </view>
+
+  <view class="footer-meta">
+    <text>© 2026 GeoMelody. All Rights Reserved.</text>
+  </view>
+</view>

@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/player/player",
+    "pages/about/about"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#090d16",
+    "navigationBarTitleText": "GeoMelody",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#090d16"
+  },
+  "requiredBackgroundModes": [
+    "audio"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于在 3D 地球上定位您当前的打卡坐标并生成专属音景"
+    }
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "renderer": "webview"
+}

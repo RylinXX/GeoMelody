@@ -1,0 +1,65 @@
+<!-- pages/player/player.wxml - Native Standalone Audio Player -->
+<view class="player-container">
+  <!-- Background Blurred Poster Artwork -->
+  <image class="player-blur-bg" src="{{currentCover}}" mode="aspectFill"></image>
+  <view class="player-mask"></view>
+
+  <view class="player-content">
+    <!-- Header Meta -->
+    <view class="player-header">
+      <text class="spot-title">{{spotName}}</text>
+      <text class="spot-location">{{location}}</text>
+    </view>
+
+    <!-- Vinyl Disc Turntable Area -->
+    <view class="disc-section">
+      <view class="vinyl-disc {{isPlaying ? 'playing' : ''}}">
+        <image class="disc-cover" src="{{currentCover}}" mode="aspectFill"></image>
+      </view>
+    </view>
+
+    <!-- Track & Artist Info -->
+    <view class="track-info">
+      <text class="track-title">{{trackTitle}}</text>
+      <text class="track-artist">{{creator}} · GeoMelody</text>
+    </view>
+
+    <!-- Slider Progress -->
+    <view class="progress-section">
+      <slider 
+        class="audio-slider" 
+        min="0" 
+        max="{{duration}}" 
+        value="{{currentTime}}" 
+        bindchange="handleSliderChange" 
+        block-size="12" 
+        activeColor="#38bdf8" 
+        backgroundColor="rgba(255,255,255,0.2)"
+      />
+      <view class="time-row">
+        <text class="time-text">{{currentTimeText}}</text>
+        <text class="time-text">{{durationText}}</text>
+      </view>
+    </view>
+
+    <!-- Playback Controls -->
+    <view class="control-actions">
+      <button class="ctrl-btn sub" bindtap="handlePrevTrack">
+        <text class="ctrl-icon">⏮</text>
+      </button>
+      <button class="ctrl-btn main" bindtap="handleTogglePlay">
+        <text class="ctrl-icon play-icon">{{isPlaying ? '⏸' : '▶'}}</text>
+      </button>
+      <button class="ctrl-btn sub" bindtap="handleNextTrack">
+        <text class="ctrl-icon">⏭</text>
+      </button>
+    </view>
+
+    <!-- Return to 3D Globe Button -->
+    <view class="footer-action">
+      <button class="return-globe-btn" bindtap="handleReturnGlobe">
+        <text>🌏 返回 3D 漫游地球</text>
+      </button>
+    </view>
+  </view>
+</view>
