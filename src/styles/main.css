@@ -700,8 +700,8 @@ button, input {
 
 .center-airplane-body {
   position: relative;
-  width: 54px;
-  height: 54px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -718,8 +718,8 @@ button, input {
 }
 
 .center-airplane-svg {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   display: block;
 }
 
