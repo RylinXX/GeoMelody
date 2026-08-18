@@ -1,0 +1,461 @@
+[
+  {
+    "seq": 1,
+    "spotId": "wuzhen",
+    "name": "乌镇水乡",
+    "srcFile": "01.mp3",
+    "filename": "suno_001_wuzhen.mp3",
+    "url": "/audio/suno_001_wuzhen.mp3",
+    "sizeBytes": 3994545
+  },
+  {
+    "seq": 2,
+    "spotId": "zhouzhuang",
+    "name": "周庄古镇",
+    "srcFile": "suno_002_zhouzhuang.mp3",
+    "filename": "suno_002_zhouzhuang.mp3",
+    "url": "/audio/suno_002_zhouzhuang.mp3",
+    "sizeBytes": 3262593
+  },
+  {
+    "seq": 3,
+    "spotId": "hongcun",
+    "name": "宏村古村落",
+    "srcFile": "suno_003_hongcun.mp3",
+    "filename": "suno_003_hongcun.mp3",
+    "url": "/audio/suno_003_hongcun.mp3",
+    "sizeBytes": 4190145
+  },
+  {
+    "seq": 4,
+    "spotId": "fenghuang",
+    "name": "凤凰古城",
+    "srcFile": "suno_004_fenghuang.mp3",
+    "filename": "suno_004_fenghuang.mp3",
+    "url": "/audio/suno_004_fenghuang.mp3",
+    "sizeBytes": 3789345
+  },
+  {
+    "seq": 5,
+    "spotId": "lijiang",
+    "name": "丽江古城",
+    "srcFile": "suno_005_lijiang.mp3",
+    "filename": "suno_005_lijiang.mp3",
+    "url": "/audio/suno_005_lijiang.mp3",
+    "sizeBytes": 3428649
+  },
+  {
+    "seq": 6,
+    "spotId": "nanxun",
+    "name": "南浔古镇 · 辑里丝香",
+    "srcFile": "suno_006_nanxun.mp3",
+    "filename": "suno_006_nanxun.mp3",
+    "url": "/audio/suno_006_nanxun.mp3",
+    "sizeBytes": 3890529
+  },
+  {
+    "seq": 7,
+    "spotId": "xitang",
+    "name": "西塘古镇 · 烟雨长廊",
+    "srcFile": "suno_007_xitang.mp3",
+    "filename": "suno_007_xitang.mp3",
+    "url": "/audio/suno_007_xitang.mp3",
+    "sizeBytes": 4249449
+  },
+  {
+    "seq": 8,
+    "spotId": "wuyuan",
+    "name": "婺源篁岭 · 晒秋梯田",
+    "srcFile": "suno_008_wuyuan.mp3",
+    "filename": "suno_008_wuyuan.mp3",
+    "url": "/audio/suno_008_wuyuan.mp3",
+    "sizeBytes": 3317169
+  },
+  {
+    "seq": 9,
+    "spotId": "pingyao",
+    "name": "平遥古城 · 晋商岁月",
+    "srcFile": "suno_009_pingyao.mp3",
+    "filename": "suno_009_pingyao.mp3",
+    "url": "/audio/suno_009_pingyao.mp3",
+    "sizeBytes": 4313529
+  },
+  {
+    "seq": 10,
+    "spotId": "kyoto",
+    "name": "京都 · 二年坂与清水寺",
+    "srcFile": "suno_010_kyoto.mp3",
+    "filename": "suno_010_kyoto.mp3",
+    "url": "/audio/suno_010_kyoto.mp3",
+    "sizeBytes": 4732065
+  },
+  {
+    "seq": 11,
+    "spotId": "shirakawago",
+    "name": "白川乡合掌村",
+    "srcFile": "suno_011_shirakawago.mp3",
+    "filename": "suno_011_shirakawago.mp3",
+    "url": "/audio/suno_011_shirakawago.mp3",
+    "sizeBytes": 4176993
+  },
+  {
+    "seq": 12,
+    "spotId": "hallstatt",
+    "name": "哈尔施塔特湖畔小镇",
+    "srcFile": "suno_012_hallstatt.mp3",
+    "filename": "suno_012_hallstatt.mp3",
+    "url": "/audio/suno_012_hallstatt.mp3",
+    "sizeBytes": 4601985
+  },
+  {
+    "seq": 13,
+    "spotId": "florence",
+    "name": "佛罗伦萨 · 阿尔诺河老桥",
+    "srcFile": "suno_013_florence.mp3",
+    "filename": "suno_013_florence.mp3",
+    "url": "/audio/suno_013_florence.mp3",
+    "sizeBytes": 3899289
+  },
+  {
+    "seq": 14,
+    "spotId": "meili",
+    "name": "梅里雪山 · 卡瓦格博",
+    "srcFile": "suno_014_meili.mp3",
+    "filename": "suno_014_meili.mp3",
+    "url": "/audio/suno_014_meili.mp3",
+    "sizeBytes": 5017809
+  },
+  {
+    "seq": 15,
+    "spotId": "yulong",
+    "name": "玉龙雪山 · 蓝月谷",
+    "srcFile": "suno_015_yulong.mp3",
+    "filename": "suno_015_yulong.mp3",
+    "url": "/audio/suno_015_yulong.mp3",
+    "sizeBytes": 3396441
+  },
+  {
+    "seq": 16,
+    "spotId": "kailash",
+    "name": "冈仁波齐 · 万山之祖",
+    "srcFile": "suno_016_kailash.mp3",
+    "filename": "suno_016_kailash.mp3",
+    "url": "/audio/suno_016_kailash.mp3",
+    "sizeBytes": 4541193
+  },
+  {
+    "seq": 17,
+    "spotId": "yading",
+    "name": "稻城亚丁 · 仙乃日三神山",
+    "srcFile": "suno_017_yading.mp3",
+    "filename": "suno_017_yading.mp3",
+    "url": "/audio/suno_017_yading.mp3",
+    "sizeBytes": 3570249
+  },
+  {
+    "seq": 18,
+    "spotId": "gongga",
+    "name": "贡嘎雪山 · 蜀山之王",
+    "srcFile": "suno_018_gongga.mp3",
+    "filename": "suno_018_gongga.mp3",
+    "url": "/audio/suno_018_gongga.mp3",
+    "sizeBytes": 4309257
+  },
+  {
+    "seq": 19,
+    "spotId": "siguniang",
+    "name": "四姑娘山 · 东方圣山",
+    "srcFile": "suno_019_siguniang.mp3",
+    "filename": "suno_019_siguniang.mp3",
+    "url": "/audio/suno_019_siguniang.mp3",
+    "sizeBytes": 1983081
+  },
+  {
+    "seq": 20,
+    "spotId": "everest",
+    "name": "珠穆朗玛峰 · 世界之巅",
+    "srcFile": "suno_020_everest.mp3",
+    "filename": "suno_020_everest.mp3",
+    "url": "/audio/suno_020_everest.mp3",
+    "sizeBytes": 5890665
+  },
+  {
+    "seq": 21,
+    "spotId": "fuji",
+    "name": "富士山 · 富士五湖",
+    "srcFile": "suno_021_fuji.mp3",
+    "filename": "suno_021_fuji.mp3",
+    "url": "/audio/suno_021_fuji.mp3",
+    "sizeBytes": 4194729
+  },
+  {
+    "seq": 22,
+    "spotId": "matterhorn",
+    "name": "马特洪峰 · 阿尔卑斯之巅",
+    "srcFile": "suno_022_matterhorn.mp3",
+    "filename": "suno_022_matterhorn.mp3",
+    "url": "/audio/suno_022_matterhorn.mp3",
+    "sizeBytes": 5635161
+  },
+  {
+    "seq": 23,
+    "spotId": "lofoten",
+    "name": "罗弗敦群岛 · 极光与雪山",
+    "srcFile": "suno_023_lofoten.mp3",
+    "filename": "suno_023_lofoten.mp3",
+    "url": "/audio/suno_023_lofoten.mp3",
+    "sizeBytes": 4793841
+  },
+  {
+    "seq": 24,
+    "spotId": "sanya",
+    "name": "三亚蜈支洲岛 · 蔚蓝之境",
+    "srcFile": "suno_024_sanya.mp3",
+    "filename": "suno_024_sanya.mp3",
+    "url": "/audio/suno_024_sanya.mp3",
+    "sizeBytes": 2493009
+  },
+  {
+    "seq": 25,
+    "spotId": "weizhou",
+    "name": "涠洲岛 · 火山岩鳄鱼山",
+    "srcFile": "suno_025_weizhou.mp3",
+    "filename": "suno_025_weizhou.mp3",
+    "url": "/audio/suno_025_weizhou.mp3",
+    "sizeBytes": 2804097
+  },
+  {
+    "seq": 26,
+    "spotId": "maldives",
+    "name": "马尔代夫 · 蓝色环礁",
+    "srcFile": "suno_026_maldives.mp3",
+    "filename": "suno_026_maldives.mp3",
+    "url": "/audio/suno_026_maldives.mp3",
+    "sizeBytes": 3646809
+  },
+  {
+    "seq": 27,
+    "spotId": "bali",
+    "name": "巴厘岛 · 乌鲁瓦图断崖",
+    "srcFile": "suno_027_bali.mp3",
+    "filename": "suno_027_bali.mp3",
+    "url": "/audio/suno_027_bali.mp3",
+    "sizeBytes": 4515129
+  },
+  {
+    "seq": 28,
+    "spotId": "santorini",
+    "name": "圣托里尼 · 伊亚爱琴海",
+    "srcFile": "suno_028_santorini.mp3",
+    "filename": "suno_028_santorini.mp3",
+    "url": "/audio/suno_028_santorini.mp3",
+    "sizeBytes": 3198321
+  },
+  {
+    "seq": 29,
+    "spotId": "semporna",
+    "name": "仙本那 · 玻璃海与巴瑶水上屋",
+    "srcFile": "suno_029_semporna.mp3",
+    "filename": "suno_029_semporna.mp3",
+    "url": "/audio/suno_029_semporna.mp3",
+    "sizeBytes": 3353577
+  },
+  {
+    "seq": 30,
+    "spotId": "borabora",
+    "name": "波拉波拉岛 · 太平洋珍珠",
+    "srcFile": "suno_030_borabora.mp3",
+    "filename": "suno_030_borabora.mp3",
+    "url": "/audio/suno_030_borabora.mp3",
+    "sizeBytes": 4030161
+  },
+  {
+    "seq": 31,
+    "spotId": "dunhuang",
+    "name": "敦煌鸣沙山 · 月牙泉",
+    "srcFile": "suno_031_dunhuang.mp3",
+    "filename": "suno_031_dunhuang.mp3",
+    "url": "/audio/suno_031_dunhuang.mp3",
+    "sizeBytes": 5001753
+  },
+  {
+    "seq": 32,
+    "spotId": "shapotou",
+    "name": "中卫沙坡头 · 黄河九曲",
+    "srcFile": "suno_032_shapotou.mp3",
+    "filename": "suno_032_shapotou.mp3",
+    "url": "/audio/suno_032_shapotou.mp3",
+    "sizeBytes": 4605417
+  },
+  {
+    "seq": 33,
+    "spotId": "taklamakan",
+    "name": "塔克拉玛干 · 死亡之海胡杨林",
+    "srcFile": "suno_033_taklamakan.mp3",
+    "filename": "suno_033_taklamakan.mp3",
+    "url": "/audio/suno_033_taklamakan.mp3",
+    "sizeBytes": 4469241
+  },
+  {
+    "seq": 34,
+    "spotId": "kumtag",
+    "name": "库木塔格沙漠 · 城中沙山",
+    "srcFile": "suno_034_kumtag.mp3",
+    "filename": "suno_034_kumtag.mp3",
+    "url": "/audio/suno_034_kumtag.mp3",
+    "sizeBytes": 4810665
+  },
+  {
+    "seq": 35,
+    "spotId": "sahara",
+    "name": "撒哈拉沙漠 · 星空之夜",
+    "srcFile": "suno_035_sahara.mp3",
+    "filename": "suno_035_sahara.mp3",
+    "url": "/audio/suno_035_sahara.mp3",
+    "sizeBytes": 5031321
+  },
+  {
+    "seq": 37,
+    "spotId": "wadirum",
+    "name": "瓦迪拉姆 · 月亮峡谷",
+    "srcFile": "suno_037_wadirum.mp3",
+    "filename": "suno_037_wadirum.mp3",
+    "url": "/audio/suno_037_wadirum.mp3",
+    "sizeBytes": 5477385
+  },
+  {
+    "seq": 38,
+    "spotId": "zhangjiajie",
+    "name": "张家界 · 悬浮天子山",
+    "srcFile": "suno_038_zhangjiajie.mp3",
+    "filename": "suno_038_zhangjiajie.mp3",
+    "url": "/audio/suno_038_zhangjiajie.mp3",
+    "sizeBytes": 4820961
+  },
+  {
+    "seq": 39,
+    "spotId": "jiuzhaigou",
+    "name": "九寨沟 · 五彩童话森林",
+    "srcFile": "suno_039_jiuzhaigou.mp3",
+    "filename": "suno_039_jiuzhaigou.mp3",
+    "url": "/audio/suno_039_jiuzhaigou.mp3",
+    "sizeBytes": 3065505
+  },
+  {
+    "seq": 40,
+    "spotId": "changbai",
+    "name": "长白山 · 原始针叶林与瀑布",
+    "srcFile": "suno_040_changbai.mp3",
+    "filename": "suno_040_changbai.mp3",
+    "url": "/audio/suno_040_changbai.mp3",
+    "sizeBytes": 4771737
+  },
+  {
+    "seq": 41,
+    "spotId": "yakushima",
+    "name": "屋久岛 · 幽灵公主苔藓森林",
+    "srcFile": "suno_041_yakushima.mp3",
+    "filename": "suno_041_yakushima.mp3",
+    "url": "/audio/suno_041_yakushima.mp3",
+    "sizeBytes": 2364657
+  },
+  {
+    "seq": 42,
+    "spotId": "blackforest",
+    "name": "德国黑森林 · 咕咕鸟谷",
+    "srcFile": "suno_042_blackforest.mp3",
+    "filename": "suno_042_blackforest.mp3",
+    "url": "/audio/suno_042_blackforest.mp3",
+    "sizeBytes": 3655065
+  },
+  {
+    "seq": 44,
+    "spotId": "redwood",
+    "name": "加州红杉国家公园",
+    "srcFile": "44.mp3",
+    "filename": "suno_044_redwood.mp3",
+    "url": "/audio/suno_044_redwood.mp3",
+    "sizeBytes": 3841455
+  },
+  {
+    "seq": 45,
+    "spotId": "plitvice",
+    "name": "普利特维采湖群 · 欧洲十六湖",
+    "srcFile": "suno_045_plitvice.mp3",
+    "filename": "suno_045_plitvice.mp3",
+    "url": "/audio/suno_045_plitvice.mp3",
+    "sizeBytes": 3932121
+  },
+  {
+    "seq": 46,
+    "spotId": "shanghai",
+    "name": "上海外滩 · 浦江陆家嘴",
+    "srcFile": "suno_046_shanghai.mp3",
+    "filename": "suno_046_shanghai.mp3",
+    "url": "/audio/suno_046_shanghai.mp3",
+    "sizeBytes": 3078105
+  },
+  {
+    "seq": 49,
+    "spotId": "tokyo",
+    "name": "东京涩谷 · 新宿歌舞伎町",
+    "srcFile": "49.mp3",
+    "filename": "suno_049_tokyo.mp3",
+    "url": "/audio/suno_049_tokyo.mp3",
+    "sizeBytes": 6049534
+  },
+  {
+    "seq": 51,
+    "spotId": "newyork",
+    "name": "纽约曼哈顿 · 洛克菲勒顶峰夜色",
+    "srcFile": "51.mp3",
+    "filename": "suno_051_newyork.mp3",
+    "url": "/audio/suno_051_newyork.mp3",
+    "sizeBytes": 5713495
+  },
+  {
+    "seq": 90,
+    "spotId": "colosseum",
+    "name": "意大利罗马斗兽场",
+    "srcFile": "90.mp3",
+    "filename": "suno_090_colosseum.mp3",
+    "url": "/audio/suno_090_colosseum.mp3",
+    "sizeBytes": 6217553
+  },
+  {
+    "seq": 93,
+    "spotId": "greatbarrierreef",
+    "name": "澳大利亚大堡礁与心形礁",
+    "srcFile": "93.mp3",
+    "filename": "suno_093_greatbarrierreef.mp3",
+    "url": "/audio/suno_093_greatbarrierreef.mp3",
+    "sizeBytes": 4753651
+  },
+  {
+    "seq": 94,
+    "spotId": "sydneyoperahouse",
+    "name": "澳大利亚悉尼歌剧院与海港大桥",
+    "srcFile": "94.mp3",
+    "filename": "suno_094_sydneyoperahouse.mp3",
+    "url": "/audio/suno_094_sydneyoperahouse.mp3",
+    "sizeBytes": 5978063
+  },
+  {
+    "seq": 116,
+    "spotId": "louvremuseum",
+    "name": "法国巴黎 · 卢浮宫与玻璃金字塔",
+    "srcFile": "116.mp3",
+    "filename": "suno_116_louvremuseum.mp3",
+    "url": "/audio/suno_116_louvremuseum.mp3",
+    "sizeBytes": 4369965
+  },
+  {
+    "seq": 126,
+    "spotId": "salardeuyuni",
+    "name": "玻利维亚 · 乌尤尼盐沼天空之镜",
+    "srcFile": "126.mp3",
+    "filename": "suno_126_salardeuyuni.mp3",
+    "url": "/audio/suno_126_salardeuyuni.mp3",
+    "sizeBytes": 4417612
+  }
+]
