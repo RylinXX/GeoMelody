@@ -69,6 +69,36 @@ Page({
         shareImageUrl: spot.photos?.[0] ? (spot.photos[0].startsWith('http') ? spot.photos[0] : `https://etgq.com${spot.photos[0]}`) : 'https://etgq.com/covers/1.1.png'
       });
     }
+
+    // 3. Save Poster Directly to Mobile Photo Album
+    if (msg.action === 'savePoster' && msg.url) {
+      wx.showLoading({ title: '正在保存海报…' });
+      wx.downloadFile({
+        url: msg.url,
+        success: (res) => {
+          if (res.statusCode === 200) {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                wx.hideLoading();
+                wx.showToast({ title: '已存入手机相册', icon: 'success' });
+              },
+              fail: () => {
+                wx.hideLoading();
+                wx.showToast({ title: '请在设置中允许相册权限', icon: 'none' });
+              }
+            });
+          } else {
+            wx.hideLoading();
+            wx.showToast({ title: '海报下载失败', icon: 'none' });
+          }
+        },
+        fail: () => {
+          wx.hideLoading();
+          wx.showToast({ title: '网络连接异常', icon: 'none' });
+        }
+      });
+    }
   },
 
   onWebLoad() {
