@@ -199,7 +199,7 @@ export const shareCardManager = {
     ctx.strokeRect(44, 44, 180, 42);
 
     const logoImg = new Image();
-    logoImg.src = '/logo-128.jpg';
+    logoImg.src = '/logo-128.png';
     await new Promise((res) => {
       logoImg.onload = res;
       logoImg.onerror = () => res();
