@@ -11,6 +11,7 @@ import { shareUtil } from './utils/share.js';
 import { shareCardManager } from './utils/shareCard.js';
 import { initGlobalImageFallback, getFallbackCover } from './utils/imageFallback.js';
 import { applyAirplaneSkin } from './map/airplaneSkin.js';
+import { resolveUserLocation } from './utils/geoLocator.js';
 import {
   LANGUAGES,
   applyTranslations,
@@ -977,39 +978,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const locateBtn = document.getElementById('dock-btn-locate-me');
-  locateBtn?.addEventListener('click', () => {
+  locateBtn?.addEventListener('click', async () => {
     exitRoamingMode();
-    if (!navigator.geolocation) {
-      showToast(t('locateError', currentLanguage));
-      return;
-    }
-
     locateBtn.classList.add('loading');
+    showToast(currentLanguage === 'en' ? 'Locating your position...' : '正在定位您的位置…');
 
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        locateBtn.classList.remove('loading');
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const accuracy = position.coords.accuracy;
-
-        globeManager.setUserLocation({ lng, lat, accuracy });
-      },
-      error => {
-        locateBtn.classList.remove('loading');
-        console.warn('[GeoMelody Geolocation]', error);
-        if (error.code === error.PERMISSION_DENIED) {
-          showToast(t('locateDenied', currentLanguage));
-        } else {
-          showToast(t('locateError', currentLanguage));
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
+    try {
+      const loc = await resolveUserLocation();
+      locateBtn.classList.remove('loading');
+      if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
+        globeManager.setUserLocation({ lng: loc.lng, lat: loc.lat, accuracy: loc.accuracy });
+        const cityDesc = loc.city ? ` · ${loc.city}` : '';
+        showToast(currentLanguage === 'en' ? `Located successfully${cityDesc}` : `定位成功${cityDesc}`);
+      } else {
+        showToast(t('locateError', currentLanguage));
       }
-    );
+    } catch (err) {
+      locateBtn.classList.remove('loading');
+      console.warn('[GeoMelody Geolocation]', err);
+      showToast(t('locateError', currentLanguage));
+    }
   });
 
   // ==================== Web / Desktop Fullscreen Controller ====================

@@ -2,6 +2,7 @@ import { storage } from '../utils/storage.js';
 import { LANGUAGES, getSpotLocation, getSpotName, t } from '../utils/i18n.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 import { HOT_COMMENTS_DATABASE } from '../data/hotComments.js';
+import { resolveUserLocation } from '../utils/geoLocator.js';
 
 const LOCATION_PRESETS = [
   { id: 'hangzhou', name: '中国 · 杭州西湖', enName: 'China · Hangzhou West Lake', country: '中国', lat: 30.2428, lng: 120.1504 },
@@ -555,53 +556,43 @@ export class CommunityManager {
     });
   }
 
-  fetchCurrentLocation(force = false) {
+  async fetchCurrentLocation(force = false) {
     const display = document.getElementById('current-loc-display');
     const dot = document.getElementById('current-loc-dot');
     const latInput = document.getElementById('pub-current-lat');
     const lngInput = document.getElementById('pub-current-lng');
 
     if (!force && this.currentLocationCoords) {
-      if (display) display.textContent = `📍 ${this.currentLocationCoords.lat.toFixed(4)}°N, ${this.currentLocationCoords.lng.toFixed(4)}°E (已精确定位)`;
+      if (display) display.textContent = `📍 ${this.currentLocationCoords.lat.toFixed(4)}°N, ${this.currentLocationCoords.lng.toFixed(4)}°E (已获取定位)`;
       if (dot) dot.className = 'current-loc-indicator success';
       if (latInput) latInput.value = this.currentLocationCoords.lat;
       if (lngInput) lngInput.value = this.currentLocationCoords.lng;
       return;
     }
 
-    if (!navigator.geolocation) {
-      if (display) display.textContent = '浏览器不支持定位 (使用默认: 30.24°N, 120.15°E)';
-      if (dot) dot.className = 'current-loc-indicator error';
-      if (latInput) latInput.value = 30.2428;
-      if (lngInput) lngInput.value = 120.1504;
-      return;
-    }
-
     if (display) display.textContent = '正在获取当前实时定位…';
     if (dot) dot.className = 'current-loc-indicator';
 
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        this.currentLocationCoords = { lat, lng };
-        if (display) display.textContent = `📍 ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E (已精确定位)`;
-        if (dot) dot.className = 'current-loc-indicator success';
-        if (latInput) latInput.value = lat;
-        if (lngInput) lngInput.value = lng;
-      },
-      err => {
-        console.warn('[Publish Location Geolocation]', err);
-        const fallbackLat = 30.2428;
-        const fallbackLng = 120.1504;
-        this.currentLocationCoords = { lat: fallbackLat, lng: fallbackLng };
-        if (display) display.textContent = '定位未开启 (将使用默认: 30.24°N, 120.15°E)';
-        if (dot) dot.className = 'current-loc-indicator error';
-        if (latInput) latInput.value = fallbackLat;
-        if (lngInput) lngInput.value = fallbackLng;
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
-    );
+    try {
+      const loc = await resolveUserLocation();
+      const lat = loc.lat;
+      const lng = loc.lng;
+      this.currentLocationCoords = { lat, lng };
+      const cityDesc = loc.city ? ` · ${loc.city}` : '';
+      if (display) display.textContent = `📍 ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E (${loc.source === 'ip-network' ? '网络定位' : '精确定位'}${cityDesc})`;
+      if (dot) dot.className = 'current-loc-indicator success';
+      if (latInput) latInput.value = lat;
+      if (lngInput) lngInput.value = lng;
+    } catch (err) {
+      console.warn('[Publish Location Geolocation]', err);
+      const fallbackLat = 30.2428;
+      const fallbackLng = 120.1504;
+      this.currentLocationCoords = { lat: fallbackLat, lng: fallbackLng };
+      if (display) display.textContent = '定位未开启 (将使用默认: 30.24°N, 120.15°E)';
+      if (dot) dot.className = 'current-loc-indicator error';
+      if (latInput) latInput.value = fallbackLat;
+      if (lngInput) lngInput.value = fallbackLng;
+    }
   }
 
   updateFileLabel(elementId, file) {
