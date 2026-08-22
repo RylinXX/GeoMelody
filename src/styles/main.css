@@ -737,7 +737,7 @@ button, input {
   transition: all 0.3s ease;
 }
 
-/* ==================== 4 Aircraft Skin Visual Profiles ==================== */
+/* ==================== Aircraft Skin Visual Profiles ==================== */
 /* Skin 1: Supersonic Airliner (Cyan/Sky-Blue) */
 [data-plane-skin="01-airliner"] .center-airplane-body {
   filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
@@ -746,26 +746,16 @@ button, input {
   background: linear-gradient(to bottom, #38bdf8, #f59e0b, #ef4444);
 }
 
-/* Skin 2: Stealth Fighter (Cyber Violet & Indigo) */
-[data-plane-skin="02-fighter"] .center-airplane-body {
-  filter: drop-shadow(0 10px 24px rgba(129, 140, 248, 0.95)) drop-shadow(0 0 20px rgba(167, 139, 250, 0.8));
-}
-[data-plane-skin="02-fighter"] .center-airplane-afterburner {
-  width: 14px;
-  height: 22px;
-  background: linear-gradient(to bottom, #c084fc, #818cf8, #3b82f6);
-  box-shadow: -6px 0 12px #a855f7, 6px 0 12px #38bdf8;
-}
-
-/* Skin 3: Quantum Graviton UFO (Emerald Core & Matrix Glow) */
-[data-plane-skin="03-ufo"] .center-airplane-body {
+/* Skin 2: Quantum Graviton UFO (Emerald Core & Matrix Glow) */
+[data-plane-skin="04-ufo"] .center-airplane-body {
   transform: rotate(0deg);
   filter: drop-shadow(0 8px 24px rgba(52, 211, 153, 0.95)) drop-shadow(0 0 22px rgba(56, 189, 248, 0.8));
 }
-[data-plane-skin="03-ufo"] .airplane-skin-slot {
-  animation: ufoSpin 9s linear infinite;
+[data-plane-skin="04-ufo"] .airplane-skin-slot {
+  transform-origin: 50% 50%;
+  animation: ufoSpin 3.8s linear infinite;
 }
-[data-plane-skin="03-ufo"] .center-airplane-afterburner {
+[data-plane-skin="04-ufo"] .center-airplane-afterburner {
   width: 24px;
   height: 24px;
   bottom: -10px;
@@ -781,17 +771,6 @@ button, input {
 @keyframes ufoPulse {
   0% { transform: translateX(-50%) scale(0.8); opacity: 0.6; }
   100% { transform: translateX(-50%) scale(1.4); opacity: 1; }
-}
-
-/* Skin 4: Aurora Shuttle (Solar Flare Gold & Amber) */
-[data-plane-skin="04-shuttle"] .center-airplane-body {
-  filter: drop-shadow(0 10px 24px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 18px rgba(251, 191, 36, 0.7));
-}
-[data-plane-skin="04-shuttle"] .center-airplane-afterburner {
-  width: 12px;
-  height: 20px;
-  background: linear-gradient(to bottom, #fbbf24, #f97316, #dc2626);
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
 }
 
 @keyframes centerAfterburner {
@@ -2348,6 +2327,42 @@ button, input {
   line-height: 1.4;
 }
 
+.setting-action-btn {
+  min-width: 92px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.setting-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.setting-action-btn:hover,
+.setting-action-btn.active {
+  color: var(--accent-cyan);
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.setting-action-btn:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 /* Switch Toggle Control */
 .switch-control {
   position: relative;
@@ -2726,13 +2741,29 @@ button, input {
 }
 
 .theme-opt-icon {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  filter: grayscale(1);
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(15, 23, 42, 0.45);
+}
+
+.theme-opt-classic {
+  background: linear-gradient(135deg, #020617 0 48%, #0ea5e9 49% 56%, #111827 57%);
+}
+
+.theme-opt-terrain {
+  background: linear-gradient(145deg, #ffffff 0 44%, #94a3b8 45% 63%, #0f3d66 64%);
+}
+
+.theme-opt-ocean {
+  background: linear-gradient(135deg, #020617, #0c4a6e 58%, #38bdf8);
 }
 
 .theme-option.active .theme-opt-icon {
-  filter: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.14), inset 0 0 0 3px rgba(15, 23, 42, 0.35);
 }
 
 .theme-opt-text {

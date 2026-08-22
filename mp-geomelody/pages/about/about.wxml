@@ -9,7 +9,7 @@
 
   <view class="features-card glass-card">
     <view class="feature-item">
-      <text class="feature-icon">🌏</text>
+      <text class="feature-icon">全球</text>
       <view class="feature-detail">
         <text class="feature-title">3D 地球仪全景探索</text>
         <text class="feature-desc">7 大洲 133+ 处全球胜景与海洋秘境，无缝旋转漫游</text>
@@ -17,7 +17,7 @@
     </view>
     
     <view class="feature-item">
-      <text class="feature-icon">🎵</text>
+      <text class="feature-icon">音乐</text>
       <view class="feature-detail">
         <text class="feature-title">地域专属 Suno 原创音乐</text>
         <text class="feature-desc">每个景点专属量身定制的治愈纯音乐与真实自然白噪音</text>
@@ -25,7 +25,7 @@
     </view>
 
     <view class="feature-item">
-      <text class="feature-icon">🖼️</text>
+      <text class="feature-icon">图集</text>
       <view class="feature-detail">
         <text class="feature-title">全景 3 张超清胜景壁纸</text>
         <text class="feature-desc">电影级画质轮播、图集画廊与一键分享海报</text>
@@ -33,10 +33,10 @@
     </view>
 
     <view class="feature-item">
-      <text class="feature-icon">✈️</text>
+      <text class="feature-icon">巡航</text>
       <view class="feature-detail">
-        <text class="feature-title">4 款高精 3D 飞行器巡航</text>
-        <text class="feature-desc">极光客机、幽灵隐身机、轨道穿梭机与量子引力星盘</text>
+        <text class="feature-title">2 款高精 3D 飞行器巡航</text>
+        <text class="feature-desc">极光巡航客机与旋转量子引力星盘</text>
       </view>
     </view>
   </view>
@@ -54,6 +54,6 @@
   </view>
 
   <view class="footer-meta">
-    <text>© 2026 GeoMelody. All Rights Reserved.</text>
+    <text>Copyright 2026 GeoMelody. All Rights Reserved.</text>
   </view>
 </view>

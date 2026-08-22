@@ -3,6 +3,10 @@ import { LANGUAGES, getSpotLocation, getSpotName, t } from '../utils/i18n.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 import { HOT_COMMENTS_DATABASE } from '../data/hotComments.js';
 import { resolveUserLocation } from '../utils/geoLocator.js';
+import { requestJson } from '../utils/api.js';
+
+const MAX_COVER_BYTES = 10 * 1024 * 1024;
+const MAX_AUDIO_BYTES = 48 * 1024 * 1024;
 
 const LOCATION_PRESETS = [
   { id: 'hangzhou', name: '中国 · 杭州西湖', enName: 'China · Hangzhou West Lake', country: '中国', lat: 30.2428, lng: 120.1504 },
@@ -35,12 +39,25 @@ function escapeHtml(value = '') {
     .replaceAll("'", '&#039;');
 }
 
+function stripEmoji(value = '') {
+  return String(value)
+    .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u2300-\u23FF\u2600-\u27BF]/gu, '')
+    .replace(/[\uFE0E\uFE0F\u200D]/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 function seedLikeCount(spotId) {
   return 18 + [...String(spotId)].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 86;
 }
 
 function avatarHue(author) {
   return [...String(author)].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 360;
+}
+
+function getLikeLabel(liked, language) {
+  if (language === LANGUAGES.EN) return liked ? 'Liked' : 'Like';
+  return liked ? '已赞' : '赞';
 }
 
 const COMMENT_COLLECTIONS = {
@@ -213,15 +230,6 @@ function createSeedComments(spot) {
   });
 }
 
-function fileToDataUrl(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
-    reader.onerror = () => resolve(null);
-    reader.readAsDataURL(file);
-  });
-}
-
 export class CommunityManager {
   constructor({ spots, getLanguage, showToast, onPublish, onBeforeOpen }) {
     this.spots = spots;
@@ -251,7 +259,7 @@ export class CommunityManager {
   }
 
   updateUserNicknameDisplays() {
-    const nick = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    const nick = stripEmoji(storage.getUserNickname(t('musicTraveler', this.getLanguage()))) || t('musicTraveler', this.getLanguage());
     const pName = document.getElementById('player-user-name-display');
     const cName = document.getElementById('community-user-name-display');
     const pubAuthorInput = document.getElementById('community-publish-author-input');
@@ -312,7 +320,7 @@ export class CommunityManager {
     const isPlayer = formType === 'player';
     const authorInput = document.getElementById(isPlayer ? 'player-comment-author-input' : 'community-comment-author-input');
     const nicknameRow = document.getElementById(isPlayer ? 'player-nickname-edit-row' : 'community-nickname-edit-row');
-    const val = String(authorInput?.value || '').trim();
+    const val = stripEmoji(authorInput?.value || '');
     if (val) {
       storage.setUserNickname(val);
       this.updateUserNicknameDisplays();
@@ -563,7 +571,7 @@ export class CommunityManager {
     const lngInput = document.getElementById('pub-current-lng');
 
     if (!force && this.currentLocationCoords) {
-      if (display) display.textContent = `📍 ${this.currentLocationCoords.lat.toFixed(4)}°N, ${this.currentLocationCoords.lng.toFixed(4)}°E (已获取定位)`;
+      if (display) display.textContent = `${this.currentLocationCoords.lat.toFixed(4)}°N, ${this.currentLocationCoords.lng.toFixed(4)}°E (已获取定位)`;
       if (dot) dot.className = 'current-loc-indicator success';
       if (latInput) latInput.value = this.currentLocationCoords.lat;
       if (lngInput) lngInput.value = this.currentLocationCoords.lng;
@@ -579,7 +587,7 @@ export class CommunityManager {
       const lng = loc.lng;
       this.currentLocationCoords = { lat, lng };
       const cityDesc = loc.city ? ` · ${loc.city}` : '';
-      if (display) display.textContent = `📍 ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E (${loc.source === 'ip-network' ? '网络定位' : '精确定位'}${cityDesc})`;
+      if (display) display.textContent = `${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E (${loc.source === 'ip-network' ? '网络定位' : '精确定位'}${cityDesc})`;
       if (dot) dot.className = 'current-loc-indicator success';
       if (latInput) latInput.value = lat;
       if (lngInput) lngInput.value = lng;
@@ -641,7 +649,6 @@ export class CommunityManager {
   }
 
   setLanguage() {
-    this.renderLocationOptions();
     this.updateFileLabel('community-cover-file-name', document.getElementById('community-cover-input')?.files?.[0]);
     this.updateFileLabel('community-audio-file-name', document.getElementById('community-audio-input')?.files?.[0]);
     this.setActiveSpot(this.activeSpot);
@@ -662,7 +669,7 @@ export class CommunityManager {
     const nameElement = document.getElementById('community-active-spot-name');
     const locationElement = document.getElementById('community-active-spot-location');
     if (nameElement) nameElement.textContent = name;
-    if (locationElement) locationElement.textContent = `${location} · ♫ ${getDemoTrack(spot).title}`;
+    if (locationElement) locationElement.textContent = `${location} · ${getDemoTrack(spot).title}`;
     this.renderEngagement();
     this.renderComments();
   }
@@ -690,7 +697,7 @@ export class CommunityManager {
       button?.classList.toggle('liked', likeState.liked);
       button?.setAttribute('aria-pressed', String(likeState.liked));
       const heartIcon = button?.querySelector('.like-heart-icon');
-      if (heartIcon) heartIcon.textContent = likeState.liked ? '♥' : '♡';
+      if (heartIcon) heartIcon.textContent = getLikeLabel(likeState.liked, this.getLanguage());
     });
   }
 
@@ -732,8 +739,8 @@ export class CommunityManager {
       } else {
         const pinnedId = this.commentSort === 'hot' && comments[0]?.likes > 0 ? comments[0].id : null;
         this.commentsList.innerHTML = comments.map(comment => {
-          const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
-          const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
+          const author = stripEmoji(language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author);
+          const text = stripEmoji(language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text);
           const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
             month: 'short', day: 'numeric'
           }).format(new Date(comment.createdAt));
@@ -753,7 +760,7 @@ export class CommunityManager {
               <div class="comment-actions">
                 <button class="comment-reply-btn" type="button" data-comment-reply="${comment.id}" data-author="${escapeHtml(author)}">${t('reply', language)}</button>
                 <button class="comment-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}" aria-pressed="${Boolean(comment.liked)}">
-                  <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
+                  <span>${getLikeLabel(comment.liked, language)}</span><span>${Number(comment.likes || 0).toLocaleString(language === LANGUAGES.EN ? 'en-US' : 'zh-CN')}</span>
                 </button>
                 ${comment.isUser ? `<button class="comment-delete-btn" type="button" data-comment-delete="${comment.id}">${t('deleteComment', language)}</button>` : ''}
               </div>
@@ -761,8 +768,8 @@ export class CommunityManager {
               ${replies.length > 0 ? `
                 <div class="comment-sub-thread">
                   ${replies.map(sub => {
-                    const subAuthor = language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author;
-                    const subText = language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text;
+                    const subAuthor = stripEmoji(language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author);
+                    const subText = stripEmoji(language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text);
                     const subDate = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
                       month: 'numeric', day: 'numeric'
                     }).format(new Date(sub.createdAt || comment.createdAt));
@@ -784,7 +791,7 @@ export class CommunityManager {
                           <div class="sub-comment-actions">
                             <button class="sub-reply-action-btn" type="button" data-sub-reply-root="${comment.id}" data-sub-reply-author="${escapeHtml(subAuthor)}">${t('reply', language)}</button>
                             <button class="sub-like-action-btn ${sub.liked ? 'active' : ''}" type="button" data-sub-like-root="${comment.id}" data-sub-like-id="${sub.id}">
-                              <span>${sub.liked ? '♥' : '♡'}</span><span>${Number(sub.likes || 0)}</span>
+                              <span>${getLikeLabel(sub.liked, language)}</span><span>${Number(sub.likes || 0)}</span>
                             </button>
                             ${sub.isUser ? `<button class="sub-del-action-btn" type="button" data-sub-del-root="${comment.id}" data-sub-del-id="${sub.id}">${t('deleteComment', language)}</button>` : ''}
                           </div>
@@ -805,8 +812,8 @@ export class CommunityManager {
         this.playerCommentsList.innerHTML = `<div style="color: var(--text-muted); font-size: 11px; padding: 12px 0; text-align: center;">${t('noComments', language)}</div>`;
       } else {
         this.playerCommentsList.innerHTML = comments.map(comment => {
-          const author = language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author;
-          const text = language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text;
+          const author = stripEmoji(language === LANGUAGES.EN ? (comment.enAuthor || comment.author) : comment.author);
+          const text = stripEmoji(language === LANGUAGES.EN ? (comment.enText || comment.text) : comment.text);
           const date = new Intl.DateTimeFormat(language === LANGUAGES.EN ? 'en-US' : 'zh-CN', {
             month: 'numeric', day: 'numeric'
           }).format(new Date(comment.createdAt));
@@ -823,7 +830,7 @@ export class CommunityManager {
                 <div class="comment-header-actions">
                   <button class="player-comment-reply-trigger" type="button" data-comment-reply="${comment.id}" data-author="${escapeHtml(author)}">${t('reply', language)}</button>
                   <button class="comment-card-like-btn ${comment.liked ? 'active' : ''}" type="button" data-comment-like="${comment.id}">
-                    <span>${comment.liked ? '♥' : '♡'}</span><span>${Number(comment.likes || 0)}</span>
+                    <span>${getLikeLabel(comment.liked, language)}</span><span>${Number(comment.likes || 0)}</span>
                   </button>
                 </div>
               </div>
@@ -832,8 +839,8 @@ export class CommunityManager {
               ${replies.length > 0 ? `
                 <div class="player-sub-thread">
                   ${replies.map(sub => {
-                    const subAuthor = language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author;
-                    const subText = language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text;
+                    const subAuthor = stripEmoji(language === LANGUAGES.EN ? (sub.enAuthor || sub.author) : sub.author);
+                    const subText = stripEmoji(language === LANGUAGES.EN ? (sub.enText || sub.text) : sub.text);
                     const replyTo = sub.replyToAuthor;
 
                     return `
@@ -850,7 +857,7 @@ export class CommunityManager {
                         <div class="player-sub-meta">
                           <button class="player-sub-reply-btn" type="button" data-sub-reply-root="${comment.id}" data-sub-reply-author="${escapeHtml(subAuthor)}">${t('reply', language)}</button>
                           <button class="player-sub-like-btn ${sub.liked ? 'active' : ''}" type="button" data-sub-like-root="${comment.id}" data-sub-like-id="${sub.id}">
-                            <span>${sub.liked ? '♥' : '♡'}</span><span>${Number(sub.likes || 0)}</span>
+                            <span>${getLikeLabel(sub.liked, language)}</span><span>${Number(sub.likes || 0)}</span>
                           </button>
                           ${sub.isUser ? `<button class="player-sub-del-btn" type="button" data-sub-del-root="${comment.id}" data-sub-del-id="${sub.id}">${t('deleteComment', language)}</button>` : ''}
                         </div>
@@ -870,8 +877,8 @@ export class CommunityManager {
   addComment() {
     if (!this.activeSpot || !this.commentsForm) return;
     const textInput = document.getElementById('community-comment-text-input');
-    const text = String(textInput?.value || '').trim();
-    const author = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    const text = stripEmoji(textInput?.value || '');
+    const author = stripEmoji(storage.getUserNickname(t('musicTraveler', this.getLanguage()))) || t('musicTraveler', this.getLanguage());
     if (!text) return;
 
     if (this.replyingTarget) {
@@ -908,8 +915,8 @@ export class CommunityManager {
   addPlayerComment() {
     if (!this.activeSpot) return;
     const textInput = document.getElementById('player-comment-text-input');
-    const text = String(textInput?.value || '').trim();
-    const author = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
+    const text = stripEmoji(textInput?.value || '');
+    const author = stripEmoji(storage.getUserNickname(t('musicTraveler', this.getLanguage()))) || t('musicTraveler', this.getLanguage());
     if (!text) return;
 
     if (this.replyingTarget) {
@@ -946,42 +953,43 @@ export class CommunityManager {
   async publishPost() {
     if (!this.form) return;
     const formData = new FormData(this.form);
-    const title = String(formData.get('title') || '').trim();
-    const defaultNick = storage.getUserNickname(t('musicTraveler', this.getLanguage()));
-    const author = String(formData.get('author') || '').trim() || defaultNick;
-    const description = String(formData.get('description') || '').trim();
+    const title = stripEmoji(formData.get('title') || '');
+    const defaultNick = stripEmoji(storage.getUserNickname(t('musicTraveler', this.getLanguage()))) || t('musicTraveler', this.getLanguage());
+    const author = stripEmoji(formData.get('author') || '') || defaultNick;
+    const description = stripEmoji(formData.get('description') || '');
     const coverFile = formData.get('cover');
     const audioFile = formData.get('audio');
     if (!title || !description) return;
 
+    formData.set('title', title);
+    formData.set('author', author);
+    formData.set('description', description);
+
+    if (coverFile instanceof File && coverFile.size > MAX_COVER_BYTES) {
+      this.showToast(this.getLanguage() === LANGUAGES.EN ? 'Cover image must be under 10 MB.' : '封面图片不能超过 10MB。');
+      return;
+    }
+    if (audioFile instanceof File && audioFile.size > MAX_AUDIO_BYTES) {
+      this.showToast(this.getLanguage() === LANGUAGES.EN ? 'Audio file must be under 48 MB.' : '音频文件不能超过 48MB。');
+      return;
+    }
+
     const lat = parseFloat(formData.get('currentLat')) || this.currentLocationCoords?.lat || 30.2428;
     const lng = parseFloat(formData.get('currentLng')) || this.currentLocationCoords?.lng || 120.1504;
-    const locationName = `📍 坐标 · ${lng.toFixed(2)}°E, ${lat.toFixed(2)}°N`;
+    const locationName = `坐标 · ${lng.toFixed(2)}°E, ${lat.toFixed(2)}°N`;
     const country = '当前位置';
 
-    let coverDataUrl = null;
-    let coverUrl = FALLBACK_COVER;
-    if (coverFile instanceof File && coverFile.size > 0) {
-      if (coverFile.size <= 2 * 1024 * 1024) coverDataUrl = await fileToDataUrl(coverFile);
-      coverUrl = coverDataUrl || URL.createObjectURL(coverFile);
-    }
-
-    let audioTrack = null;
-    let audioDataUrl = null;
-    if (audioFile instanceof File && audioFile.size > 0) {
-      try {
-        audioDataUrl = await fileToDataUrl(audioFile);
-      } catch (e) {}
-      const audioBlobUrl = URL.createObjectURL(audioFile);
-      audioTrack = {
-        id: `upload-${Date.now()}`,
-        title: audioFile.name.replace(/\.[^.]+$/, ''),
-        creator: author,
-        url: audioDataUrl || audioBlobUrl,
-        license: t('userUpload', this.getLanguage()),
-        sourceUrl: ''
-      };
-    }
+    const hasAudioUpload = audioFile instanceof File && audioFile.size > 0;
+    const hasCoverUpload = coverFile instanceof File && coverFile.size > 0;
+    const coverUrl = FALLBACK_COVER;
+    const audioTrack = hasAudioUpload ? {
+      id: `pending-upload-${Date.now()}`,
+      title: audioFile.name.replace(/\.[^.]+$/, ''),
+      creator: author,
+      url: '',
+      license: t('userUpload', this.getLanguage()),
+      sourceUrl: ''
+    } : null;
 
     const id = `community-${Date.now()}`;
     const spot = {
@@ -1008,30 +1016,42 @@ export class CommunityManager {
       }
     };
 
-    let publishedSpot = spot;
+    const submitButton = this.form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.setAttribute('aria-busy', 'true');
+    }
 
-    // Push to Central Cloud Server API for global multi-user sync
+    let publishedSpot;
     try {
-      const resp = await fetch('/api/community/publish', {
+      const data = await requestJson('/api/community/publish', {
         method: 'POST',
         body: formData
       });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data && data.success && data.spot) {
-          publishedSpot = { ...spot, ...data.spot };
-        }
+      if (!data?.spot?.id) {
+        throw new Error('服务器没有返回有效点位');
       }
-    } catch (e) {
-      console.warn('[GeoMelody Community] Server API sync notice:', e);
+      if (hasAudioUpload && !data.spot.audioTrack?.url) {
+        throw new Error('音频没有成功保存到服务器');
+      }
+      if (hasCoverUpload && !data.spot.photos?.[0]) {
+        throw new Error('封面没有成功保存到服务器');
+      }
+      publishedSpot = { ...spot, ...data.spot, serverSynced: true };
+    } catch (error) {
+      console.error('[GeoMelody Community] Publish failed:', error);
+      const message = error?.message || (this.getLanguage() === LANGUAGES.EN ? 'Publish failed. Please try again.' : '发布失败，请稍后重试。');
+      this.showToast(this.getLanguage() === LANGUAGES.EN ? `Publish failed: ${message}` : `发布失败：${message}`);
+      return;
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.removeAttribute('aria-busy');
+      }
     }
 
-    // Save to local storage and IndexedDB for instant offline retention
-    storage.saveCommunityPost(publishedSpot, {
-      coverDataUrl,
-      audioDataUrl,
-      audioBlob: audioFile instanceof File ? audioFile : null
-    });
+    // Keep a small local metadata cache only after the server confirms publication.
+    storage.saveCommunityPost(publishedSpot);
 
     if (!this.spots.some(s => s.id === publishedSpot.id)) {
       this.spots.unshift(publishedSpot);
@@ -1042,6 +1062,6 @@ export class CommunityManager {
     this.setActiveSpot(publishedSpot);
     this.close();
     this.onPublish?.(publishedSpot);
-    this.showToast(t('publishedSuccess', this.getLanguage(), { name: title }));
+    this.showToast(t('publishedSuccess', this.getLanguage(), { name: publishedSpot.name }));
   }
 }

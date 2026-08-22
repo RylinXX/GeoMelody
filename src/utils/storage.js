@@ -1,3 +1,5 @@
+import { requestJson } from './api.js';
+
 /**
  * LocalStorage management for favorites & user preferences
  */
@@ -14,7 +16,7 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS = {
-  mapSkin: '03-fast-blue', // 默认极速深海蓝 (Dataviz Blue · 极轻量秒速加载)
+  mapSkin: '01-dark', // 默认经典深色街道
   planeSkin: '01-airliner', // 巡航航天飞行器模型皮肤
   showStars: true, // 深空点点星宿背景
   showHalo: false, // 3D 大气层微光晕 (默认关闭)
@@ -110,8 +112,10 @@ export const storage = {
   // Settings (Map layers, geography labels, autoplay, autospin, plane skin)
   getSettings() {
     const saved = readJson(STORAGE_KEYS.SETTINGS, {});
-    const skin = saved.mapSkin || '03-fast-blue';
-    const planeSkin = saved.planeSkin || '01-airliner';
+    const skin = saved.mapSkin || '01-dark';
+    const planeSkin = ['01-airliner', '04-ufo'].includes(saved.planeSkin)
+      ? saved.planeSkin
+      : '01-airliner';
     return { ...DEFAULT_SETTINGS, ...saved, mapSkin: skin, planeSkin };
   },
 
@@ -207,54 +211,34 @@ export const storage = {
   },
 
   async loadCommunityPostsWithMedia(existingSpots = []) {
-    // 1. Fetch live community spots from Cloud Server API so all visitors share all uploaded spots!
-    try {
-      const resp = await fetch('/api/community/spots', { cache: 'no-store' });
-      if (resp.ok) {
-        const json = await resp.json();
-        if (json.success && Array.isArray(json.spots)) {
-          json.spots.forEach(serverSpot => {
-            const idx = existingSpots.findIndex(s => s.id === serverSpot.id);
-            if (idx >= 0) {
-              existingSpots[idx] = { ...existingSpots[idx], ...serverSpot };
-            } else {
-              existingSpots.unshift(serverSpot);
-            }
-          });
-        }
-      }
-    } catch (_) {}
-
-    // 2. Also merge local offline IndexedDB posts
-    const posts = this.getCommunityPosts();
-    for (const post of posts) {
-      try {
-        const media = await restoreCommunityMedia(post.id);
-        if (media) {
-          if (media.audio && (!post.audioTrack || !post.audioTrack.url)) {
-            post.audioTrack = media.audioTrack || {
-              id: `upload-${post.id}`,
-              title: post.name,
-              creator: post.author,
-              url: media.audio,
-              license: '用户上传'
-            };
-          }
-          if (media.cover && (!post.photos || !post.photos[0] || post.photos[0].includes('placeholder'))) {
-            post.photos = [media.cover];
-          }
-        }
-      } catch (e) {}
-
-      const existing = existingSpots.find(s => s.id === post.id);
-      if (existing) {
-        if (post.audioTrack && post.audioTrack.url) existing.audioTrack = post.audioTrack;
-        if (post.photos && post.photos.length) existing.photos = post.photos;
-      } else {
-        existingSpots.unshift(post);
-      }
+    const json = await requestJson('/api/community/spots', { cache: 'no-store' });
+    if (!Array.isArray(json.spots)) {
+      throw new Error('社区点位响应格式不正确');
     }
-    return existingSpots;
+
+    let changed = false;
+    json.spots.forEach(serverSpot => {
+      const idx = existingSpots.findIndex(s => s.id === serverSpot.id);
+      if (idx >= 0) {
+        const current = existingSpots[idx];
+        const next = { ...current, ...serverSpot, serverSynced: true };
+        if (
+          current.name !== next.name ||
+          current.lat !== next.lat ||
+          current.lng !== next.lng ||
+          current.photos?.[0] !== next.photos?.[0] ||
+          current.audioTrack?.url !== next.audioTrack?.url
+        ) {
+          changed = true;
+        }
+        existingSpots[idx] = next;
+      } else {
+        existingSpots.unshift({ ...serverSpot, serverSynced: true });
+        changed = true;
+      }
+    });
+
+    return { spots: existingSpots, changed, serverCount: json.spots.length };
   },
 
   saveCommunityPost(post, rawMedia = {}) {

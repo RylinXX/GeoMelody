@@ -109,39 +109,6 @@
   gap: 8px;
 }
 
-.spot-pill-tags {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.spot-category-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--bg-glass-heavy);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--accent-cyan);
-}
-
-.spot-coordinates-pill {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  color: var(--text-muted);
-  font-family: monospace;
-}
-
 .player-spot-title {
   font-size: 32px;
   font-weight: 700;
@@ -906,16 +873,6 @@
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 }
 
-:root[data-theme="light"] .spot-category-pill,
-:root[data-theme="light"] .spot-coordinates-pill {
-  background: rgba(15, 35, 47, 0.64);
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-:root[data-theme="light"] .spot-coordinates-pill {
-  color: rgba(226, 232, 240, 0.9);
-}
-
 :root[data-theme="light"] .story-quote {
   color: #203b49;
 }
@@ -1566,15 +1523,6 @@
   .player-spot-en-title {
     font-size: 12px;
   }
-  .spot-coordinates-pill {
-    font-size: 10.5px;
-    padding: 2px 8px;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .player-top-actions {
     position: absolute;
     top: max(14px, env(safe-area-inset-top));
@@ -2490,4 +2438,3 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
   color: #475569;
 }
-

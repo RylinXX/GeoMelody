@@ -3,12 +3,12 @@
  * High-fidelity, aerodynamic vector models with 3D gradient shading & dynamic lighting
  */
 
-export const AIRPLANE_SKINS = {
+const AIRPLANE_SKIN_LIBRARY = {
   '01-airliner': {
     id: '01-airliner',
     name: '极光巡航客机 (梦幻之翼 · 极光青蓝)',
     nameEn: 'Aurora Supersonic Airliner (Dreamliner Cyan)',
-    icon: '✈️',
+    icon: 'AIR',
     svg: `<svg class="center-airplane-svg skin-airliner" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- Fuselage Metallic Gradient -->
@@ -80,7 +80,7 @@ export const AIRPLANE_SKINS = {
     id: '02-fighter',
     name: '幽灵隐身全翼战机 (黑鸟三角翼 · 赛博暗夜)',
     nameEn: 'Phantom B-21 Stealth Wing (Cyber Night)',
-    icon: '⚡',
+    icon: 'JET',
     svg: `<svg class="center-airplane-svg skin-fighter" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="stealthGrad" x1="50" y1="4" x2="50" y2="92" gradientUnits="userSpaceOnUse">
@@ -129,7 +129,7 @@ export const AIRPLANE_SKINS = {
     id: '03-shuttle',
     name: '星际开拓者轨道器 (航天穿梭机 · 太阳金耀)',
     nameEn: 'Orbital Starliner (Solar Titan Gold)',
-    icon: '🛰️',
+    icon: 'ORBIT',
     svg: `<svg class="center-airplane-svg skin-shuttle" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="starlinerBody" x1="50" y1="6" x2="50" y2="92" gradientUnits="userSpaceOnUse">
@@ -187,7 +187,7 @@ export const AIRPLANE_SKINS = {
     id: '04-ufo',
     name: '量子引力星盘 (反重力力场 · 翡翠极光)',
     nameEn: 'Antigravity Quantum Disc (Emerald Core)',
-    icon: '🛸',
+    icon: 'UFO',
     svg: `<svg class="center-airplane-svg skin-ufo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="ufoRing" cx="50%" cy="50%" r="50%">
@@ -227,6 +227,12 @@ export const AIRPLANE_SKINS = {
       <circle cx="24" cy="32" r="3.2" fill="#34d399" filter="drop-shadow(0 0 6px #34d399)"/>
     </svg>`
   }
+};
+
+// Only the two product-approved aircraft are exposed to settings and runtime.
+export const AIRPLANE_SKINS = {
+  '01-airliner': AIRPLANE_SKIN_LIBRARY['01-airliner'],
+  '04-ufo': AIRPLANE_SKIN_LIBRARY['04-ufo']
 };
 
 export function applyAirplaneSkin(skinId = '01-airliner') {

@@ -97,10 +97,10 @@ export function getSpotSunStatus(lat, lng, date = new Date()) {
   const solarElevation = Math.asin(cosZenith) * (180 / Math.PI); // in degrees
 
   if (solarElevation > 6) {
-    return { status: 'day', text: '☀️ 白昼明媚', icon: 'sun', elevation: solarElevation };
+    return { status: 'day', text: '白昼明媚', icon: 'sun', elevation: solarElevation };
   } else if (solarElevation >= -6) {
-    return { status: 'twilight', text: '🌅 晨昏霞光', icon: 'sunset', elevation: solarElevation };
+    return { status: 'twilight', text: '晨昏霞光', icon: 'sunset', elevation: solarElevation };
   } else {
-    return { status: 'night', text: '🌙 静谧夜幕', icon: 'moon', elevation: solarElevation };
+    return { status: 'night', text: '静谧夜幕', icon: 'moon', elevation: solarElevation };
   }
 }

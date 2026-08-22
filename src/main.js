@@ -17,6 +17,7 @@ import {
   applyTranslations,
   getCategoryName,
   getInitialLanguage,
+  getSpotDescription,
   getSpotLocation,
   getSpotName,
   persistLanguage,
@@ -34,29 +35,43 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 2800);
 }
 
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Global Image Fallback Interceptor
   initGlobalImageFallback();
 
   const THEME_STORAGE_KEY = 'geomelody-map-style';
+  const THEME_DEFAULT_VERSION_KEY = 'geomelody-map-default-version';
+  const THEME_DEFAULT_VERSION = 'classic-dark-v1';
   let viewMode = '3d';
   let activeRegion = 'asia';
   let currentLanguage = getInitialLanguage();
-  let currentMapSkin = '03-fast-blue';
+  let currentSettings = storage.getSettings();
+  let currentMapSkin = '01-dark';
+  let migratedDefaultTheme = false;
   try {
-    currentMapSkin = localStorage.getItem(THEME_STORAGE_KEY) || currentSettings.mapSkin || '03-fast-blue';
+    const savedMapSkin = localStorage.getItem(THEME_STORAGE_KEY);
+    const needsDefaultMigration = localStorage.getItem(THEME_DEFAULT_VERSION_KEY) !== THEME_DEFAULT_VERSION;
+    migratedDefaultTheme = needsDefaultMigration && (!savedMapSkin || savedMapSkin === '03-fast-blue');
+    currentMapSkin = migratedDefaultTheme
+      ? '01-dark'
+      : (savedMapSkin || currentSettings.mapSkin || '01-dark');
+    localStorage.setItem(THEME_DEFAULT_VERSION_KEY, THEME_DEFAULT_VERSION);
+    if (migratedDefaultTheme) localStorage.setItem(THEME_STORAGE_KEY, '01-dark');
   } catch {}
   const validSkins = ['03-fast-blue', '01-dark', 'white-terrain', 'fast-dark', 'rich-dark', 'light'];
-  if (!validSkins.includes(currentMapSkin)) currentMapSkin = '03-fast-blue';
+  if (!validSkins.includes(currentMapSkin)) currentMapSkin = '01-dark';
   let currentTheme = currentMapSkin === 'light' ? 'light' : 'dark';
-  let currentSettings = storage.getSettings();
   currentSettings.mapSkin = currentMapSkin;
-
-  storage.getCommunityPosts().forEach(post => {
-    if (!SCENIC_SPOTS.some(spot => spot.id === post.id)) SCENIC_SPOTS.unshift(post);
-  });
-  // Asynchronously restore full audio and covers from IndexedDB
-  storage.loadCommunityPostsWithMedia(SCENIC_SPOTS).catch(() => {});
+  if (migratedDefaultTheme) currentSettings = storage.saveSettings({ mapSkin: currentMapSkin });
 
   const regionNavigation = document.getElementById('region-navigation');
   const searchInput = document.getElementById('spot-search-input');
@@ -97,6 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsToggleBtn = document.getElementById('btn-toggle-settings');
   const closeSettingsBtn = document.getElementById('btn-close-settings-drawer');
   const resetSettingsBtn = document.getElementById('btn-reset-settings');
+  const settingsFullscreenBtn = document.getElementById('setting-fullscreen-btn');
+  const settingsFullscreenText = document.getElementById('setting-fullscreen-text');
 
   const selectMapSkinInput = document.getElementById('setting-select-mapskin');
   const selectPlaneSkinInput = document.getElementById('setting-select-planeskin');
@@ -129,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (coverEl) coverEl.src = spot.photos?.[0] || '';
     if (catEl) {
       if (isCommunity) {
-        catEl.textContent = currentLanguage === 'en' ? '🌟 User Pinned' : '🌟 我的打卡点位';
+        catEl.textContent = currentLanguage === 'en' ? 'User Pinned' : '我的打卡点位';
         catEl.style.color = '#fbbf24';
       } else {
         const cat = CATEGORY_MAP[spot.category];
@@ -233,12 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
-  try {
-    globeManager.init();
-  } catch (error) {
+  const globeInitPromise = globeManager.init().catch(error => {
     document.documentElement.dataset.mapError = error?.message || String(error);
+    const loadingStatus = document.getElementById('globe-loading-status');
+    if (loadingStatus) loadingStatus.textContent = '地图加载失败，请刷新重试';
     console.error('[GeoMelody map] Initialization failed.', error);
-  }
+  });
 
   playerManager = new PlayerManager({
     spots: SCENIC_SPOTS,
@@ -280,20 +297,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const syncGlobalCommunitySpots = async () => {
     try {
-      const prevLen = SCENIC_SPOTS.length;
-      await storage.loadCommunityPostsWithMedia(SCENIC_SPOTS);
-      globeManager.spots = SCENIC_SPOTS;
-      globeManager.renderLightDotMarkers();
-      if (communityManager) communityManager.spots = SCENIC_SPOTS;
-      if (playerManager) playerManager.spots = SCENIC_SPOTS;
-    } catch (_) {}
+      const result = await storage.loadCommunityPostsWithMedia(SCENIC_SPOTS);
+      if (result.changed) {
+        globeManager.spots = SCENIC_SPOTS;
+        globeManager.renderLightDotMarkers();
+        if (communityManager) communityManager.spots = SCENIC_SPOTS;
+        if (playerManager) playerManager.spots = SCENIC_SPOTS;
+      }
+      return true;
+    } catch (error) {
+      console.warn('[GeoMelody Community] Sync failed:', error?.message || error);
+      return false;
+    }
   };
 
-  // Initial sync once globe is ready
-  syncGlobalCommunitySpots();
-
-  // Real-time Cloud multi-user auto-sync every 8s
-  setInterval(syncGlobalCommunitySpots, 8000);
+  let communitySyncTimer = null;
+  const scheduleCommunitySync = (delay = 0) => {
+    clearTimeout(communitySyncTimer);
+    communitySyncTimer = window.setTimeout(async () => {
+      const ok = await syncGlobalCommunitySpots();
+      const nextDelay = document.hidden ? 120000 : (ok ? 30000 : 60000);
+      scheduleCommunitySync(nextDelay);
+    }, delay);
+  };
+  scheduleCommunitySync();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) scheduleCommunitySync(500);
+  });
 
   function renderRegionNavigation() {
     if (!regionNavigation) return;
@@ -373,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchDropdown.innerHTML = `
       <div class="search-dropdown-section">
-        <div class="search-section-header">${isZh ? '🔥 热门胜景推荐' : '🔥 Popular Spots'}</div>
+        <div class="search-section-header">${isZh ? '热门胜景推荐' : 'Popular Spots'}</div>
         <div class="search-tag-group">
           ${hotSpots.map(s => `
             <button class="search-tag-chip" type="button" data-action="spot" data-id="${s.id}">
@@ -384,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
 
       <div class="search-dropdown-section">
-        <div class="search-section-header">${isZh ? '🎵 热门曲目探索' : '🎵 Featured Tracks'}</div>
+        <div class="search-section-header">${isZh ? '热门曲目探索' : 'Featured Tracks'}</div>
         <div class="search-track-list">
           ${DEMO_TRACKS_LIST.slice(0, 4).map(track => `
             <button class="search-track-item" type="button" data-action="track" data-track-id="${track.id}">
@@ -396,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
 
       <div class="search-dropdown-section">
-        <div class="search-section-header">${isZh ? '🏷️ 热门城市与标签' : '🏷️ Trending Tags'}</div>
+        <div class="search-section-header">${isZh ? '热门城市与标签' : 'Trending Tags'}</div>
         <div class="search-tag-group">
           ${hotTags.map(t => `
             <button class="search-tag-chip" type="button" data-action="tag" data-tag="${t.tag}">
@@ -462,13 +492,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const track = getDemoTrack(spot);
           const photo = spot.photos?.[0] || '';
           return `
-            <button class="search-result-item" type="button" data-id="${spot.id}">
-              ${photo ? `<img src="${photo}" alt="" class="search-result-thumb" loading="lazy" />` : ''}
+            <button class="search-result-item" type="button" data-id="${escapeHtml(spot.id)}">
+              ${photo ? `<img src="${escapeHtml(photo)}" alt="" class="search-result-thumb" loading="lazy" />` : ''}
               <span class="search-result-info">
-                <span class="search-result-name">${getSpotName(spot, currentLanguage)}</span>
-                <span class="search-result-loc">${getSpotLocation(spot, currentLanguage)} · ♫ ${track?.title || ''}</span>
+                <span class="search-result-name">${escapeHtml(getSpotName(spot, currentLanguage))}</span>
+                <span class="search-result-loc">${escapeHtml(getSpotLocation(spot, currentLanguage))} · ${escapeHtml(track?.title || '')}</span>
               </span>
-              <span class="search-result-cat">${getCategoryName(category, currentLanguage)}</span>
+              <span class="search-result-cat">${escapeHtml(getCategoryName(category, currentLanguage))}</span>
             </button>`;
         }).join('')}
       </div>
@@ -532,14 +562,14 @@ document.addEventListener('DOMContentLoaded', () => {
     favListContainer.innerHTML = favoriteSpots.map(spot => {
       const category = CATEGORY_MAP[spot.category] || { name: t('explore', currentLanguage) };
       return `
-        <article class="fav-item-card" data-id="${spot.id}" tabindex="0">
-          <img src="${spot.photos[0]}" class="fav-thumb" alt="${getSpotName(spot, currentLanguage)}" loading="lazy"/>
+        <article class="fav-item-card" data-id="${escapeHtml(spot.id)}" tabindex="0">
+          <img src="${escapeHtml(spot.photos[0])}" class="fav-thumb" alt="${escapeHtml(getSpotName(spot, currentLanguage))}" loading="lazy"/>
           <div class="fav-info">
-            <span class="fav-name">${getSpotName(spot, currentLanguage)}</span>
-            <span class="fav-location">${getSpotLocation(spot, currentLanguage)}</span>
-            <span class="fav-tag">${getCategoryName(category, currentLanguage)}</span>
+            <span class="fav-name">${escapeHtml(getSpotName(spot, currentLanguage))}</span>
+            <span class="fav-location">${escapeHtml(getSpotLocation(spot, currentLanguage))}</span>
+            <span class="fav-tag">${escapeHtml(getCategoryName(category, currentLanguage))}</span>
           </div>
-          <button class="fav-remove-btn" title="${t('removeFavorite', currentLanguage)}" aria-label="${t('removeFavorite', currentLanguage)}" data-remove="${spot.id}">
+          <button class="fav-remove-btn" title="${escapeHtml(t('removeFavorite', currentLanguage))}" aria-label="${escapeHtml(t('removeFavorite', currentLanguage))}" data-remove="${escapeHtml(spot.id)}">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </article>`;
@@ -603,22 +633,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const { spot, likes } = item;
       const rank = index + 1;
       const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : ''));
-      const rankIcon = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `${rank}`));
+      const rankLabel = String(rank).padStart(2, '0');
       const spotName = getSpotName(spot, currentLanguage);
       const spotLocation = getSpotLocation(spot, currentLanguage);
       const track = getDemoTrack(spot);
       const photo = spot.photos?.[0] || '/textures/earth_dark.jpg';
 
       return `
-        <div class="leaderboard-card ${rankClass}" data-spot-id="${spot.id}" role="button" tabindex="0">
-          <div class="leaderboard-rank-badge">${rankIcon}</div>
-          <img class="leaderboard-thumb" src="${photo}" alt="${spotName}" loading="lazy" />
+        <div class="leaderboard-card ${rankClass}" data-spot-id="${escapeHtml(spot.id)}" role="button" tabindex="0">
+          <div class="leaderboard-rank-badge">${rankLabel}</div>
+          <img class="leaderboard-thumb" src="${escapeHtml(photo)}" alt="${escapeHtml(spotName)}" loading="lazy" />
           <div class="leaderboard-info">
-            <div class="leaderboard-spot-title">${spotName}</div>
-            <div class="leaderboard-track-name">♫ ${track.title} · ${track.creator}</div>
+            <div class="leaderboard-spot-title">${escapeHtml(spotName)}</div>
+            <div class="leaderboard-track-name">${escapeHtml(track.title)} · ${escapeHtml(track.creator)}</div>
             <div class="leaderboard-meta-row">
-              <span>${spotLocation}</span>
-              <span class="leaderboard-likes-count">♥ ${likes.toLocaleString()}</span>
+              <span>${escapeHtml(spotLocation)}</span>
+              <span class="leaderboard-likes-count">赞 ${likes.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -634,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
           toggleLeaderboardDrawer(false);
           globeManager.flyToSpot(target);
           playerManager.openSpot(target, true);
-          showToast(`◎ 已切换至《${getSpotName(target, currentLanguage)}》`);
+          showToast(`已切换至《${getSpotName(target, currentLanguage)}》`);
         }
       };
       card.addEventListener('click', openCard);
@@ -689,17 +719,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const isPending = photo.status === 'pending';
       const statusText = isPending ? '<span style="color: #f59e0b;">[待审核]</span>' : '<span style="color: #10b981;">[已发布]</span>';
       return `
-        <div class="moderation-item-card" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">
-          <img src="${photo.url}" alt="${photo.caption || ''}" class="moderation-thumb" />
+        <div class="moderation-item-card" data-spot-id="${escapeHtml(photo.spotId)}" data-photo-id="${escapeHtml(photo.id)}">
+          <img src="${escapeHtml(photo.url)}" alt="${escapeHtml(photo.caption || '')}" class="moderation-thumb" />
           <div class="moderation-info">
-            <div class="moderation-title">${photo.caption || '胜景壁纸'} · 《${photo.spotName}》</div>
+            <div class="moderation-title">${escapeHtml(photo.caption || '胜景壁纸')} · 《${escapeHtml(photo.spotName)}》</div>
             <div class="moderation-meta">
-              ${statusText} 摄影：${photo.author || '旅行者'}
+              ${statusText} 摄影：${escapeHtml(photo.author || '旅行者')}
             </div>
           </div>
           <div class="moderation-actions">
-            ${isPending ? `<button type="button" class="btn-moderation-approve" data-action="approve" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">通过</button>` : ''}
-            <button type="button" class="btn-moderation-reject" data-action="reject" data-spot-id="${photo.spotId}" data-photo-id="${photo.id}">删除</button>
+            ${isPending ? `<button type="button" class="btn-moderation-approve" data-action="approve" data-spot-id="${escapeHtml(photo.spotId)}" data-photo-id="${escapeHtml(photo.id)}">通过</button>` : ''}
+            <button type="button" class="btn-moderation-reject" data-action="reject" data-spot-id="${escapeHtml(photo.spotId)}" data-photo-id="${escapeHtml(photo.id)}">删除</button>
           </div>
         </div>
       `;
@@ -728,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function syncSettingsInputs() {
     currentSettings = storage.getSettings();
-    if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '03-fast-blue';
+    if (selectMapSkinInput) selectMapSkinInput.value = currentMapSkin || '01-dark';
     if (selectPlaneSkinInput) selectPlaneSkinInput.value = currentSettings.planeSkin || '01-airliner';
     if (toggleStarsInput) toggleStarsInput.checked = Boolean(currentSettings.showStars);
     if (toggleHaloInput) toggleHaloInput.checked = Boolean(currentSettings.showHalo);
@@ -786,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetSettingsBtn?.addEventListener('click', () => {
     currentSettings = storage.resetSettings();
-    applyMapSkin('03-fast-blue');
+    applyMapSkin('01-dark');
     applyAirplaneSkin('01-airliner');
     syncSettingsInputs();
     globeManager.applyMapSettings(currentSettings);
@@ -859,15 +889,6 @@ document.addEventListener('DOMContentLoaded', () => {
       else selectMapSkinInput.value = '01-dark';
     }
   }
-
-  selectMapSkinInput?.addEventListener('change', (e) => {
-    const skin = e.target.value;
-    if (skin) {
-      applyMapSkin(skin);
-      const label = e.target.options[e.target.selectedIndex]?.text || skin;
-      showToast(`已切换至：${label}`);
-    }
-  });
 
   // Initial call to set active states correctly
   applyMapSkin(currentMapSkin);
@@ -991,50 +1012,53 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(t('viewReset', currentLanguage));
   });
 
-  function calculateDistanceKm(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.round(R * c * 10) / 10;
+  const locateBtn = document.getElementById('dock-btn-locate-me');
+  let locateStage = 0;
+
+  function setLocateStage(stage) {
+    locateStage = stage;
+    if (!locateBtn) return;
+    locateBtn.dataset.locateStage = String(stage);
+    locateBtn.classList.toggle('active', stage > 0);
+    locateBtn.classList.toggle('street-level', stage === 2);
+    locateBtn.setAttribute('aria-pressed', String(stage > 0));
   }
 
-  const locateBtn = document.getElementById('dock-btn-locate-me');
+  setLocateStage(0);
+
   locateBtn?.addEventListener('click', async () => {
     exitRoamingMode();
 
-    // If already located and active, clicking again clears the marker so it never blocks spot points!
-    if (globeManager.getUserLocation() && locateBtn.classList.contains('active')) {
+    if (locateBtn.classList.contains('loading')) return;
+
+    // Three-step loop: locate at city level, zoom to street level, then clear.
+    if (globeManager.getUserLocation() && locateStage === 1) {
+      globeManager.flyToUserLocation('street');
+      setLocateStage(2);
+      return;
+    }
+
+    if (globeManager.getUserLocation() && locateStage === 2) {
       globeManager.clearUserLocation();
-      locateBtn.classList.remove('active');
-      locateBtn.setAttribute('aria-pressed', 'false');
-      showToast(currentLanguage === 'en' ? 'Location marker cleared' : '已清除定位标记');
+      setLocateStage(0);
       return;
     }
 
     locateBtn.classList.add('loading');
-    showToast(currentLanguage === 'en' ? 'Locating your position...' : '正在定位您的位置…');
 
     try {
       const loc = await resolveUserLocation();
-      locateBtn.classList.remove('loading');
       if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
         globeManager.setUserLocation({ lng: loc.lng, lat: loc.lat, accuracy: loc.accuracy });
-        locateBtn.classList.add('active');
-        locateBtn.setAttribute('aria-pressed', 'true');
-        const cityDesc = loc.city ? ` · ${loc.city}` : '';
-        showToast(currentLanguage === 'en' ? `Located successfully${cityDesc} (Click again to reset)` : `定位成功${cityDesc}（再次点击可重置清除）`);
+        setLocateStage(1);
       } else {
-        showToast(t('locateError', currentLanguage));
+        setLocateStage(0);
       }
     } catch (err) {
-      locateBtn.classList.remove('loading');
+      setLocateStage(0);
       console.warn('[GeoMelody Geolocation]', err);
-      showToast(t('locateError', currentLanguage));
+    } finally {
+      locateBtn.classList.remove('loading');
     }
   });
 
@@ -1067,8 +1091,15 @@ document.addEventListener('DOMContentLoaded', () => {
     dockFullscreenBtn?.setAttribute('title', isFs ? t('exitFullscreenTitle', currentLanguage) : t('fullscreenTitle', currentLanguage));
     dockFullscreenBtn?.classList.toggle('highlight', isFs);
 
+    settingsFullscreenBtn?.setAttribute('aria-pressed', String(isFs));
+    settingsFullscreenBtn?.setAttribute('title', isFs ? t('exitFullscreenTitle', currentLanguage) : t('fullscreenTitle', currentLanguage));
+    settingsFullscreenBtn?.classList.toggle('active', isFs);
+
     if (dockFullscreenText) {
       dockFullscreenText.textContent = isFs ? t('exitFullscreen', currentLanguage) : t('fullscreen', currentLanguage);
+    }
+    if (settingsFullscreenText) {
+      settingsFullscreenText.textContent = isFs ? t('exitFullscreen', currentLanguage) : t('fullscreen', currentLanguage);
     }
   }
 
@@ -1095,6 +1126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   headerFullscreenBtn?.addEventListener('click', toggleFullscreen);
   dockFullscreenBtn?.addEventListener('click', toggleFullscreen);
+  settingsFullscreenBtn?.addEventListener('click', toggleFullscreen);
 
   document.addEventListener('fullscreenchange', updateFullscreenUI);
   document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
@@ -1207,17 +1239,20 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFavoriteBadge();
   syncSettingsInputs();
   applyAirplaneSkin(currentSettings.planeSkin || '01-airliner');
-  applyTheme(currentTheme, false);
   applyLanguage();
-  globeManager.flyToRegion(MAP_REGIONS.find(region => region.id === activeRegion));
+  globeInitPromise.then(() => {
+    globeManager.flyToRegion(MAP_REGIONS.find(region => region.id === activeRegion));
+  });
 
   const initialSpot = SCENIC_SPOTS.find(spot => spot.id === shareUtil.getInitialSpotId());
   if (initialSpot) {
-    setTimeout(() => {
-      globeManager.flyToSpot(initialSpot, 7.5);
-      updateMiniAudioIsland(initialSpot, false);
-      const name = getSpotName(initialSpot, currentLanguage);
-      showToast(currentLanguage === 'en' ? `Arrived at “${name}” · Tap to enter` : `已定位至「${name}」· 点击即可进入视听`);
-    }, 600);
+    globeInitPromise.then(() => {
+      setTimeout(() => {
+        globeManager.flyToSpot(initialSpot, 7.5);
+        updateMiniAudioIsland(initialSpot, false);
+        const name = getSpotName(initialSpot, currentLanguage);
+        showToast(currentLanguage === 'en' ? `Arrived at “${name}” · Tap to enter` : `已定位至「${name}」· 点击即可进入视听`);
+      }, 600);
+    });
   }
 });

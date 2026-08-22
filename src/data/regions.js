@@ -73,7 +73,7 @@ export const MAP_REGIONS = [
     id: 'oceans',
     name: '神秘大洋',
     enName: 'Oceans',
-    icon: '🚩',
+    icon: '秘',
     lat: 0,
     lng: -140,
     globeDistance: 205,

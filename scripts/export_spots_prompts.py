@@ -181,7 +181,7 @@ title_font = Font(name="Microsoft YaHei", size=15, bold=True, color="38BDF8") # 
 # Write Title Banner (Row 1-2)
 ws.merge_cells("A1:V1")
 title_cell = ws["A1"]
-title_cell.value = "🎵 GeoMelody 全球地理音乐胜景 · 地图点位与对照音乐文件全量清单"
+title_cell.value = "GeoMelody 全球地理音乐胜景 · 地图点位与对照音乐文件全量清单"
 title_cell.font = title_font
 title_cell.fill = title_fill
 title_cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)

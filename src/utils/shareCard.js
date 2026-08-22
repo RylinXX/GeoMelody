@@ -1,4 +1,3 @@
-import QRCode from 'qrcode';
 import { shareUtil } from './share.js';
 import { storage } from './storage.js';
 import { CATEGORIES } from '../data/categories.js';
@@ -108,6 +107,7 @@ export const shareCardManager = {
     const shareUrl = shareUtil.getSpotShareUrl(spot.id);
     if (this.qrCanvas) {
       try {
+        const { default: QRCode } = await import('qrcode');
         await QRCode.toCanvas(this.qrCanvas, shareUrl, {
           width: 136,
           margin: 1,
@@ -239,7 +239,7 @@ export const shareCardManager = {
     textY += 32;
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText(`📍 ${location}`, 48, textY);
+    ctx.fillText(location, 48, textY);
 
     // Hot Comment Card
     textY += 24;

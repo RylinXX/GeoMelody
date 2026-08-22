@@ -2,17 +2,12 @@ import { soundEngine } from '../audio/soundEngine.js';
 import { storage } from '../utils/storage.js';
 import { shareUtil } from '../utils/share.js';
 import { shareCardManager } from '../utils/shareCard.js';
-import { CATEGORY_MAP } from '../data/categories.js';
-import { getSpotSunStatus } from '../utils/sunTerminator.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 import {
   LANGUAGES,
-  getCategoryName,
   getSpotDescription,
-  getSpotLocation,
   getSpotName,
   getSpotSecondaryName,
-  getSunLabel,
   t
 } from '../utils/i18n.js';
 import { getFallbackCover } from '../utils/imageFallback.js';
@@ -23,6 +18,25 @@ function formatTime(seconds = 0) {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function getSafeExternalUrl(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(value, window.location.origin);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 export class PlayerManager {
@@ -241,7 +255,7 @@ export class PlayerManager {
           this.renderLyrics(data.spot || this.currentSpot, data.track);
         }
       } else if (event === 'trackEnded') {
-        this.nextSpot();
+        this.playRandomNextSpot();
       }
     });
 
@@ -335,21 +349,7 @@ export class PlayerManager {
   }
 
   renderSpotInfo(spot) {
-    const cat = CATEGORY_MAP[spot.category] || { name: '探索', color: '#38bdf8' };
-    const sunStatus = getSpotSunStatus(spot.lat, spot.lng, new Date());
     const language = this.getLanguage();
-    
-    // Category & Coordinates & Solar State
-    const categoryEl = document.getElementById('player-category-badge');
-    if (categoryEl) {
-      categoryEl.textContent = getCategoryName(cat, language);
-      categoryEl.style.color = cat.color;
-    }
-
-    const coordsEl = document.getElementById('player-coords-badge');
-    if (coordsEl) {
-      coordsEl.innerHTML = `<span>${getSunLabel(sunStatus, language)}</span> · <span>${spot.lat.toFixed(2)}°, ${spot.lng.toFixed(2)}°</span> · <span>${getSpotLocation(spot, language)}</span>`;
-    }
 
     // Titles
     const titleEl = document.getElementById('player-spot-title');
@@ -365,10 +365,10 @@ export class PlayerManager {
     // AI Audio Formula
     const formulaEl = document.getElementById('player-audio-formula');
     if (formulaEl) {
-      const rec = spot.audioRecipe;
+      const rec = spot.audioRecipe || {};
       const scale = language === LANGUAGES.EN ? t('regionalMode', language) : rec.scale;
       const instruments = language === LANGUAGES.EN ? t('localInstruments', language) : rec.instruments;
-      formulaEl.innerHTML = `<span><strong>${t('scaleLabel', language)}：</strong>${scale}</span><span class="formula-separator">·</span><span><strong>${t('instrumentsLabel', language)}：</strong>${instruments}</span><span class="formula-separator">·</span><span><strong>${t('tempoLabel', language)}：</strong>${rec.bpm} BPM</span>`;
+      formulaEl.innerHTML = `<span><strong>${escapeHtml(t('scaleLabel', language))}：</strong>${escapeHtml(scale)}</span><span class="formula-separator">·</span><span><strong>${escapeHtml(t('instrumentsLabel', language))}：</strong>${escapeHtml(instruments)}</span><span class="formula-separator">·</span><span><strong>${escapeHtml(t('tempoLabel', language))}：</strong>${Number(rec.bpm) || 72} BPM</span>`;
     }
 
     const creditEl = document.getElementById('player-track-credit');
@@ -376,9 +376,18 @@ export class PlayerManager {
     if (creditEl) {
       const prefix = spot.audioTrack?.url ? t('userUpload', language) : t('demoMusic', language);
       const credit = `${prefix} · ${track.title} — ${track.creator} · ${track.license}`;
-      creditEl.innerHTML = track.sourceUrl
-        ? `<a href="${track.sourceUrl}" target="_blank" rel="noopener noreferrer">${credit}</a>`
-        : credit;
+      const safeSourceUrl = getSafeExternalUrl(track.sourceUrl);
+      creditEl.replaceChildren();
+      if (safeSourceUrl) {
+        const link = document.createElement('a');
+        link.href = safeSourceUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = credit;
+        creditEl.appendChild(link);
+      } else {
+        creditEl.textContent = credit;
+      }
     }
 
     const dockSongTitle = document.getElementById('player-dock-song-title');
@@ -607,21 +616,21 @@ export class PlayerManager {
         : `<span class="gallery-builtin-tag" style="color: #38bdf8;">共创</span>`;
 
       return `
-        <div class="gallery-card ${isActive ? 'active-wallpaper' : ''}" data-photo-index="${index}" data-photo-id="${record.id}">
+        <div class="gallery-card ${isActive ? 'active-wallpaper' : ''}" data-photo-index="${index}" data-photo-id="${escapeHtml(record.id)}">
           <div class="gallery-card-thumb-wrap">
-            <img src="${record.url}" alt="${record.caption || ''}" class="gallery-card-thumb" loading="lazy" />
-            ${isActive ? `<span class="gallery-active-badge">✓ 当前壁纸</span>` : ''}
+            <img src="${escapeHtml(record.url)}" alt="${escapeHtml(record.caption || '')}" class="gallery-card-thumb" loading="lazy" />
+            ${isActive ? `<span class="gallery-active-badge">当前壁纸</span>` : ''}
             ${tag}
-            <button type="button" class="gallery-card-like-btn ${record.liked ? 'liked' : ''}" data-photo-id="${record.id}" title="为这幅壁纸点赞 (高赞优先轮播)">
-              <span class="like-heart">${record.liked ? '❤️' : '🤍'}</span>
+            <button type="button" class="gallery-card-like-btn ${record.liked ? 'liked' : ''}" data-photo-id="${escapeHtml(record.id)}" title="为这幅壁纸点赞 (高赞优先轮播)">
+              <span class="like-heart">${record.liked ? '已赞' : '赞'}</span>
               <span class="like-num">${record.likes || 0}</span>
             </button>
           </div>
           <div class="gallery-card-info">
-            <span class="gallery-card-caption">${record.caption || '胜景留影'}</span>
+            <span class="gallery-card-caption">${escapeHtml(record.caption || '胜景留影')}</span>
             <div class="gallery-card-meta">
-              <span>📷 ${record.author || '摄影师'}</span>
-              ${!record.isBuiltin ? `<button type="button" class="gallery-delete-photo-btn" data-photo-id="${record.id}" title="删除此照片" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 11px;">✕ 删除</button>` : ''}
+              <span>作者 · ${escapeHtml(record.author || '摄影师')}</span>
+              ${!record.isBuiltin ? `<button type="button" class="gallery-delete-photo-btn" data-photo-id="${escapeHtml(record.id)}" title="删除此照片" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 11px;">删除</button>` : ''}
             </div>
           </div>
         </div>
@@ -638,7 +647,7 @@ export class PlayerManager {
           btn.classList.toggle('liked', res.liked);
           const heart = btn.querySelector('.like-heart');
           const num = btn.querySelector('.like-num');
-          if (heart) heart.textContent = res.liked ? '❤️' : '🤍';
+          if (heart) heart.textContent = res.liked ? '已赞' : '赞';
           if (num) num.textContent = res.count;
           this.showToast(res.liked ? '已为壁纸点赞！高赞照片将优先轮播' : '已取消点赞');
           // Re-sort wallpapers so highest-liked ranked photos appear first in gallery & slideshow
@@ -806,6 +815,23 @@ export class PlayerManager {
     const currentIndex = this.spots.findIndex(s => s.id === this.currentSpot.id);
     const nextIndex = (currentIndex + 1) % this.spots.length;
     this.openSpot(this.spots[nextIndex]);
+  }
+
+  playRandomNextSpot() {
+    if (!this.spots.length) return;
+
+    const currentTrack = getDemoTrack(this.currentSpot);
+    const otherSpots = this.spots.filter(spot => spot.id !== this.currentSpot?.id);
+    const differentTrackSpots = otherSpots.filter(spot => {
+      const track = getDemoTrack(spot);
+      const sameId = Boolean(currentTrack?.id && track?.id && currentTrack.id === track.id);
+      const sameUrl = Boolean(currentTrack?.url && track?.url && currentTrack.url === track.url);
+      return !sameId && !sameUrl;
+    });
+    const candidates = differentTrackSpots.length ? differentTrackSpots : otherSpots;
+    const randomSpot = candidates[Math.floor(Math.random() * candidates.length)];
+
+    if (randomSpot) this.openSpot(randomSpot, true);
   }
 
   prevSpot() {

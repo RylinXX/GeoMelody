@@ -45,20 +45,20 @@
     <!-- Playback Controls -->
     <view class="control-actions">
       <button class="ctrl-btn sub" bindtap="handlePrevTrack">
-        <text class="ctrl-icon">⏮</text>
+        <text class="ctrl-icon">上一首</text>
       </button>
       <button class="ctrl-btn main" bindtap="handleTogglePlay">
-        <text class="ctrl-icon play-icon">{{isPlaying ? '⏸' : '▶'}}</text>
+        <text class="ctrl-icon play-icon">{{isPlaying ? '暂停' : '播放'}}</text>
       </button>
       <button class="ctrl-btn sub" bindtap="handleNextTrack">
-        <text class="ctrl-icon">⏭</text>
+        <text class="ctrl-icon">下一首</text>
       </button>
     </view>
 
     <!-- Return to 3D Globe Button -->
     <view class="footer-action">
       <button class="return-globe-btn" bindtap="handleReturnGlobe">
-        <text>🌏 返回 3D 漫游地球</text>
+        <text>返回 3D 漫游地球</text>
       </button>
     </view>
   </view>

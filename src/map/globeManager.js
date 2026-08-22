@@ -10,7 +10,12 @@ import { CATEGORY_MAP } from '../data/categories.js';
 import { getDemoTrack } from '../data/demoTracks.js';
 import { getSpotName } from '../utils/i18n.js';
 import { DEFAULT_SETTINGS } from '../utils/storage.js';
-import { fetchAndLocalizeStyle, fetchWhiteTerrainStyle, fetchFastDeepBlueStyle } from './styleHelper.js';
+import {
+  createDeferredCountryLabelLayer,
+  fetchAndLocalizeStyle,
+  fetchWhiteTerrainStyle,
+  fetchFastDeepBlueStyle
+} from './styleHelper.js';
 import { StarfieldEngine } from './starfield.js';
 
 const SPOT_SOURCE_ID = 'geomelody-spots';
@@ -19,6 +24,7 @@ const SPOT_GLOW_LAYER_ID = 'geomelody-spot-glow';
 const SPOT_HALO_LAYER_ID = 'geomelody-spot-halo';
 const SPOT_CORE_LAYER_ID = 'geomelody-spot-core';
 const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY?.trim();
+const FAST_SKINS = new Set(['03-fast-blue', '03-fast-dark', 'fast-dark', 'dataviz-dark', 'fast-blue']);
 
 const INITIAL_CAMERA = {
   center: [105, 32],
@@ -93,6 +99,9 @@ export class GlobeManager {
     if (this.map) return;
     if (MAPTILER_KEY) config.apiKey = MAPTILER_KEY;
 
+    const loadingStatus = document.getElementById('globe-loading-status');
+    if (loadingStatus) loadingStatus.textContent = '正在载入轻量地球样式…';
+
     const initialStyle = await this.getResolvedStyle(this.mapSettings.mapSkin);
 
     this.map = new Map({
@@ -106,7 +115,9 @@ export class GlobeManager {
       minZoom: 1.0,
       maxZoom: 18,
       renderWorldCopies: false,
-      antialias: true,
+      // Multisample antialiasing is costly on globe projections and offers
+      // little benefit for this minimal first-paint style.
+      antialias: false,
       terrain: false,
       space: { color: 'rgba(0, 0, 0, 0)' },
       halo: false,
@@ -119,6 +130,16 @@ export class GlobeManager {
       scaleControl: false,
       customControls: false,
       logSDKVersion: false
+    });
+
+    if (loadingStatus) loadingStatus.textContent = '正在绘制地球与音景光点…';
+    this.map.once('render', () => {
+      const mapContainer = this.map?.getContainer();
+      mapContainer?.setAttribute('data-map-visible', 'true');
+      mapContainer?.setAttribute('data-map-visible-at', String(Math.round(performance.now())));
+      // The first WebGL frame is already useful. Do not keep the full-screen
+      // loading shell over it while slower vector tiles and labels finish.
+      requestAnimationFrame(() => document.getElementById('globe-loading-shell')?.classList.add('is-hidden'));
     });
 
     this.map.once('load', () => this.handleStyleReady());
@@ -169,7 +190,7 @@ export class GlobeManager {
   }
 
   async getResolvedStyle(skin) {
-    const targetSkin = skin || '03-fast-blue';
+    const targetSkin = skin || '01-dark';
 
     // 1. 03 Fast Deep Blue Theme (极速深海蓝 · 极轻量深蓝夜色 · 秒开加载 - 默认推荐)
     if (targetSkin === '03-fast-blue' || targetSkin === '03-fast-dark' || targetSkin === 'fast-dark' || targetSkin === 'dataviz-dark' || targetSkin === 'fast-blue') {
@@ -195,6 +216,12 @@ export class GlobeManager {
 
     this.styleReady = true;
     this.map.getContainer().dataset.mapReady = 'true';
+    this.map.getContainer().dataset.mapVisible = 'true';
+    this.map.getContainer().dataset.mapReadyAt = String(Math.round(performance.now()));
+    const loadingShell = document.getElementById('globe-loading-shell');
+    const loadingStatus = document.getElementById('globe-loading-status');
+    if (loadingStatus) loadingStatus.textContent = '地球已就绪';
+    requestAnimationFrame(() => loadingShell?.classList.add('is-hidden'));
 
     if (!this.mapSettings.showHalo) {
       this.removeHaloArtifacts();
@@ -204,14 +231,32 @@ export class GlobeManager {
     this.renderLightDotMarkers();
     this.updateSpaceAppearance();
     this.applyMapLanguage();
+    this.scheduleDeferredCountryLabels();
+  }
+
+  scheduleDeferredCountryLabels() {
+    clearTimeout(this.countryLabelTimer);
+    if (!this.map || !FAST_SKINS.has(this.mapSettings.mapSkin) || !this.mapSettings.showCountries) return;
+
+    this.countryLabelTimer = window.setTimeout(() => {
+      if (!this.map || !this.styleReady || this.map.getLayer('place_country_fast')) return;
+      if (!this.map.getSource('openmaptiles')) return;
+      try {
+        this.map.addLayer(createDeferredCountryLabelLayer(this.currentLanguage));
+        this.applyMapLanguage();
+      } catch (error) {
+        console.warn('[GeoMelody map] Deferred labels could not be added.', error);
+      }
+    }, 900);
   }
 
   removeHaloArtifacts() {
     if (!this.map) return;
     try {
-      if (typeof this.map.setHalo === 'function') {
-        this.map.setHalo(false);
-      }
+      // MapTiler SDK's setHalo(false) can start an animation before its
+      // internal painter exists during the first style load. The map is
+      // already created with `halo: false`, so removing any generated halo
+      // layers is enough and avoids that first-render exception.
       if (this.map.getLayer('Halo Layer')) {
         try { this.map.removeLayer('Halo Layer'); } catch (_) {}
       }
@@ -304,6 +349,7 @@ export class GlobeManager {
       }
 
       const isCountry =
+        id.includes('place_country') ||
         id.includes('place_country_major') ||
         id.includes('place_country_minor') ||
         id.includes('place_country_other') ||
@@ -711,13 +757,13 @@ export class GlobeManager {
     const isCommunity = Boolean(spot.isCommunity);
     let tagHtml = '';
     if (isCommunity) {
-      tagHtml = `<span class="globe-tooltip-unclaimed-tag" style="background:rgba(245,158,11,0.22);border-color:rgba(245,158,11,0.55);color:#fde68a;">🌟 ${this.currentLanguage === 'en' ? 'User Pinned Spot' : '用户打卡点位'}</span>`;
+      tagHtml = `<span class="globe-tooltip-unclaimed-tag" style="background:rgba(245,158,11,0.22);border-color:rgba(245,158,11,0.55);color:#fde68a;">${this.currentLanguage === 'en' ? 'User Pinned Spot' : '用户打卡点位'}</span>`;
     } else if (isUnclaimed) {
-      tagHtml = `<span class="globe-tooltip-unclaimed-tag">${this.currentLanguage === 'en' ? '🚩 Unclaimed Territory' : '🚩 待认领秘境'}</span>`;
+      tagHtml = `<span class="globe-tooltip-unclaimed-tag">${this.currentLanguage === 'en' ? 'Unclaimed Territory' : '待认领秘境'}</span>`;
     }
     const hint = isUnclaimed
-      ? (this.currentLanguage === 'en' ? 'Click to Claim & Explore ➔' : '点击抢先认领 / 探索 ➔')
-      : (this.currentLanguage === 'en' ? 'Click to listen' : '点击聆听 ➔');
+      ? (this.currentLanguage === 'en' ? 'Click to Claim & Explore' : '点击抢先认领 / 探索')
+      : (this.currentLanguage === 'en' ? 'Click to listen' : '点击聆听');
     const photo = spot.photos?.[0];
     this.tooltip.innerHTML = `
       ${photo ? `<img class="globe-tooltip-thumb" src="${escapeHtml(photo)}" alt="" loading="lazy" decoding="async">` : ''}
@@ -1029,7 +1075,7 @@ export class GlobeManager {
 
     const isUnclaimed = spot.category === 'unclaimed';
     const tagText = isUnclaimed
-      ? (this.currentLanguage === 'en' ? '🚩 Unclaimed' : '🚩 待认领秘境')
+      ? (this.currentLanguage === 'en' ? 'Unclaimed' : '待认领秘境')
       : (this.currentLanguage === 'en' ? 'Nearby' : '胜景');
     const playBtnText = isUnclaimed
       ? (this.currentLanguage === 'en' ? 'Claim' : '抢先认领')
@@ -1046,7 +1092,7 @@ export class GlobeManager {
               <span class="geo-pill-tag ${isUnclaimed ? 'unclaimed' : ''}">${tagText}</span>
               <strong class="geo-pill-spot-name">${spotName}</strong>
             </div>
-            <span class="geo-pill-track-name">♫ ${trackText}</span>
+            <span class="geo-pill-track-name">${trackText}</span>
           </div>
           <button type="button" class="geo-pill-play-btn ${isUnclaimed ? 'unclaimed' : ''}" title="${isUnclaimed ? '点击认领' : '点击听这首'}">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -1211,36 +1257,15 @@ export class GlobeManager {
     this.userLocation = null;
   }
 
-  flyToUserLocation() {
+  flyToUserLocation(level = 'city') {
     if (!this.map || !this.userLocation) return;
     this.pauseRotation(10000);
-    
-    const center = this.map.getCenter();
-    const currentZoom = this.map.getZoom();
-    
-    const dLat = Math.abs(center.lat - this.userLocation.lat);
-    let dLng = Math.abs(center.lng - this.userLocation.lng);
-    while (dLng > 180) dLng -= 360;
-    dLng = Math.abs(dLng);
-    
-    const isClose = dLat < 0.5 && dLng < 0.5;
+
     const baseZoom = this.viewMode === '3d' ? 6.5 : 9.0;
     const streetZoom = this.viewMode === '3d' ? 14.5 : 15.0;
-    
-    let targetZoom = baseZoom;
-    let targetPitch = this.viewMode === '3d' ? 20 : 0;
-    
-    if (isClose && currentZoom >= baseZoom - 0.5) {
-      if (currentZoom >= streetZoom - 1.0) {
-        // Toggle back to city level
-        targetZoom = baseZoom;
-        targetPitch = this.viewMode === '3d' ? 20 : 0;
-      } else {
-        // Zoom to street level
-        targetZoom = streetZoom;
-        targetPitch = this.viewMode === '3d' ? 55 : 0;
-      }
-    }
+    const isStreetLevel = level === 'street';
+    const targetZoom = isStreetLevel ? streetZoom : baseZoom;
+    const targetPitch = this.viewMode === '3d' ? (isStreetLevel ? 55 : 20) : 0;
 
     this.map.flyTo({
       center: [this.userLocation.lng, this.userLocation.lat],

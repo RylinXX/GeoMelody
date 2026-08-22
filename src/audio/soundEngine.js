@@ -51,6 +51,14 @@ class SoundEngine {
         this.masterGain = this.ctx.createGain();
         this.masterGain.gain.setValueAtTime(this.volumes.master, this.ctx.currentTime);
 
+        this.musicGain = this.ctx.createGain();
+        this.musicGain.gain.setValueAtTime(this.volumes.music, this.ctx.currentTime);
+        this.musicGain.connect(this.masterGain);
+
+        this.ambientGain = this.ctx.createGain();
+        this.ambientGain.gain.setValueAtTime(this.volumes.ambient, this.ctx.currentTime);
+        this.ambientGain.connect(this.masterGain);
+
         this.analyser = this.ctx.createAnalyser();
         this.analyser.fftSize = 64;
         this.analyser.smoothingTimeConstant = 0.8;
@@ -63,7 +71,9 @@ class SoundEngine {
     if (!this.referenceAudio) {
       this.referenceAudio = new Audio();
       this.referenceAudio.preload = 'auto';
-      this.referenceAudio.loop = true;
+      // Let the ended event advance to another soundscape instead of
+      // silently restarting the same file.
+      this.referenceAudio.loop = false;
       this.syncAudioVolume();
 
       this.referenceAudio.addEventListener('timeupdate', () => this.handleTimeUpdate());

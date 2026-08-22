@@ -165,7 +165,7 @@ export function getSpotLyrics(spot, track) {
 
   const list = [
     { time: 0, text: `${spotName} · ${trackTitle}` },
-    { time: 3.5, text: `🎵 创作者：${creatorName} · ${spot?.location || spotName}` }
+    { time: 3.5, text: `创作者：${creatorName} · ${spot?.location || spotName}` }
   ];
 
   let currentTime = 7.0;

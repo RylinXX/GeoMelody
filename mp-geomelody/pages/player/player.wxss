@@ -148,10 +148,10 @@
 }
 
 .ctrl-btn.sub {
-  width: 80rpx;
+  width: 112rpx;
   height: 80rpx;
   color: #94a3b8;
-  font-size: 36rpx;
+  font-size: 22rpx;
 }
 
 .ctrl-btn.main {
@@ -164,8 +164,7 @@
 }
 
 .play-icon {
-  font-size: 48rpx;
-  margin-left: 4rpx;
+  font-size: 24rpx;
 }
 
 .footer-action {

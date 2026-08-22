@@ -1,0 +1,21 @@
+[Unit]
+Description=GeoMelody Community API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/etgq.com/server
+Environment=PYTHONUNBUFFERED=1
+Environment=GEOMELODY_HOST=127.0.0.1
+ExecStart=/usr/bin/python3 /www/wwwroot/etgq.com/server/api_server.py 8765
+Restart=on-failure
+RestartSec=3
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
