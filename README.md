@@ -1,7 +1,7 @@
-# 境音地图 · GeoMelody
-**以地图探索世界，用声音感受地方。**
+# 地韵 GeoMelody · 景观AI音乐工坊 (GeoMelody-Soundscape)
+**GeoMelody-Soundscape** · 以三维地图探索世界，用声音感知地理与景观的 AI 音乐探索工坊。
 
-GeoMelody 是一个以地理位置为入口的视听探索项目，将三维地图、地点内容、音频播放与社区交互结合。这个品牌仍贴合产品，因此保留 GeoMelody 名称，而不是为了改名改动品牌。
+GeoMelody 是一个以地理位置为入口的视听探索项目，将三维数字地球、空间音频、地方文化与景观音乐结合。
 
 [线上体验](https://etgq.com/)
 
